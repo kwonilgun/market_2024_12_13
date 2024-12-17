@@ -1,118 +1,107 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+/* eslint-disable prettier/prettier */
+/*
+ * File: App.tsx
+ * Project: root_project
+ * File Created: Wednesday, 14th February 2024
+ * Author: Kwonilgun(권일근) (kwonilgun@naver.com)
+ * Copyright : 루트원 AI
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useContext, useEffect} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {Provider} from 'react-redux';
+import {AuthProvider} from './context/store/Context.Manager';
+import MainTab from './Navigator/MainTab';
+import store from './Redux/Cart/Store/store';
+import {LogBox, Platform} from 'react-native';
+
+// import StartNotify from './Screen/Notification/StartNotify';
+// import SplashScreen from 'react-native-splash-screen';
+// import PushNotificationIOS from '@react-native-community/push-notification-ios';
+// import Badge from 'react-native-app-badge';
+import strings from './constants/lang';
 import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+  LanguageContext,
+  LanguageProvider,
+} from './context/store/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// import {Store} from './Redux/Slice/Store';
+// import strings from './constants/lang';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+// 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
+// const Stack = createStackNavigator<RootStackParamList>();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+// 2024-11-11 : 구글 sing in configuration
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+// GoogleSignin.configure({
+//   webClientId:
+//     '858777442491-14jgv82c6dgo732p6qjv5lhlndotdn4h.apps.googleusercontent.com',
+//   forceCodeForRefreshToken: true,
+//   offlineAccess: true,
+//   iosClientId:
+//     '858777442491-od1pqhd3ekeubrpv5a87d7d8g33f7k8a.apps.googleusercontent.com',
+// });
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+const App: React.FC = () => {
+  // const {changeLanguage} = useContext(LanguageContext);
+  useEffect(() => {
+    console.log('App.tsx:');
+    LogBox.ignoreLogs([
+      'Non-serializable values were found in the navigation state',
+    ]);
+
+    if (!__DEV__) {
+      console.log('This is in production mode and ignore console.log');
+      console.log = () => {};
+    } else {
+      console.log('This is in debug mode and activate console.log');
+    }
+
+    setLanguage();
+
+    // Only for iOS, set the badge count
+    // if (Platform.OS === 'ios') {
+    //   PushNotificationIOS.setApplicationIconBadgeNumber(0);
+    //   // notification.finish(PushNotificationIOS.FetchResult.NoData);
+    // } else {
+    //   Badge.setCount(0);
+    // }
+
+    // setTimeout(() => {
+    //   SplashScreen.hide();
+    // }, 2000);
+  }, []);
+
+  const setLanguage = async () => {
+    await AsyncStorage.setItem('language', 'kr');
+    strings.setLanguage('kr');
+
+    // if (language === 'kr') {
+    //   strings.setLanguage('kr');
+    //   // await AsyncStorage.setItem('language', 'kr');
+
+    //   // changeLanguage('kr');
+    // } else {
+    //   strings.setLanguage('en');
+    //   // await AsyncStorage.setItem('language', 'en');
+    //   // changeLanguage('en');
+    // }
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <AuthProvider>
+      <LanguageProvider>
+        <Provider store={store}>
+          <NavigationContainer>
+            {/* <StartNotify /> */}
+            <MainTab />
+          </NavigationContainer>
+        </Provider>
+      </LanguageProvider>
+    </AuthProvider>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
