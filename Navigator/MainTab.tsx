@@ -59,8 +59,14 @@ const MainTab: React.FC = () => {
           tabBarStyle: [
             {
               display: 'flex',
-              height: RFPercentage(7), // 적절한 높이 설정
-              paddingTop: RFPercentage(1),
+              backgroundColor: 'white',
+              alignItems: 'center',
+              alignContent: 'center',
+              // height: Math.round(intHeight * 0.08),
+              height: RFPercentage(8),
+              // width: width * 0.1,
+              borderTopWidth: 4, // 경계선 두께 (진하게 조정)
+              borderTopColor: 'black', // 경계선 색상 (예: 검정색)
             },
             null,
           ],

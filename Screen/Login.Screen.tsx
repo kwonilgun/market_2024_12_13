@@ -48,6 +48,7 @@ import {
   LOGIN_PASSWORD_ERROR,
 } from '../assets/common/BaseValue';
 import CheckBox from '@react-native-community/checkbox';
+// import {Checkbox} from 'react-native-paper';
 import GlobalStyles from '../styles/GlobalStyles';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
@@ -63,6 +64,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const {changeLanguage} = useContext(LanguageContext);
   const {language} = useLanguage();
   const [isAutoLogin, setIsAutoLogin] = useState<boolean>(false);
+
+  const [isChecked, setIsChecked] = useState(false);
+
+  const toggleCheckbox = () => {
+    setIsChecked(!isChecked);
+    // 여기에 다른 로직 추가 가능
+  };
 
   const {
     control,
@@ -252,7 +260,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
     console.log('onSubmit, dispatch, loggedInUser = ', data);
 
-    /* 
     const savedAutoLogin = await AsyncStorage.getItem('autoLogin');
     if (
       (isAutoLogin || savedAutoLogin === 'true') &&
@@ -315,7 +322,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             alertMsg(strings.ERROR, strings.NO_USER_AND_REGISTER_MEMBER);
             break;
         }
-      }); */
+      });
   };
 
   const togglePasswordVisibility = () => {
@@ -328,7 +335,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   const handleCheckboxChange = async (value: boolean) => {
-    console.log('Before state update: isAutoLogin:', isAutoLogin);
+    console.log('Before state update: isAutoLogin:', value);
     try {
       setIsAutoLogin(value);
       await AsyncStorage.setItem('autoLogin', value ? 'true' : 'false');
@@ -357,7 +364,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               color: 'black',
               marginRight: -RFPercentage(20),
               height: RFPercentage(8),
-              width: RFPercentage(20),
+              width: RFPercentage(8),
               fontSize: RFPercentage(6),
             }}
             name="sign-in"
@@ -374,10 +381,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           <FontAwesome
             style={{
               color: 'black',
-              marginRight: -RFPercentage(13),
+              marginRight: -RFPercentage(2),
               height: RFPercentage(8),
-              width: RFPercentage(20),
-              fontSize: RFPercentage(6),
+              width: RFPercentage(8),
+              fontSize: RFPercentage(5),
               fontWeight: 'bold',
             }}
             name="language"
@@ -465,7 +472,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                   style={[GlobalStyles.icon]}>
                   <Icon
                     name={passwordVisible ? 'eyeo' : 'eye'}
-                    size={25 * 2}
+                    size={RFPercentage(4)}
                     color="grey"
                   />
                 </TouchableOpacity>
@@ -488,23 +495,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 </Text>
               </View>
 
-              {/* <View style={GlobalStyles.checkboxContainer}> */}
+              <View style={GlobalStyles.checkboxContainer}>
+                <CheckBox
+                  value={isAutoLogin}
+                  onValueChange={handleCheckboxChange}
+                  boxType={'square'}
+                  style={[
+                    Platform.OS === 'ios'
+                      ? GlobalStyles.iosCheckbox
+                      : GlobalStyles.androidCheckbox,
+                  ]} // 크기 조정
+                  tintColors={{true: '#007BFF', false: '#000'}}
+                />
 
-              <CheckBox
-                value={isAutoLogin}
-                onValueChange={handleCheckboxChange}
-                boxType={'square'}
-                style={[
-                  Platform.OS === 'ios'
-                    ? GlobalStyles.iosCheckbox
-                    : GlobalStyles.androidCheckbox,
-                ]} // 크기 조정
-                tintColors={{true: '#007BFF', false: '#000'}}
-              />
-              <Text style={GlobalStyles.checkboxLabel}>
-                {strings.AUTO_LOGIN}
-              </Text>
-              {/* </View> */}
+                <Text style={GlobalStyles.checkboxLabel}>
+                  {strings.AUTO_LOGIN}
+                </Text>
+              </View>
 
               <View style={GlobalStyles.HStack_LOGIN}>
                 <TouchableOpacity
