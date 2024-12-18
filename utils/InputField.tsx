@@ -8,9 +8,10 @@ import {
   KeyboardTypeOptions,
   Platform,
 } from 'react-native';
-import {RFPercentage, RFValue} from 'react-native-responsive-fontsize';
+// import {RFPercentage} from 'react-native-responsive-fontsize';
 
-import {height} from '../assets/common/BaseValue';
+// import {height, width} from '../assets/common/BaseValue';
+import GlobalStyles from '../styles/GlobalStyles';
 
 interface InputFieldProps {
   control: any; // You can replace 'any' with the appropriate type for your control
@@ -45,7 +46,7 @@ InputFieldProps) => {
         rules={rules}
         render={({field: {onChange, onBlur, value}}) => (
           <TextInput
-            style={styles.input}
+            style={GlobalStyles.textInputField}
             placeholder={placeholder}
             placeholderTextColor={'grey'}
             onBlur={onBlur}
@@ -63,18 +64,18 @@ InputFieldProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  input: {
-    height: Platform.OS === 'android' ? 'auto' : height * 0.05,
-    width: 'auto',
-    margin: 5,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    borderColor: 'black',
-    borderRadius: 5,
-    fontSize: RFPercentage(1.8),
-    fontWeight: 'bold',
-  },
-});
+// const styles = StyleSheet.create({
+//   input: {
+//     height: Platform.OS === 'android' ? 'auto' : height * 0.05,
+//     width: width * 0.75,
+//     margin: RFPercentage(1),
+//     borderWidth: 1,
+//     paddingHorizontal: 10,
+//     borderColor: 'black',
+//     borderRadius: 5,
+//     fontSize: RFPercentage(1.8),
+//     fontWeight: 'bold',
+//   },
+// });
 
 export default InputField;
