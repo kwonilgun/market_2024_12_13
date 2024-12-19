@@ -129,6 +129,57 @@ const GlobalStyles = StyleSheet.create({
     fontSize: RFPercentage(1.8),
     fontWeight: 'bold',
   },
+  privacyCheckBoxText: {
+    margin: RFPercentage(1),
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+  privacyCheckBoxSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  usageText: {
+    margin: RFPercentage(2),
+    padding: RFPercentage(1),
+    textDecorationLine: 'underline',
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+  privacyText: {
+    marginHorizontal: RFPercentage(2),
+    padding: RFPercentage(1),
+    textDecorationLine: 'underline',
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+
+  buttonTextStyle: {
+    fontWeight: 'bold',
+    fontSize: RFPercentage(3), // Adjust the percentage based on your design
+    color: colors.white,
+  },
+  buttonStyle: {
+    width: 'auto',
+    height: 'auto',
+    marginHorizontal: RFPercentage(0.3),
+    // paddingHorizontal: RFPercentage(0.5),
+  },
+  buttonViewText: {
+    marginTop: RFPercentage(4),
+    // marginHorizontal: RFPercentage(3),
+    height: RFPercentage(8),
+    padding: RFPercentage(2),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    // alignContent: 'space-between',
+    alignItems: 'center',
+    // borderColor: 'blue',
+    // borderWidth: 1,
+    backgroundColor: colors.blue,
+    borderRadius: 5,
+  },
 });
 
 export default GlobalStyles;

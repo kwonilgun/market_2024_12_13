@@ -1,8 +1,8 @@
 import axios, {AxiosResponse} from 'axios';
-import {baseURL} from '../assets/common/BaseUrl';
+import {baseURL} from '../../assets/common/BaseUrl';
 import DeviceInfo from 'react-native-device-info';
-import {UserFormInput} from './model/interface/IAuthInfo';
-import {IAuthResult} from './model/interface/IAuthInfo';
+import {UserFormInput} from '../model/interface/IAuthInfo';
+import {IAuthResult} from '../model/interface/IAuthInfo';
 
 // 참조 사이트: https://yoo11052.tistory.com/155
 /*

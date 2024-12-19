@@ -14,26 +14,29 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import {useAuth} from '../context/store/Context.Manager';
+import {useAuth} from '../../context/store/Context.Manager';
 
 import {useForm, SubmitHandler} from 'react-hook-form';
 // import {getInfoOfPhoneNumberFromDb} from './useLogin';
-// import {branchByStatus} from './branchByStatus';
+import {branchByStatus} from './branchByStatus';
 
-import {UserFormInput} from './model/interface/IAuthInfo';
-import {LoginScreenProps} from './model/types/TUserNavigator';
-import InputField from '../utils/InputField';
+import {UserFormInput} from '../model/interface/IAuthInfo';
+import {LoginScreenProps} from '../model/types/TUserNavigator';
+import InputField from '../../utils/InputField';
 // import {styles} from './Profile';
 // import {SocketState} from '../Chat/socketSingleton';
 // import {ChatManager, INotification} from '../Chat/chatManager';
-import WrapperContainer from '../utils/basicForm/WrapperContainer';
-import HeaderComponent from '../utils/basicForm/HeaderComponents';
-import strings from '../constants/lang';
-import {alertMsg} from '../utils/alerts/alertMsg';
+import WrapperContainer from '../../utils/basicForm/WrapperContainer';
+import HeaderComponent from '../../utils/basicForm/HeaderComponents';
+import strings from '../../constants/lang';
+import {alertMsg} from '../../utils/alerts/alertMsg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LoadingWheel from '../utils/loading/LoadingWheel';
+import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {RFPercentage} from 'react-native-responsive-fontsize';
-import {LanguageContext, useLanguage} from '../context/store/LanguageContext';
+import {
+  LanguageContext,
+  useLanguage,
+} from '../../context/store/LanguageContext';
 // import {height} from '../../styles/responsiveSize';
 import {Image} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -46,10 +49,10 @@ import {getInfoOfEmailFromDb} from './useLogin';
 import {
   LOGIN_NO_EXIST_EMAIL,
   LOGIN_PASSWORD_ERROR,
-} from '../assets/common/BaseValue';
+} from '../../assets/common/BaseValue';
 import CheckBox from '@react-native-community/checkbox';
 // import {Checkbox} from 'react-native-paper';
-import GlobalStyles from '../styles/GlobalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // const [username, setUsername] = useState('');
@@ -64,13 +67,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const {changeLanguage} = useContext(LanguageContext);
   const {language} = useLanguage();
   const [isAutoLogin, setIsAutoLogin] = useState<boolean>(false);
-
-  const [isChecked, setIsChecked] = useState(false);
-
-  const toggleCheckbox = () => {
-    setIsChecked(!isChecked);
-    // 여기에 다른 로직 추가 가능
-  };
 
   const {
     control,
@@ -99,7 +95,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       initializeSocket();
 
       *****************************************/
-      loginLocalSaveAndGoToProfile();
+      loginLocalSaveAndGoToProduct();
     }
   }, [state.isAuthenticated]);
 
@@ -189,8 +185,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   // 2024-05-26 : 자동 로그인을 위해서 추가,
-  const loginLocalSaveAndGoToProfile = async () => {
+  const loginLocalSaveAndGoToProduct = async () => {
     try {
+      console.log('login/loginLocalSaveGoToProduct phoneNumber = ', state.user);
       await AsyncStorage.setItem('phoneNumber', state.user!.phoneNumber);
 
       // navigation.navigate('ProfileScreen', {userInfo: state.user!});
@@ -198,7 +195,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       // 2024-06-14 : 로그인 후에 home 메뉴로 간다.
 
       navigation.navigate('Home', {
-        screen: 'WifiTestScreen',
+        screen: 'ProductMainScreen',
       });
     } catch (error) {
       console.log('phoneNumber save to local error = ', error);
@@ -297,7 +294,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           console.log('branchByStatus.tsx 메세지 없음');
         }
 
-        //    branchByStatus({navigation}, element, dispatch);
+        branchByStatus({navigation}, element, dispatch);
       })
       .catch(error => {
         // 2024-11-17 : 이메일 로그인 에러 처리, 서버에서 에러를 보내는 경우 send와 json에 따라서 status가 달라진다.
@@ -421,7 +418,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 <View>
                   {/* 로고 이미지 삽입 */}
                   <Image
-                    source={require('../assets/images/package_002.png')} // 로컬 이미지 경로 사용
+                    source={require('../../assets/images/package_002.png')} // 로컬 이미지 경로 사용
                     style={GlobalStyles.logo} // 스타일을 통해 크기 조정
                     resizeMode="contain" // 이미지가 영역에 맞게 조정되도록 설정
                   />

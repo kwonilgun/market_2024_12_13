@@ -46,6 +46,7 @@ export type RootStackParamList = {
   SettingScreen: {plasmaSetting: IPlasmaSetting};
   StartScreen: {plasmaSetting: IPlasmaSetting};
   MembershipScreen: undefined;
+  ProductMainScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -166,6 +167,10 @@ export type AuthorizeScreenProps = {
 
 export type MembershipScreenProps = {
   route: RouteProp<RootStackParamList, 'MembershipScreen'>;
+};
+
+export type ProductMainScreenProps = {
+  route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
 };
 
 export type ProfileScreenProps = {

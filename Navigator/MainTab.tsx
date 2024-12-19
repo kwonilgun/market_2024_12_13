@@ -42,10 +42,7 @@ type RootTabParamList = {
 
 const MainTab: React.FC = () => {
   const {state} = useAuth();
-  // console.log(
-  //   'MainTab.jsx 진입 .... state.isAuthenticated = ',
-  //   state.isAuthenticated,
-  // );
+
   console.log('MainTab.jsx 진입 .... state.isAdmin = ', state.user?.isAdmin);
 
   return (
