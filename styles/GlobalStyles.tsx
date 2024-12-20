@@ -12,7 +12,7 @@ const GlobalStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    // backgroundColor: 'white',
+    backgroundColor: 'gainsboro',
   },
   VStack: {
     flex: 1,
@@ -157,14 +157,27 @@ const GlobalStyles = StyleSheet.create({
 
   buttonTextStyle: {
     fontWeight: 'bold',
-    fontSize: RFPercentage(3), // Adjust the percentage based on your design
+    fontSize: RFPercentage(2.5), // Adjust the percentage based on your design
     color: colors.white,
+    // alignItems: 'center',
   },
   buttonStyle: {
     width: 'auto',
     height: 'auto',
     marginHorizontal: RFPercentage(0.3),
     // paddingHorizontal: RFPercentage(0.5),
+  },
+  buttonSmall: {
+    marginTop: RFPercentage(1),
+    // marginHorizontal: RFPercentage(3),
+    // height: RFPercentage(),
+    padding: RFPercentage(1),
+    flexDirection: 'row',
+    justifyContent: 'center', // 수평 중앙 정렬
+    alignItems: 'center', // 수직 중앙 정렬
+    alignContent: 'center',
+    backgroundColor: colors.lightBlue,
+    borderRadius: 5,
   },
   buttonViewText: {
     marginTop: RFPercentage(4),

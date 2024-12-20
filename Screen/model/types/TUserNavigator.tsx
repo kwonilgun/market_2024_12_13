@@ -18,6 +18,8 @@ import {
   INotify,
   IPushNotify,
 } from '../../../Notification/PushNotificationScreen';
+import {IProduct} from '../interface/IProductInfo';
+import {ICompany} from '../interface/ICompany';
 
 export type RootStackParamList = {
   AdminScreen: undefined;
@@ -47,6 +49,7 @@ export type RootStackParamList = {
   StartScreen: {plasmaSetting: IPlasmaSetting};
   MembershipScreen: undefined;
   ProductMainScreen: undefined;
+  ProductDetailScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -170,7 +173,22 @@ export type MembershipScreenProps = {
 };
 
 export type ProductMainScreenProps = {
+  navigation: any;
   route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
+};
+
+export type ProductDetailScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'ProductDetailScreen'>;
+  route: {
+    params: {
+      item: IProduct;
+      companyInform: ICompany;
+    };
+  };
+  // items: IProduct;
+  // companyInform: ICompany;
+  addItemToCart: (product: {quantity: number; product: IProduct}) => void;
+  // cartItems: any[];
 };
 
 export type ProfileScreenProps = {
