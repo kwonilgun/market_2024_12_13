@@ -31,6 +31,7 @@ import * as actions from '../../Redux/Cart/Actions/cartActions';
 import {height, width} from '../../assets/common/BaseValue';
 import {baseURL} from '../../assets/common/BaseUrl';
 import {useLanguage} from '../../context/store/LanguageContext';
+import BottomSheet from './BottomSheet';
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -103,11 +104,11 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
         //    rightCustomView={RightCustomComponent}
       />
 
-      {/* <BottomSheet
+      <BottomSheet
         modalRef={modalRef}
-        item={props.item}
+        item={props.route.params.item}
         dProps={props}
-      /> */}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={GlobalStyles.containerKey}>

@@ -27,6 +27,7 @@ import UserNavigator from './UserNavigator';
 import {RFPercentage} from 'react-native-responsive-fontsize';
 import AdminNavigator from './AdminNavigator';
 import {Platform} from 'react-native';
+import CartNavigator from './CartNavigator';
 
 // const Tab = createBottomTabNavigator();
 
@@ -37,6 +38,8 @@ type RootTabParamList = {
   Home: undefined;
   'User Main': undefined;
   Admin: undefined;
+  ShoppingCart: undefined;
+
   // Chat: undefined;
 };
 
@@ -89,6 +92,37 @@ const MainTab: React.FC = () => {
                   }}
                   name="home"
                 />
+              ),
+            }}
+          />
+        ) : null}
+
+        {!state.user?.isAdmin &&
+        !state.user?.isProducer &&
+        state.isAuthenticated ? ( //소비자인 경우
+          <Tab.Screen
+            name="ShoppingCart"
+            component={CartNavigator}
+            options={{
+              tabBarIcon: ({color}) => (
+                <>
+                  <FontAwesome
+                    style={{
+                      color: color,
+                      // height: RFPercentage(7),
+                      // width: RFPercentage(10),
+                      height:
+                        Platform.OS === 'ios' ? undefined : RFPercentage(7),
+                      fontSize:
+                        Platform.OS === 'ios'
+                          ? RFPercentage(4)
+                          : RFPercentage(5.5),
+                    }}
+                    name="shopping-cart"
+                  />
+                  {/* 2023-06-20 :장바구니에 담겨진 갯수 표시 */}
+                  {/* <CartIcon /> */}
+                </>
               ),
             }}
           />

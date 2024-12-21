@@ -32,24 +32,15 @@ export type RootStackParamList = {
   AuthorizeScreen: {authInfo: IAuthInfo};
   OrderListsScreen: {orderInfo: IOrderInfo[]};
   OrderDetailScreen: {detailInfo: IOrderInfo};
-  WifiTestScreen: undefined;
-  SoftApScreen: undefined;
   SystemInfoScreen: undefined;
   MembershipUsageTermScreen: undefined;
   UsageTermScreen: undefined;
   MembershipPrivacyPolicyScreen: undefined;
   PrivacyPolicyScreen: undefined;
-  DeliveredNotificationScreen: undefined;
-  AlarmListScreen: undefined;
-  PushNotificationScreen: {notifySetting: INotify};
-  PushNotificationTimeScreen: {notifySetting: INotify};
-  PushNotificationDailyScreen: {notifySetting: INotify};
-  PushNotificationWeeklyScreen: {notifySetting: INotify};
-  SettingScreen: {plasmaSetting: IPlasmaSetting};
-  StartScreen: {plasmaSetting: IPlasmaSetting};
   MembershipScreen: undefined;
   ProductMainScreen: undefined;
   ProductDetailScreen: undefined;
+  CartMainScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -80,14 +71,6 @@ export type ChangePasswordScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'ChangePasswordScreen'>;
 };
 
-export type WifiTestScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'WifiTestScreen'>;
-};
-
-export type SoftApScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'SoftApScreen'>;
-};
-
 export type SystemInfoScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'SystemInfoScreen'>;
 };
@@ -114,62 +97,27 @@ export type PrivacyPolicyScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'PrivacyPolicyScreen'>;
 };
 
-export type DeliveredNotificationScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'DeliveredNotificationScreen'
-  >;
-};
-
-export type AlarmListScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'AlarmListScreen'>;
-};
-
-export type SettingScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'SettingScreen'>;
-  route: RouteProp<RootStackParamList, 'SettingScreen'>;
-};
-
-export type PushNotificationScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'PushNotificationScreen'>;
-  route: RouteProp<RootStackParamList, 'PushNotificationScreen'>;
-};
-
-export type PushNotificationTimeScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationTimeScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationTimeScreen'>;
-};
-
-export type PushNotificationDailyScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationDailyScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationDailyScreen'>;
-};
-
-export type PushNotificationWeeklyScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationWeeklyScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationWeeklyScreen'>;
-};
-
-export type StartScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'StartScreen'>;
-  route: RouteProp<RootStackParamList, 'StartScreen'>;
-};
-
 export type AuthorizeScreenProps = {
   route: RouteProp<RootStackParamList, 'AuthorizeScreen'>;
 };
 
 export type MembershipScreenProps = {
   route: RouteProp<RootStackParamList, 'MembershipScreen'>;
+};
+
+export type ProfileScreenProps = {
+  route: RouteProp<RootStackParamList, 'ProfileScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
+};
+
+export type OrderListsScreenProps = {
+  route: RouteProp<RootStackParamList, 'OrderListsScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderListsScreen'>;
+};
+
+export type OrderDetailScreenProps = {
+  route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
 };
 
 export type ProductMainScreenProps = {
@@ -191,17 +139,7 @@ export type ProductDetailScreenProps = {
   // cartItems: any[];
 };
 
-export type ProfileScreenProps = {
-  route: RouteProp<RootStackParamList, 'ProfileScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
-};
-
-export type OrderListsScreenProps = {
-  route: RouteProp<RootStackParamList, 'OrderListsScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'OrderListsScreen'>;
-};
-
-export type OrderDetailScreenProps = {
-  route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
+export type CartMainScreenProps = {
+  navigation: any;
+  route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
 };

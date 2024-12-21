@@ -9,6 +9,7 @@ import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import colors from '../../styles/colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {RFPercentage} from 'react-native-responsive-fontsize';
+import strings from '../../constants/lang';
 
 const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const onPressCenter = () => {
@@ -49,14 +50,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        isCenterView={true}
-        // centerText={strings.HOME}
-        centerCustomView={CenterCustomComponent}
+        // isCenterView={true}
+        centerText={strings.USER_PROFILE}
+        // centerCustomView={CenterCustomComponent}
         containerStyle={{paddingHorizontal: 8}}
-        // isLeftView={true}
+        isLeftView={false}
         // leftCustomView={LeftCustomComponent}
-        rightText={''}
-        rightTextStyle={{color: colors.lightBlue}}
+        // rightText={''}
+        // rightTextStyle={{color: colors.lightBlue}}
         onPressRight={() => {}}
         isRightView={true}
         rightCustomView={RightCustomComponent}

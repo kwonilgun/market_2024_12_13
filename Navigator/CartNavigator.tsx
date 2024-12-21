@@ -15,8 +15,9 @@ import React from 'react';
 
 import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from '../Screen/model/types/TUserNavigator';
-import ProductMainScreen from '../Screen/Products/ProductMainScreen';
-import ProductDetailScreen from '../Screen/Products/ProductDetailScreen';
+import CartMainScreen from '../Screen/Cart/CartMainScreen';
+// import ProductMainScreen from '../Screen/Products/ProductMainScreen';
+// import ProductDetailScreen from '../Screen/Products/ProductDetailScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -26,7 +27,7 @@ function MyStack() {
 
   return (
     <Stack.Navigator
-      initialRouteName="ProductMainScreen"
+      initialRouteName="CartMainScreen"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#e6efd0',
@@ -40,8 +41,8 @@ function MyStack() {
         },
       }}>
       <Stack.Screen
-        name="ProductMainScreen"
-        component={ProductMainScreen}
+        name="CartMainScreen"
+        component={CartMainScreen}
         options={({navigation, route}) => ({
           headerShown: false,
           headerLeft: () => null,
@@ -51,7 +52,7 @@ function MyStack() {
           // ),
         })}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="ProductDetailScreen"
         component={ProductDetailScreen}
         options={({navigation, route}) => ({
@@ -62,11 +63,11 @@ function MyStack() {
           //   <LogoTitle title="루트원 마켓" navigation={navigation} />
           // ),
         })}
-      />
+      /> */}
     </Stack.Navigator>
   );
 }
 
-export default function HomeNavigator() {
+export default function CartNavigator() {
   return <MyStack />;
 }

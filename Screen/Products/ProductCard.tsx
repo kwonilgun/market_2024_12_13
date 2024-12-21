@@ -26,11 +26,12 @@ import {IProduct} from '../model/interface/IProductInfo';
 import {height, width} from '../../assets/common/BaseValue';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RFPercentage} from 'react-native-responsive-fontsize';
+import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
 
 type ProductCardProps = {
   items: IProduct;
   navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
-  addItemToCart: (product: {quantity: number; product: IProduct}) => void;
+  addItemToCart: (cart: CartItem) => void;
 };
 
 const ProductCard: React.FC<ProductCardProps> = props => {

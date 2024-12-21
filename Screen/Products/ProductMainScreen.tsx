@@ -44,6 +44,7 @@ import {IProduct} from '../model/interface/IProductInfo';
 import {ICategory} from '../model/interface/ICategory';
 import {ICompany} from '../model/interface/ICompany';
 import ProductList from './ProductList';
+import strings from '../../constants/lang';
 
 const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
   const {state} = useAuth();
@@ -172,33 +173,33 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
         ];
   };
 
-  const onPressCenter = () => {
-    console.log('WifiTest center home click');
-  };
+  // const onPressCenter = () => {
+  //   console.log('WifiTest center home click');
+  // };
 
-  const CenterCustomComponent = () => {
-    return (
-      <TouchableOpacity onPress={onPressCenter}>
-        <>
-          <Icon style={{color: 'red', fontSize: RFPercentage(5)}} name="home" />
-        </>
-      </TouchableOpacity>
-    );
-  };
+  // const CenterCustomComponent = () => {
+  //   return (
+  //     <TouchableOpacity onPress={onPressCenter}>
+  //       <>
+  //         <Icon style={{color: 'red', fontSize: RFPercentage(5)}} name="home" />
+  //       </>
+  //     </TouchableOpacity>
+  //   );
+  // };
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        isCenterView={true}
-        // centerText={strings.HOME}
-        centerCustomView={CenterCustomComponent}
+        // isCenterView={true}
+        centerText={strings.HOME}
+        // centerCustomView={CenterCustomComponent}
         containerStyle={{paddingHorizontal: 8}}
-        // isLeftView={true}
+        isLeftView={false}
         // leftCustomView={LeftCustomComponent}
-        rightText={''}
-        rightTextStyle={{color: colors.lightBlue}}
-        onPressRight={() => {}}
-        // isRightView={true}
+        // rightText={''}
+        // rightTextStyle={{color: colors.lightBlue}}
+        // onPressRight={() => {}}
+        isRight={false}
         // rightCustomView={RightCustomComponent}
       />
 
