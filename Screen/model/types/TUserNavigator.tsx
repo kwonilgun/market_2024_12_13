@@ -45,7 +45,6 @@ export type RootStackParamList = {
   ProductMainScreen: undefined;
   ProductDetailScreen: undefined;
   CartMainScreen: undefined;
-  ShippingMainScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -150,10 +149,4 @@ export type CartMainScreenProps = {
   route: RouteProp<RootStackParamList, 'CartMainScreen'>;
   clearCart: () => void;
   removeFromCart: (item: CartItem) => void;
-};
-
-export type ShippingMainScreenProps = {
-  cart: CartItem[];
-  route: RouteProp<RootStackParamList, 'ShippingMainScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'ShippingMainScreen'>;
 };

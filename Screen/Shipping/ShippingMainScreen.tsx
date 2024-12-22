@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
@@ -20,13 +21,15 @@ import {useAuth} from '../../context/store/Context.Manager';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
 import {connect} from 'react-redux';
-import {ShippingMainScreenProps} from '../model/types/TUserNavigator';
+import {ShippingMainScreenProps} from '../model/types/TShippingNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getToken} from '../../utils/getSaveToken';
 import axios, {AxiosResponse} from 'axios';
 import {baseURL} from '../../assets/common/BaseUrl';
 import {alertMsg} from '../../utils/alerts/alertMsg';
 import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
+import LoadingWheel from '../../utils/loading/LoadingWheel';
+import {width} from '../../assets/common/BaseValue';
 
 const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -63,6 +66,24 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
     }, [state.isAuthenticated, props.cart]),
   );
 
+  const gotoShippingModify = async () => {
+    console.log('ShippingMainScreen : gotoShippingModify....');
+
+    const deliveryProfile = {
+      name: '',
+      address1: '',
+      address2: '',
+      phone: '',
+      deliveryMethod: 0,
+      deliveryId: '',
+      checkMark: false,
+    };
+
+    await AsyncStorage.setItem('deliveryInfo', JSON.stringify(deliveryProfile));
+
+    props.navigation.navigate('ShippingRegisterScreen');
+  };
+
   const getShippingInformationFromServer = async () => {
     try {
       const token = await getToken();
@@ -93,7 +114,7 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
         alertMsg('error', 'No delivery information found');
       }
     } catch (error) {
-      alertMsg('error', '배송지 정보 가져오지 못함.');
+      //  alertMsg('error', '배송지 정보 가져오지 못함.');
       console.log('Shipping.tsx error ' + error);
       //  props.navigation.navigate('UserMain', {screen: 'LoginScreen'});
     } finally {
@@ -127,11 +148,30 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
     props.navigation.navigate('Home', {screen: 'ProductMainScreen'});
   };
 
+  function addressInfoItems(list: any[], setDeliveryList: React.Dispatch<any>) {
+    return list.map((item, index) => (
+      <DeliveryCard
+        key={index}
+        name={item.name}
+        address1={item.address1}
+        address2={item.address2}
+        phone={item.phone}
+        deliveryMethod={item.deliveryMethod}
+        deliveryId={item.id}
+        navigation={props.navigation}
+        checkMark={item.checkMark}
+        deliveryList={list}
+        index={index}
+        setDeliveryList={setDeliveryList}
+      />
+    ));
+  }
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={strings.SYSINFO}
+        centerText={strings.SHIPPING}
         containerStyle={{paddingHorizontal: 8}}
         isRightView={false}
         isLeftView={false}
@@ -146,17 +186,81 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={GlobalStyles.containerKey}>
-        <ScrollView style={GlobalStyles.scrollView}>
-          <View style={GlobalStyles.VStack}>
-            <Text> Shipping Main Screen 테스트 </Text>
-          </View>
-        </ScrollView>
+        {loading ? (
+          <>
+            <LoadingWheel />
+          </>
+        ) : (
+          <>
+            {!isLogin ? (
+              <View style={{alignItems: 'center', marginTop: 10}}>
+                <Text style={{marginBottom: RFPercentage(2)}}>
+                  장바구니 선택은 로그인이 필요합니다.
+                </Text>
+                <View style={styles.loginView}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      console.log('CartMainScreen: 로그인 필요합니다. ');
+                    }}>
+                    <View style={GlobalStyles.buttonSmall}>
+                      <Text style={GlobalStyles.buttonTextStyle}>
+                        "로그인 필요합니다"
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : props.cart.length > 0 ? (
+              <ScrollView style={GlobalStyles.scrollView}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    margin: 10,
+                  }}>
+                  <TouchableOpacity onPress={gotoShippingModify}>
+                    <View style={GlobalStyles.buttonSmall}>
+                      <Text style={GlobalStyles.buttonTextStyle}>
+                        주소 추가
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      //   nextButtonAction(deliveryList, props);
+                    }}>
+                    <View style={GlobalStyles.buttonSmall}>
+                      <Text style={GlobalStyles.buttonTextStyle}>다음</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+
+                {deliveryLists(
+                  showUpDelivery,
+                  addressInfoItems,
+                  searchFocus ? deliveryFiltered : deliveryList,
+                  setDeliveryList,
+                )}
+              </ScrollView>
+            ) : (
+              <View style={{alignItems: 'center', marginTop: 20}}>
+                <Text style={{marginBottom: 10}}>Your cart is empty.</Text>
+                {/* <Button title="Select Products" onPress={gotoHomeMenu} /> */}
+              </View>
+            )}
+          </>
+        )}
       </KeyboardAvoidingView>
     </WrapperContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  loginView: {
+    margin: RFPercentage(2),
+    alignItems: 'flex-end',
+  },
   buttonText: {
     fontWeight: 'bold',
     fontSize: RFPercentage(2),
@@ -169,3 +273,38 @@ const mapStateToProps = (state: CartItem) => {
 };
 
 export default connect(mapStateToProps)(ShippingMainScreen);
+
+function deliveryLists(
+  showUpDelivery: boolean,
+  addressInfoItems: (
+    list: any[],
+    setDeliveryList: React.Dispatch<any>,
+  ) => JSX.Element[],
+  list: any[],
+  setDeliveryList: React.Dispatch<any>,
+) {
+  return (
+    <ScrollView>
+      <View style={{alignItems: 'center'}}>
+        <View
+          style={{
+            width: width * 0.9,
+            marginTop: 10,
+            borderWidth: 1,
+            borderRadius: 10,
+            backgroundColor: '#E2E8F0',
+          }}>
+          {showUpDelivery ? (
+            addressInfoItems(list, setDeliveryList)
+          ) : (
+            <View style={{alignItems: 'center', marginVertical: 20}}>
+              <Text style={{fontSize: 16, fontWeight: 'bold'}}>
+                배송지 주소 없음
+              </Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
