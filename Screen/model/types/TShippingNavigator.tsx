@@ -11,6 +11,7 @@ import {RouteProp} from '@react-navigation/native';
 import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 
 export type ShippingStackParamList = {
+  ShippingNavigator: {screen: string};
   ShippingMainScreen: undefined;
   ShippingRegisterScreen: undefined;
 };
