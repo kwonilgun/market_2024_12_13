@@ -30,7 +30,7 @@ export const GoToHome: React.FC<any> = props => {
 
 export const GoToLogin: React.FC<any> = props => {
   const gotoLoginMenu = () => {
-    props.navigation.navigate('User Main', {screen: 'LoginScreen'});
+    props.navigation.navigate('UserMain', {screen: 'LoginScreen'});
   };
   return (
     <View style={styles.containerLogin}>

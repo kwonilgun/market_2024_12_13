@@ -13,9 +13,9 @@ import {createStore, combineReducers} from 'redux';
 import {cartReducer} from '../Reducers/cartItems';
 import {CartItem} from '../Reducers/cartItems';
 import {CartAction} from '../Reducers/cartItems';
-import {chatReducer} from '../../Chat/Reducers/chatReducer';
-import {ChatItem} from '../../Chat/Reducers/chatReducer';
-import {ChatAction} from '../../Chat/Reducers/chatReducer';
+// import {chatReducer} from '../../Chat/Reducers/chatReducer';
+// import {ChatItem} from '../../Chat/Reducers/chatReducer';
+// import {ChatAction} from '../../Chat/Reducers/chatReducer';
 
 // State 타입 정의
 interface RootState {
@@ -23,13 +23,13 @@ interface RootState {
     state: CartItem[] | undefined,
     action: CartAction,
   ) => CartItem[] /* 타입 정의 */; // cartItems 리듀서의 상태 타입에 따라서 정의
-  chat: (state: ChatItem[] | undefined, action: ChatAction) => ChatItem[];
+  // chat: (state: ChatItem[] | undefined, action: ChatAction) => ChatItem[];
 }
 
 //reducers 함수들을 여기서 지정을 한다.
 const reducers = combineReducers<RootState>({
   cart: cartReducer,
-  chat: chatReducer,
+  // chat: chatReducer,
 });
 
 // 미들웨어 추가할 경우, applyMiddleware() 함수에 미들웨어를 추가하면 됨

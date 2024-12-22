@@ -16,15 +16,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     console.log('WifiTest center home click');
   };
 
-  const CenterCustomComponent = () => {
-    return (
-      <TouchableOpacity onPress={onPressCenter}>
-        <>
-          <Icon style={{color: 'red', fontSize: RFPercentage(5)}} name="user" />
-        </>
-      </TouchableOpacity>
-    );
-  };
+  // const CenterCustomComponent = () => {
+  //   return (
+  //     <TouchableOpacity onPress={onPressCenter}>
+  //       <>
+  //         <Icon style={{color: 'red', fontSize: RFPercentage(5)}} name="user" />
+  //       </>
+  //     </TouchableOpacity>
+  //   );
+  // };
 
   const onPressRight = () => {
     console.log('Profile.tsx onPressRight...');

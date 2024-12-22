@@ -40,9 +40,11 @@ const BottomSheet: React.FC<Props> = props => {
     number: number,
     item: Props['item'],
   ) => {
+    console.log('putInShoppingCart number, item', number, item);
     props.addItemToCart(number, item);
-    dProps.navigation.goBack();
+    //     dProps.navigation.goBack();
     dProps.navigation.navigate('ShoppingCart', {screen: 'CartMainMenu'});
+    modalRef.current?.close();
   };
 
   const buyItRightAway = async (
@@ -66,9 +68,9 @@ const BottomSheet: React.FC<Props> = props => {
     //2024-12-21 :나중에 데이터를 가져올 때는 JSON.parse를 사용하여 다시 객체로 변환해야 합니다:
     await AsyncStorage.setItem('deliveryInfo', JSON.stringify(resDelivery));
 
-    dProps.navigation.navigate('PaymentNavigator', {
-      screen: 'Shipping Information',
-    });
+    //     dProps.navigation.navigate('PaymentNavigator', {
+    //       screen: 'Shipping Information',
+    //     });
   };
 
   const incNum = () => {

@@ -15,7 +15,8 @@ import React from 'react';
 
 import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from '../Screen/model/types/TUserNavigator';
-import CartMainScreen from '../Screen/Cart/CartMainScreen';
+// import CartMainScreen from '../Screen/Cart/CartMainScreen';
+import ShippingMainScreen from '../Screen/Shipping/ShippingMainScreen';
 // import ProductMainScreen from '../Screen/Products/ProductMainScreen';
 // import ProductDetailScreen from '../Screen/Products/ProductDetailScreen';
 
@@ -27,7 +28,7 @@ function MyStack() {
 
   return (
     <Stack.Navigator
-      initialRouteName="CartMainScreen"
+      initialRouteName="ShippingMainScreen"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#e6efd0',
@@ -41,8 +42,8 @@ function MyStack() {
         },
       }}>
       <Stack.Screen
-        name="CartMainScreen"
-        component={CartMainScreen}
+        name="ShippingMainScreen"
+        component={ShippingMainScreen}
         options={({navigation, route}) => ({
           headerShown: false,
           headerLeft: () => null,
@@ -68,6 +69,6 @@ function MyStack() {
   );
 }
 
-export default function CartNavigator() {
+export default function ShippingNavigator() {
   return <MyStack />;
 }

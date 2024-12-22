@@ -1,0 +1,291 @@
+import React, { useCallback, useContext, useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  Button,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { connect } from 'react-redux';
+import AuthGlobal from '../../../../Context/store/AuthGlobal';
+import { LOG } from '../../../../Log/reactLogger';
+import { ToastShowFt } from '../../../../Shared/Alert/ToastShowFt';
+import { asyncStoreData } from '../../../../Shared/Async/AsyncStorageFt';
+import DeliveryCard from './DeliveryCard';
+import { useFocusEffect } from '@react-navigation/native';
+import { errorAlert } from '../../../../Shared/Alert/ErrorAlert';
+import { LoadingWheel } from '../../../../Shared/Loading/LoadingWheel';
+import { LogoTitle } from '../../../../Navigators/LogoTitle';
+import { baseURL } from '../../../../assets/common/baseUrl';
+import { devLOGError, devLOGInfo } from '../../../../Shared/debug/devLOGInfo';
+import { badgeStyle } from '../../../../Shared/Util/BadgeStyle';
+import { searchInputBox } from '../../../Products/ProductContainers';
+import {
+  PADDING_HEADER_SCROLLING,
+  PHONE_WIDTH_90,
+} from '../../../../assets/common/baseValues';
+
+const { width, height } = Dimensions.get('window');
+
+interface ShippingProps {
+  cartItems: any[];
+  navigation: any;
+}
+
+const Shipping: React.FC<ShippingProps> = (props) => {
+  const context = useContext(AuthGlobal);
+  const [deliveryList, setDeliveryList] = useState<any[]>([]);
+  const [deliveryFiltered, setDeliveryFilter] = useState<any[]>([]);
+  const [showUpDelivery, setShowUpDelivery] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchFocus, setSearchFocus] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [isLogin, setIsLogin] = useState(false);
+  const rxInformArray = useRef<any>();
+
+  useFocusEffect(
+    useCallback(() => {
+      devLOGInfo('Shipping.tsx : useFocusEffect: Enter');
+      if (context.stateUser.isAuthenticated) {
+        setIsLogin(true);
+      } else {
+        devLOGError('Shipping.tsx : useFocusEffect: Login required for checkout');
+        setIsLogin(false);
+        setLoading(false);
+        return;
+      }
+
+      if (props.cartItems.length > 0) {
+        getDeliveryInformationFromServer();
+      } else {
+        setLoading(false);
+      }
+
+      return () => {
+        devLOGInfo('Shipping.tsx : useFocusEffect: Exit');
+        setShowUpDelivery(false);
+        setLoading(true);
+      };
+    }, [context.stateUser.isAuthenticated, props])
+  );
+
+  const gotoShippingModify = () => {
+    devLOGInfo('Shipping.tsx : gotoShippingModify() : Enter');
+
+    const deliveryProfile = {
+      name: '',
+      address1: '',
+      address2: '',
+      phone: '',
+      deliveryMethod: 0,
+      deliveryId: '',
+      checkMark: false,
+    };
+
+    asyncStoreData('deliveryInfo', deliveryProfile)
+      .then(() => {
+        props.navigation.navigate('PaymentNavigator', {
+          screen: 'Cart Shipping Navigator',
+        });
+      })
+      .catch((e) => {
+        devLOGError('Shipping.tsx: Error fetching deliveryInfo ' + e);
+      });
+  };
+
+  const getDeliveryInformationFromServer = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwt');
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const res = await axios.get(
+        `${baseURL}delivery/${context.stateUser.user.userId}`,
+        config
+      );
+
+      if (res.status === 200 || res.status === 201) {
+        if (res.data.length === 0) {
+          setDeliveryList([]);
+        } else {
+          rxInformArray.current = res.data;
+          setDeliveryList(res.data);
+          setDeliveryFilter(res.data);
+          setShowUpDelivery(true);
+        }
+      } else if (res.status === 205) {
+        devLOGInfo('Shipping.tsx: No delivery information found');
+      } else {
+        ToastShowFt('error', 'No delivery information found');
+      }
+    } catch (error) {
+      ToastShowFt('error', 'Please login first');
+      devLOGInfo('Shipping.tsx error ' + error);
+      props.navigation.navigate('User Main', { screen: 'Login' });
+    } finally {
+      devLOGInfo('Shipping.tsx: Finished fetching delivery info');
+      setLoading(false);
+    }
+  };
+
+  const searchList = (id: string) => {
+    if (id === '') {
+      setDeliveryFilter(deliveryList);
+    }
+    setDeliveryFilter(
+      deliveryList.filter((i) => i.name.toLowerCase().includes(id.toLowerCase()))
+    );
+  };
+
+  const openList = () => setSearchFocus(true);
+
+  const onBlur = () => setSearchFocus(false);
+
+  const onAllChangeMark = () => {
+    const newList = (searchFocus ? deliveryFiltered : deliveryList).map(
+      (item) => ({ ...item, checkMark: !item.checkMark })
+    );
+    setDeliveryList(newList);
+  };
+
+  const gotoHomeMenu = () => {
+    props.navigation.navigate('Home', 'Home Menu');
+  };
+
+  return (
+    <>
+      {loading ? (
+        LoadingWheel
+      ) : (
+        <View style={{ backgroundColor: '#E2E8F0', height }}>
+          <LogoTitle title="Checkout" navigation={props.navigation} />
+          {!isLogin ? (
+            <View style={{ alignItems: 'center', marginTop: 20 }}>
+              <Text style={{ marginBottom: 10 }}>
+                You need to login to proceed with checkout.
+              </Text>
+              <Button
+                title="Go to Login"
+                onPress={() => {
+                  LOG.info('Shipping.tsx: Navigating to login menu.');
+                  props.navigation.navigate('User Main', 'Login');
+                }}
+              />
+            </View>
+          ) : props.cartItems.length > 0 ? (
+            <ScrollView>
+              {searchInputBox(
+                searchText,
+                openList,
+                searchFocus,
+                setSearchText,
+                searchList,
+                onBlur
+              )}
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 10 }}>
+                <TouchableOpacity onPress={gotoShippingModify}>
+                  {badgeStyle('Add Address', null)}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    nextButtonAction(deliveryList, props);
+                  }}
+                >
+                  {badgeStyle('Next', width * 0.2)}
+                </TouchableOpacity>
+              </View>
+
+              {deliveryLists(
+                showUpDelivery,
+                addressInfoItems,
+                searchFocus ? deliveryFiltered : deliveryList,
+                setDeliveryList
+              )}
+            </ScrollView>
+          ) : (
+            <View style={{ alignItems: 'center', marginTop: 20 }}>
+              <Text style={{ marginBottom: 10 }}>Your cart is empty.</Text>
+              <Button title="Select Products" onPress={gotoHomeMenu} />
+            </View>
+          )}
+        </View>
+      )}
+    </>
+  );
+
+  function addressInfoItems(list: any[], setDeliveryList: React.Dispatch<any>) {
+    return list.map((item, index) => (
+      <DeliveryCard
+        key={index}
+        name={item.name}
+        address1={item.address1}
+        address2={item.address2}
+        phone={item.phone}
+        deliveryMethod={item.deliveryMethod}
+        deliveryId={item.id}
+        navigation={props.navigation}
+        checkMark={item.checkMark}
+        deliveryList={list}
+        index={index}
+        setDeliveryList={setDeliveryList}
+      />
+    ));
+  }
+};
+
+const mapStateToProps = (state: any) => ({
+  cartItems: state.cartItems,
+});
+
+export default connect(mapStateToProps)(Shipping);
+
+const saveDeliveryList = async (key: string, value: any) => {
+  await AsyncStorage.setItem(key, JSON.stringify(value));
+};
+
+function nextButtonAction(deliveryList: any[], props: ShippingProps) {
+  const nextDelivery = deliveryList.filter((item) => item.checkMark);
+  if (nextDelivery.length === 0) {
+    devLOGError('Shipping.tsx: No delivery address selected.');
+    errorAlert('Delivery Error', 'Please select a delivery address.');
+  } else if (props.cartItems.length === 0) {
+    devLOGError('Shipping.tsx: Cart is empty.');
+    errorAlert('Error', 'Your cart is empty. Please select products first.');
+  } else {
+    devLOGInfo('Shipping.tsx: Proceeding to payment.');
+    saveDeliveryList('deliveryList', deliveryList);
+    props.navigation.navigate('Final Confirm');
+  }
+}
+
+function deliveryLists(
+  showUpDelivery: boolean,
+  addressInfoItems: (list: any[], setDeliveryList: React.Dispatch<any>) => JSX.Element[],
+  list: any[],
+  setDeliveryList: React.Dispatch<any>
+) {
+  return (
+    <ScrollView>
+      <View style={{ alignItems: 'center' }}>
+        <View style={{ width: width * 0.9, marginTop: 10, borderWidth: 1, borderRadius: 10, backgroundColor: '#E2E8F0' }}>
+          {showUpDelivery ? (
+            addressInfoItems(list, setDeliveryList)
+          ) : (
+            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold' }}>No delivery address available.</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </ScrollView>
+  );
+}

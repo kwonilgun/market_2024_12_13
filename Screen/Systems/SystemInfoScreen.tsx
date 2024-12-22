@@ -84,7 +84,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
       dispatch({type: 'LOGOUT'});
       // 소켓을 끊는다.
       //   disconnectSocket();
-      props.navigation.navigate('User Main', {screen: 'LoginScreen'});
+      props.navigation.navigate('UserMain', {screen: 'LoginScreen'});
     }
   };
 
@@ -106,7 +106,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
     confirmAlert(param);
   };
   const onPressLeft = () => {
-    props.navigation.navigate('User Main', {screen: 'ProfileScreen'});
+    props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
   };
 
   const selectLanguage = async () => {

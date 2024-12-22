@@ -30,7 +30,6 @@ import {connect} from 'react-redux';
 import * as actions from '../../Redux/Cart/Actions/cartActions';
 import {height, width} from '../../assets/common/BaseValue';
 import {baseURL} from '../../assets/common/BaseUrl';
-import {useLanguage} from '../../context/store/LanguageContext';
 import BottomSheet from './BottomSheet';
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {

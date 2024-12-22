@@ -2,7 +2,7 @@
 /*
  * File: TNavigator.tsx
  * Project: root_project
- * File Created: Thursday, 15th February 2024
+ * File Created: Thursday, 15th February 2024The navigation method (likely navigate() or push())
  * Author: Kwonilgun(권일근) (kwonilgun@naver.com)
  * Copyright <<projectCreationYear>> - 2024 루트원 AI, 루트원 AI
  */
@@ -11,17 +11,21 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {IAuthInfo} from '../interface/IAuthInfo';
 import {RouteProp} from '@react-navigation/native';
 import {UserFormInput} from '../interface/IAuthInfo';
-import {IOrderInfo} from '../../../Order/interface/IOrderInfo';
-import {IPlasmaSetting} from '../../../Wifi/SettingScreen';
-import {INotification} from '../../../Chat/chatManager';
-import {
-  INotify,
-  IPushNotify,
-} from '../../../Notification/PushNotificationScreen';
 import {IProduct} from '../interface/IProductInfo';
 import {ICompany} from '../interface/ICompany';
+import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 
 export type RootStackParamList = {
+  /* 💇‍♀️2024-12-21 :
+  The TypeScript error you're encountering indicates a type mismatch when trying to pass an array ["Home", { screen: string }] to a function or property expecting a specific structure for navigation parameters. This typically happens in a React Native project using a navigation library like React Navigation.
+
+  Root Cause
+  The navigation method (likely navigate() or push()) expects specific screen names and parameter types, but "Home" with { screen: string } does not match any of the expected types.
+  */
+  Home: {screen: string};
+  ShippingNavigator: {screen: string};
+  UserMain: {screen: string};
+
   AdminScreen: undefined;
   EditUsageTermScreen: undefined;
   EditPrivatePolicyScreen: undefined;
@@ -30,8 +34,8 @@ export type RootStackParamList = {
   ChangePasswordScreen: undefined;
   ProfileScreen: {userInfo: UserFormInput};
   AuthorizeScreen: {authInfo: IAuthInfo};
-  OrderListsScreen: {orderInfo: IOrderInfo[]};
-  OrderDetailScreen: {detailInfo: IOrderInfo};
+  // OrderListsScreen: {orderInfo: IOrderInfo[]};
+  // OrderDetailScreen: {detailInfo: IOrderInfo};
   SystemInfoScreen: undefined;
   MembershipUsageTermScreen: undefined;
   UsageTermScreen: undefined;
@@ -41,6 +45,7 @@ export type RootStackParamList = {
   ProductMainScreen: undefined;
   ProductDetailScreen: undefined;
   CartMainScreen: undefined;
+  ShippingMainScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -110,15 +115,15 @@ export type ProfileScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 };
 
-export type OrderListsScreenProps = {
-  route: RouteProp<RootStackParamList, 'OrderListsScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'OrderListsScreen'>;
-};
+// export type OrderListsScreenProps = {
+//   route: RouteProp<RootStackParamList, 'OrderListsScreen'>;
+//   navigation: StackNavigationProp<RootStackParamList, 'OrderListsScreen'>;
+// };
 
-export type OrderDetailScreenProps = {
-  route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
-};
+// export type OrderDetailScreenProps = {
+//   route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
+//   navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
+// };
 
 export type ProductMainScreenProps = {
   navigation: any;
@@ -140,6 +145,15 @@ export type ProductDetailScreenProps = {
 };
 
 export type CartMainScreenProps = {
-  navigation: any;
-  route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
+  cart: CartItem[];
+  navigation: StackNavigationProp<RootStackParamList, 'CartMainScreen'>;
+  route: RouteProp<RootStackParamList, 'CartMainScreen'>;
+  clearCart: () => void;
+  removeFromCart: (item: CartItem) => void;
+};
+
+export type ShippingMainScreenProps = {
+  cart: CartItem[];
+  route: RouteProp<RootStackParamList, 'ShippingMainScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'ShippingMainScreen'>;
 };
