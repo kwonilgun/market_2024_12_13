@@ -17,8 +17,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 // import CartMainScreen from '../Screen/Cart/CartMainScreen';
 import ShippingMainScreen from '../Screen/Shipping/ShippingMainScreen';
 import {ShippingStackParamList} from '../Screen/model/types/TShippingNavigator';
-// import ProductMainScreen from '../Screen/Products/ProductMainScreen';
-// import ProductDetailScreen from '../Screen/Products/ProductDetailScreen';
+import ShippingRegisterScreen from '../Screen/Shipping/ShippingRegisterScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<ShippingStackParamList>();
@@ -56,7 +55,7 @@ function MyStack() {
         options={({navigation, route}) => ({
           headerShown: false,
           headerLeft: () => null,
-          title: '쇼핑카트',
+          title: '주소록',
         })}
       />
       {/* <Stack.Screen

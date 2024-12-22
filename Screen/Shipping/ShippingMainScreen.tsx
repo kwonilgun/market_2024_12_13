@@ -81,7 +81,9 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
 
     await AsyncStorage.setItem('deliveryInfo', JSON.stringify(deliveryProfile));
 
-    props.navigation.navigate('ShippingRegisterScreen');
+    props.navigation.navigate('ShippingNavigator', {
+      screen: 'ShippingRegisterScreen',
+    });
   };
 
   const getShippingInformationFromServer = async () => {
@@ -173,8 +175,8 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
         rightPressActive={false}
         centerText={strings.SHIPPING}
         containerStyle={{paddingHorizontal: 8}}
-        isRightView={false}
         isLeftView={false}
+        isRight={false}
         //    leftCustomView={LeftCustomComponent}
         //    rightText={''}
         //    rightTextStyle={{color: colors.lightBlue}}

@@ -22,6 +22,9 @@ export type ShippingMainScreenProps = {
 };
 
 export type ShippingRegisterScreenProps = {
-  route: RouteProp<ShippingStackParamList, 'ShippingMainScreen'>;
-  navigation: StackNavigationProp<ShippingStackParamList, 'ShippingMainScreen'>;
+  route: RouteProp<ShippingStackParamList, 'ShippingRegisterScreen'>;
+  navigation: StackNavigationProp<
+    ShippingStackParamList,
+    'ShippingRegisterScreen'
+  >;
 };
