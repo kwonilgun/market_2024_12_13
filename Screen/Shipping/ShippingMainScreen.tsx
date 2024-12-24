@@ -32,6 +32,7 @@ import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {width} from '../../assets/common/BaseValue';
 import DeliveryCard from './DeliveryCard';
+import {errorAlert} from '../../utils/alerts/errorAlert';
 
 const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -152,7 +153,10 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
     props.navigation.navigate('Home', {screen: 'ProductMainScreen'});
   };
 
-  function addressInfoItems(list: any[], setDeliveryList: React.Dispatch<any>) {
+  function addressInfoItems(
+    list: IDeliveryInfo[],
+    setDeliveryList: React.Dispatch<any>,
+  ) {
     return list.map((item, index) => (
       <DeliveryCard
         key={index}
@@ -169,6 +173,32 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
         setDeliveryList={setDeliveryList}
       />
     ));
+  }
+
+  async function nextButtonAction(deliveryList: IDeliveryInfo[]) {
+    const nextDelivery = deliveryList.filter(item => {
+      return item.checkMark === true;
+    });
+    if (nextDelivery.length === 0) {
+      console.log('Shipping.jsx: 배송지가 없습니다. ');
+      errorAlert(
+        '배송지 에러',
+        '선택된 배송지가 없습니다. 배송지를 선택해 주세요',
+      );
+      return;
+    } else if (props.cart.length === 0) {
+      console.log('Shipping.jsx: 장바구니가 비어 있습니다.  ');
+      errorAlert('에러', '장바구니가 비어 있습니다. 상품을 먼저 선택해 주세요');
+      return;
+    } else {
+      console.log('Shipping.jsx: 다음 단계로 payment로 간다. ');
+
+      // 2023-09-16 : deliveryList를 파라미터롤 전달대신, 로컬스토로지로 저장해서 전달한다.
+      await AsyncStorage.setItem('deliveryList', JSON.stringify(nextDelivery));
+      props.navigation.navigate('PaymentNavigator', {
+        screen: 'PaymentMainScreen',
+      });
+    }
   }
 
   return (
@@ -226,7 +256,7 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
 
                   <TouchableOpacity
                     onPress={() => {
-                      //   nextButtonAction(deliveryList, props);
+                      nextButtonAction(deliveryList);
                     }}>
                     <View style={GlobalStyles.buttonSmall}>
                       <Text style={GlobalStyles.buttonTextStyle}>다음</Text>

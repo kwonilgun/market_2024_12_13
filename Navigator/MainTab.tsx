@@ -29,6 +29,7 @@ import AdminNavigator from './AdminNavigator';
 import {Platform} from 'react-native';
 import CartNavigator from './CartNavigator';
 import ShippingNavigator from './ShippingNavigator';
+import PaymentNavigator from './PaymentNavigator';
 
 // const Tab = createBottomTabNavigator();
 
@@ -41,6 +42,7 @@ type RootTabParamList = {
   Admin: undefined;
   ShoppingCart: undefined;
   ShippingNavigator: undefined;
+  PaymentNavigator: undefined;
 
   // Chat: undefined;
 };
@@ -138,6 +140,34 @@ const MainTab: React.FC = () => {
           <Tab.Screen
             name="ShippingNavigator"
             component={ShippingNavigator}
+            options={{
+              tabBarIcon: ({color}) => (
+                <FontAwesome
+                  style={{
+                    color: color,
+                    // height: RFPercentage(7),
+                    // width: RFPercentage(10),
+                    height: Platform.OS === 'ios' ? undefined : RFPercentage(7),
+                    fontSize:
+                      Platform.OS === 'ios'
+                        ? RFPercentage(3.5)
+                        : RFPercentage(5.5),
+                  }}
+                  name="truck"
+                />
+              ),
+            }}
+          />
+        ) : null}
+
+        {/* bank icon 이용방법 참조 사이트 : https://stackoverflow.com/questions/67581338/material-community-icons-do-not-show-in-react-native  */}
+        {!state.user?.isAdmin &&
+        !state.user?.isProducer &&
+        state.isAuthenticated ? (
+          //소비자인 경우
+          <Tab.Screen
+            name="PaymentNavigator"
+            component={PaymentNavigator}
             options={{
               tabBarIcon: ({color}) => (
                 <FontAwesome
