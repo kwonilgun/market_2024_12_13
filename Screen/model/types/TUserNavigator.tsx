@@ -23,8 +23,9 @@ export type RootStackParamList = {
   The navigation method (likely navigate() or push()) expects specific screen names and parameter types, but "Home" with { screen: string } does not match any of the expected types.
   */
   Home: {screen: string};
-  ShippingNavigator: {screen: string};
+
   UserMain: {screen: string};
+  ShippingNavigator: {screen: string};
 
   AdminScreen: undefined;
   EditUsageTermScreen: undefined;

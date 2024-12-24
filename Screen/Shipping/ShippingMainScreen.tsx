@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
@@ -30,6 +31,7 @@ import {alertMsg} from '../../utils/alerts/alertMsg';
 import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {width} from '../../assets/common/BaseValue';
+import DeliveryCard from './DeliveryCard';
 
 const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -69,13 +71,13 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
   const gotoShippingModify = async () => {
     console.log('ShippingMainScreen : gotoShippingModify....');
 
-    const deliveryProfile = {
+    const deliveryProfile: IDeliveryInfo = {
+      id: '',
       name: '',
       address1: '',
       address2: '',
       phone: '',
       deliveryMethod: 0,
-      deliveryId: '',
       checkMark: false,
     };
 
@@ -159,7 +161,7 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
         address2={item.address2}
         phone={item.phone}
         deliveryMethod={item.deliveryMethod}
-        deliveryId={item.id}
+        id={item.id}
         navigation={props.navigation}
         checkMark={item.checkMark}
         deliveryList={list}
@@ -177,12 +179,6 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
         isRight={false}
-        //    leftCustomView={LeftCustomComponent}
-        //    rightText={''}
-        //    rightTextStyle={{color: colors.lightBlue}}
-        //    onPressRight={() => {}}
-
-        //    rightCustomView={RightCustomComponent}
       />
 
       <KeyboardAvoidingView
@@ -247,7 +243,7 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
               </ScrollView>
             ) : (
               <View style={{alignItems: 'center', marginTop: 20}}>
-                <Text style={{marginBottom: 10}}>Your cart is empty.</Text>
+                <Text style={{marginBottom: 10}}>장바구니 비어있음</Text>
                 {/* <Button title="Select Products" onPress={gotoHomeMenu} /> */}
               </View>
             )}

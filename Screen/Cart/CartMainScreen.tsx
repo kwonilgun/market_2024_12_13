@@ -43,6 +43,7 @@ import {alertMsg} from '../../utils/alerts/alertMsg';
 import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
 import CartListCard from './CartListCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
 
 const CartMainScreen: React.FC<CartMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -84,13 +85,13 @@ const CartMainScreen: React.FC<CartMainScreenProps> = props => {
   );
 
   const gotoDeliveryScreen = async () => {
-    const resDelivery = {
-      name: null,
-      address1: null,
-      address2: null,
-      phone: null,
-      deliveryMethod: null,
-      deliveryId: null,
+    const resDelivery: IDeliveryInfo = {
+      id: '',
+      name: '',
+      address1: '',
+      address2: '',
+      phone: '',
+      deliveryMethod: 0,
       checkMark: false,
     };
     await AsyncStorage.setItem('deliveryInfo', JSON.stringify(resDelivery));

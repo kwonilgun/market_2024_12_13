@@ -18,6 +18,8 @@ import {createStackNavigator} from '@react-navigation/stack';
 import ShippingMainScreen from '../Screen/Shipping/ShippingMainScreen';
 import {ShippingStackParamList} from '../Screen/model/types/TShippingNavigator';
 import ShippingRegisterScreen from '../Screen/Shipping/ShippingRegisterScreen';
+import ShippingPostScreen from '../Screen/Shipping/ShippingPostScreen';
+import DeliveryModifyScreen from '../Screen/Shipping/DeliveryModifyScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<ShippingStackParamList>();
@@ -52,6 +54,24 @@ function MyStack() {
       <Stack.Screen
         name="ShippingRegisterScreen"
         component={ShippingRegisterScreen}
+        options={({navigation, route}) => ({
+          headerShown: false,
+          headerLeft: () => null,
+          title: '주소록',
+        })}
+      />
+      <Stack.Screen
+        name="ShippingPostScreen"
+        component={ShippingPostScreen}
+        options={({navigation, route}) => ({
+          headerShown: false,
+          headerLeft: () => null,
+          title: '주소록',
+        })}
+      />
+      <Stack.Screen
+        name="DeliveryModifyScreen"
+        component={DeliveryModifyScreen}
         options={({navigation, route}) => ({
           headerShown: false,
           headerLeft: () => null,

@@ -24,52 +24,166 @@ import {useFocusEffect} from '@react-navigation/native';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {ShippingRegisterScreenProps} from '../model/types/TShippingNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RNPickerSelect from 'react-native-picker-select';
-
-import deliveries from '../../assets/json/deliveries.json';
+import {SubmitHandler, useForm} from 'react-hook-form';
+import {UserFormInput} from '../model/interface/IAuthInfo';
+import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
+import InputField from '../../utils/InputField';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {width} from '../../assets/common/BaseValue';
+import {errorAlert} from '../../utils/alerts/errorAlert';
+import isEmpty from '../../utils/isEmpty';
+import {getToken} from '../../utils/getSaveToken';
+import axios, {AxiosResponse} from 'axios';
+import {baseURL} from '../../assets/common/BaseUrl';
+import {useAuth} from '../../context/store/Context.Manager';
+import {jwtDecode} from 'jwt-decode';
+import {alertMsg} from '../../utils/alerts/alertMsg';
+import {
+  confirmAlert,
+  ConfirmAlertParams,
+} from '../../utils/alerts/confirmAlert';
 // import {confirmAlert} from '../../utils/alerts/confirmAlert';
 
 const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
-  //   const {state, dispatch} = useAuth();
+  const {state, dispatch} = useAuth();
 
-  const [name, setName] = useState<string>('');
-  const [address1, setAddress1] = useState<string>('');
-  const [address2, setAddress2] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [deliveryMethod, setDeliveryMethod] = useState<number | undefined>(
-    undefined,
-  );
+  const [openMethod, setOpenMethod] = useState<boolean>(false);
+  const [valueMethod, setValueMethod] = useState<number>(0);
+  const [itemsMethod, setItemsMethod] = useState([
+    {label: '문앞에서', value: 0},
+    {label: '부재시 문앞에서', value: 1},
+    {label: '경비실', value: 2},
+    {label: '택배함', value: 3},
+    {label: '기타', value: 4},
+  ]);
+
+  const [loading, setLoading] = useState<boolean>(true);
+
   const [deliveryId, setDeliveryId] = useState<string>('');
   const [checkMark, setCheckMark] = useState<boolean>(false);
+
+  const {
+    control,
+    setValue,
+    getValues,
+    handleSubmit,
+    formState: {errors},
+    reset,
+  } = useForm<IDeliveryInfo>({
+    defaultValues: {
+      phone: '',
+      name: '',
+      address1: '',
+      address2: '',
+      deliveryMethod: 0,
+      checkMark: false,
+    },
+  });
 
   useFocusEffect(
     useCallback(() => {
       console.log('ShippingRegisterScreen : useFocusEffect');
       getShippingData();
 
-      return () => {};
+      return () => {
+        setLoading(true);
+      };
     }, []),
   );
 
   const getShippingData = async () => {
     const tmp = await AsyncStorage.getItem('deliveryInfo');
-    const data = JSON.parse(tmp!);
+    const data: IDeliveryInfo = JSON.parse(tmp!) as IDeliveryInfo;
+    console.log('getShippingData data = ', data);
 
-    setName(data.name);
-    setPhone(data.phone);
-    setAddress1(data.address1);
-    setAddress2(data.address2);
-    setDeliveryMethod(data.deliveryMethod);
-    setDeliveryId(data.deliveryId);
-    setCheckMark(data.checkMark);
+    //     if (data.address1) {
+    //       setValue('address1', data.address1); // 전달받은 주소를 폼에 반영
+    //     }
+
+    reset(data);
+    //
+    setValueMethod(data.deliveryMethod);
   };
 
-  const updateDeliveryInformToServer = () => {
-    console.log('updateDeliveryInformToServer ....');
-  };
+  const confirmUpload: SubmitHandler<IDeliveryInfo> = async data => {
+    console.log('업로드 사용자 주소 data = ', data);
 
+    const param: ConfirmAlertParams = {
+      title: strings.CONFIRMATION,
+      message: '배송지 업로드',
+      func: async (in_data: IDeliveryInfo) => {
+        console.log('업로드 confirm data = ', in_data);
+        const deliveryInfo: IDeliveryInfo = in_data;
+
+        const token = await getToken();
+        const decoded = jwtDecode(token!) as UserFormInput;
+        const config = {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        try {
+          const response: AxiosResponse = await axios.post(
+            `${baseURL}delivery/${decoded.userId}`,
+            JSON.stringify(deliveryInfo),
+            config,
+          );
+          if (response.status === 200 || response.status === 201) {
+            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+          } else if (response.status === 202) {
+            alertMsg('에러', '관리자 모드, 배송지 없음');
+          } else if (response.status === 203) {
+            alertMsg('에러', '생산자 모드, 배송지 없음');
+          }
+        } catch (error) {
+          // console.log('confirmUpload error, error = ', error);
+          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+        }
+      },
+      params: [data],
+    };
+
+    confirmAlert(param);
+  };
+  // 변경된 데이터 여부를 확인하는 함수
+  const isDataChanged = () => {
+    const currentValues = getValues();
+    // 여기에서 변경 여부를 확인하고 필요한 로직을 수행
+    console.log('currentValues = ', currentValues);
+
+    const isVacant: boolean =
+      isEmpty(currentValues.name) ||
+      isEmpty(currentValues.phone) ||
+      isEmpty(currentValues.address1);
+
+    console.log('isVacant = ', isVacant);
+    return !isVacant;
+  };
   const addressChange = () => {
     console.log('addressChange ...');
+  };
+
+  const openAddressBook = async () => {
+    const name = getValues('name');
+    const phone = getValues('phone');
+    const address1 = getValues('address1');
+    const address2 = getValues('address2');
+    const method = getValues('deliveryMethod');
+    const deliveryInform: IDeliveryInfo = {
+      id: '',
+      name: name,
+      phone: phone,
+      address1: address1,
+      address2: address2,
+      checkMark: false,
+      deliveryMethod: method!,
+    };
+    console.log('open address box... deliveryInform ', deliveryInform);
+
+    await AsyncStorage.setItem('deliveryInfo', JSON.stringify(deliveryInform));
+
+    props.navigation.navigate('ShippingPostScreen');
   };
 
   const onPressLeft = () => {
@@ -99,7 +213,7 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={strings.SYSINFO}
+        centerText="배송지 주소"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
@@ -109,53 +223,137 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={GlobalStyles.containerKey}>
-        <ScrollView style={GlobalStyles.scrollView}>
+        <ScrollView
+          style={GlobalStyles.scrollView}
+          keyboardShouldPersistTaps="handled">
           <View style={GlobalStyles.VStack}>
-            <Text style={styles.title}>배송지 정보 입력해주세요</Text>
+            {/* <Text style={styles.title}>배송지 정보 입력해주세요</Text> */}
 
-            <TextInput
-              style={styles.input}
-              placeholder="이름"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="주소"
-              value={address1}
-              onChangeText={setAddress1}
-            />
-            <TouchableOpacity
-              onPress={addressChange}
-              style={styles.searchButton}>
-              <Text style={styles.buttonText}>Find Address</Text>
-            </TouchableOpacity>
-            <TextInput
-              style={styles.input}
-              placeholder="상세주소"
-              value={address2}
-              onChangeText={setAddress2}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="전화번호"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-            <RNPickerSelect
-              placeholder={{label: 'Delivery Request', value: null}}
-              value={deliveryMethod}
-              onValueChange={value => setDeliveryMethod(value)}
-              items={deliveries.map((i: any, index: number) => ({
-                label: i.name,
-                value: index,
-              }))}
-            />
+            <Text style={GlobalStyles.inputTitle}>{strings.NAME}</Text>
+            <View style={GlobalStyles.HStack}>
+              <InputField
+                control={control}
+                rules={{
+                  required: true,
+                  minLength: 2,
+                  // maxLength: 11,
+                  // pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                }}
+                name="name"
+                placeholder={strings.PLEASE_ENTER_NAME}
+                keyboard="name-phone-pad" // 숫자 판으로 변경
+                // isEditable={false}
+              />
+              {errors.name && (
+                <Text style={GlobalStyles.errorMessage}>
+                  {strings.NAME} {strings.ERROR}
+                </Text>
+              )}
+            </View>
+
+            <Text style={GlobalStyles.inputTitle}>{strings.PHONE}</Text>
+            <View style={GlobalStyles.HStack}>
+              <InputField
+                control={control}
+                rules={{
+                  required: true,
+                  minLength: 11,
+                  maxLength: 11,
+                  pattern: /^01(?:0)\d{4}\d{4}$/,
+                }}
+                name="phone"
+                placeholder={strings.PLEASE_ENTER_TEL}
+                keyboard="phone-pad" // 숫자 판으로 변경
+                // isEditable={false}
+              />
+              {errors.phone && (
+                <Text style={GlobalStyles.errorMessage}>전화번호 에러.</Text>
+              )}
+            </View>
+
+            <Text style={GlobalStyles.inputTitle}>{strings.ADDRESS}</Text>
+            <View style={GlobalStyles.HStack}>
+              <InputField
+                control={control}
+                rules={{
+                  required: true,
+                  minLength: 2,
+                }}
+                name="address1"
+                placeholder={strings.PLEASE_ENTER_ADDRESS}
+                keyboard="default" // 기본 키보드로 변경
+              />
+              {errors.address1 && (
+                <Text style={GlobalStyles.errorMessage}>
+                  {strings.ADDRESS} {strings.ERROR}
+                </Text>
+              )}
+
+              <TouchableOpacity
+                onPress={openAddressBook}
+                style={[GlobalStyles.icon]}>
+                <FontAwesome
+                  name={'address-book'}
+                  size={RFPercentage(4)}
+                  color="grey"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={GlobalStyles.inputTitle}>
+              {strings.ADDRESS_DETAIL}
+            </Text>
+            <View style={GlobalStyles.HStack}>
+              <InputField
+                control={control}
+                rules={{
+                  required: true,
+                  minLength: 2,
+                }}
+                name="address2"
+                placeholder={strings.PLEASE_ENTER_ADDRESS_DETAIL}
+                keyboard="default" // 기본 키보드로 변경
+              />
+              {errors.address1 && (
+                <Text style={GlobalStyles.errorMessage}>
+                  {strings.ADDRESS} {strings.ERROR}
+                </Text>
+              )}
+            </View>
+
+            <View style={{flex: 0.8}}>
+              <Text style={GlobalStyles.inputTitle}>배송시 요청사항</Text>
+              <View style={styles.HCStack}>
+                <DropDownPicker
+                  style={{backgroundColor: 'gainsboro'}}
+                  listMode="MODAL"
+                  open={openMethod}
+                  value={valueMethod}
+                  items={itemsMethod}
+                  setOpen={setOpenMethod}
+                  setValue={setValueMethod}
+                  setItems={setItemsMethod}
+                  onChangeValue={value => {
+                    console.log('act value', value);
+                    setValue('deliveryMethod', Number(value));
+                  }} // 값이 바뀔 때마다 실행
+                  listItemContainerStyle={{
+                    margin: RFPercentage(2),
+                    backgroundColor: 'gainsboro',
+                  }}
+                />
+              </View>
+            </View>
             <TouchableOpacity
               onPress={
                 () => {
-                  console.log('save confirm....');
+                  if (isDataChanged()) {
+                    console.log('데이타가 변경되었습니다. ');
+                    handleSubmit(confirmUpload)();
+                  } else {
+                    // 데이터가 변경되지 않은 경우에 대한 로직을 수행
+                    errorAlert(strings.ERROR, strings.VACANT_DATA);
+                  }
                 }
                 //  confirmAlert(
                 //    'Confirmation',
@@ -164,7 +362,7 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
                 //  )
               }
               style={styles.saveButton}>
-              <Text style={styles.buttonText}>Save</Text>
+              <Text style={styles.buttonText}>{strings.UPLOAD}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -174,6 +372,14 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  HCStack: {
+    marginHorizontal: width * 0.1,
+    padding: 5,
+    flexDirection: 'row',
+    justifyContent: 'center',
+
+    alignItems: 'center',
+  },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -203,8 +409,9 @@ const styles = StyleSheet.create({
   saveButton: {
     alignItems: 'center',
     backgroundColor: '#28a745',
-    padding: 10,
-    borderRadius: 5,
+    marginTop: RFPercentage(1),
+    padding: RFPercentage(2),
+    borderRadius: RFPercentage(1),
   },
 });
 

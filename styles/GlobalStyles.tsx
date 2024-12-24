@@ -108,8 +108,6 @@ const GlobalStyles = StyleSheet.create({
     color: 'black',
     width: RFPercentage(4),
     height: RFPercentage(4),
-    //     borderColor: 'black',
-    //     borderWidth: 2,
   },
   androidCheckbox: {
     transform: [{scale: 1.6}],

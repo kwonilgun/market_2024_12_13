@@ -60,7 +60,7 @@ const BottomSheet: React.FC<Props> = props => {
       address1: null,
       address2: null,
       phone: null,
-      deliveryMethod: null,
+      deliveryMethod: 0,
       deliveryId: null,
       checkMark: false,
     };
