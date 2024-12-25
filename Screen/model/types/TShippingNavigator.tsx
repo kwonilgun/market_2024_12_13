@@ -12,6 +12,7 @@ import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 
 export type ShippingStackParamList = {
   Home: {screen: string};
+  PaymentNavigator: {screen: string};
   ShippingNavigator: {screen: string};
   ShippingMainScreen: undefined;
   ShippingRegisterScreen: undefined;

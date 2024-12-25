@@ -493,17 +493,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               </View>
 
               <View style={GlobalStyles.checkboxContainer}>
-                <CheckBox
+                {/* <CheckBox
                   value={isAutoLogin}
                   onValueChange={handleCheckboxChange}
                   boxType={'square'}
                   style={[
-                    Platform.OS === 'ios'
-                      ? GlobalStyles.iosCheckbox
-                      : GlobalStyles.androidCheckbox,
+                    Platform.OS === 'ios' ? GlobalStyles.iosCheckbox : {},
                   ]} // 크기 조정
-                  tintColors={{true: '#007BFF', false: '#000'}}
-                />
+                  tintColors={{true: 'blue', false: 'black'}}
+                /> */}
+
+                <TouchableOpacity
+                  style={{
+                    height: 24,
+                    width: 24,
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    backgroundColor: isAutoLogin ? '#007BFF' : 'transparent',
+                  }}
+                  onPress={() => handleCheckboxChange(!isAutoLogin)}>
+                  {isAutoLogin && (
+                    <Text style={{textAlign: 'center', color: 'white'}}>✔</Text>
+                  )}
+                </TouchableOpacity>
 
                 <Text style={GlobalStyles.checkboxLabel}>
                   {strings.AUTO_LOGIN}

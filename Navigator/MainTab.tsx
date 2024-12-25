@@ -181,7 +181,7 @@ const MainTab: React.FC = () => {
                         ? RFPercentage(3.5)
                         : RFPercentage(5.5),
                   }}
-                  name="truck"
+                  name="krw"
                 />
               ),
             }}

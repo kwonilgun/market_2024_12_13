@@ -12,11 +12,14 @@ import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 
 export type PaymentStackParamList = {
   Home: {screen: string};
+  UserMain: {screen: string};
   PaymentMainScreen: undefined;
 };
 
-export type ShippingMainScreenProps = {
+export type PaymentMainScreenProps = {
   cart: CartItem[];
   route: RouteProp<PaymentStackParamList, 'PaymentMainScreen'>;
   navigation: StackNavigationProp<PaymentStackParamList, 'PaymentMainScreen'>;
+  clearCart: () => void;
+  removeFromCart: (item: CartItem) => void;
 };

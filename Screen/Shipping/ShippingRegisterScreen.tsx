@@ -345,22 +345,15 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
               </View>
             </View>
             <TouchableOpacity
-              onPress={
-                () => {
-                  if (isDataChanged()) {
-                    console.log('데이타가 변경되었습니다. ');
-                    handleSubmit(confirmUpload)();
-                  } else {
-                    // 데이터가 변경되지 않은 경우에 대한 로직을 수행
-                    errorAlert(strings.ERROR, strings.VACANT_DATA);
-                  }
+              onPress={() => {
+                if (isDataChanged()) {
+                  console.log('데이타가 변경되었습니다. ');
+                  handleSubmit(confirmUpload)();
+                } else {
+                  // 데이터가 변경되지 않은 경우에 대한 로직을 수행
+                  errorAlert(strings.ERROR, strings.VACANT_DATA);
                 }
-                //  confirmAlert(
-                //    'Confirmation',
-                //    'Do you want to save this delivery information?',
-                //    updateDeliveryInformToServer,
-                //  )
-              }
+              }}
               style={styles.saveButton}>
               <Text style={styles.buttonText}>{strings.UPLOAD}</Text>
             </TouchableOpacity>

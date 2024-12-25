@@ -321,7 +321,7 @@ const MembershipScreen: React.FC<MembershipScreenProps> = props => {
 
             {/* 개인정보 동의 섹션 */}
             <View style={GlobalStyles.privacyCheckBoxSection}>
-              <CheckBox
+              {/* <CheckBox
                 value={isAgreed}
                 onValueChange={setIsAgreed}
                 // boxType={Platform.OS === 'ios' ? 'square' : undefined}
@@ -332,7 +332,22 @@ const MembershipScreen: React.FC<MembershipScreenProps> = props => {
                     : GlobalStyles.androidCheckbox
                 } // 크기 조정
                 tintColors={{true: '#007BFF', false: '#000'}}
-              />
+              /> */}
+
+              <TouchableOpacity
+                style={{
+                  height: 24,
+                  width: 24,
+                  borderWidth: 1,
+                  borderColor: 'black',
+                  backgroundColor: isAgreed ? '#007BFF' : 'transparent',
+                }}
+                onPress={() => setIsAgreed(!isAgreed)}>
+                {isAgreed && (
+                  <Text style={{textAlign: 'center', color: 'white'}}>✔</Text>
+                )}
+              </TouchableOpacity>
+
               <Text style={GlobalStyles.privacyCheckBoxText}>
                 {strings.AGREE_TO_PRIVACY_POLICY}
               </Text>

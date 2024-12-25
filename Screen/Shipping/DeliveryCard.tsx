@@ -90,11 +90,16 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
     setDeliveryList(deliveryList);
   };
 
+  function changeCheckValue(state: boolean) {
+    console.log('DeliveryCard.tsx: Checkbox state = ', state);
+    onChangeMark(state);
+  }
+
   return (
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
         <Text style={styles.name}>{name}</Text>
-        <CheckBox
+        {/* <CheckBox
           value={chkValue}
           onValueChange={(state: boolean) => {
             console.log('DeliveryCard.tsx: Checkbox state = ', state);
@@ -111,7 +116,22 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
               : GlobalStyles.androidCheckbox,
           ]} // 크기 조정
           tintColors={{true: '#007BFF', false: '#000'}}
-        />
+        /> */}
+
+        <TouchableOpacity
+          style={{
+            height: 24,
+            width: 24,
+            borderWidth: 1,
+            borderColor: 'black',
+            backgroundColor: chkValue ? '#007BFF' : 'transparent',
+          }}
+          onPress={() => changeCheckValue(!chkValue)}>
+          {chkValue && (
+            <Text style={{textAlign: 'center', color: 'white'}}>✔</Text>
+          )}
+        </TouchableOpacity>
+
         {/* <CheckBox
           value={chkValue}
           onValueChange={state => {
