@@ -15,6 +15,7 @@ import {IProduct} from '../interface/IProductInfo';
 import {ICompany} from '../interface/ICompany';
 import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 import {DataList} from '../../Orders/makeExpandable';
+import {IOrderInfo} from '../interface/IOrderInfo';
 
 export type RootStackParamList = {
   /* 💇‍♀️2024-12-21 :
@@ -48,6 +49,11 @@ export type RootStackParamList = {
   ProductDetailScreen: undefined;
   CartMainScreen: undefined;
   OrderListScreen: {items: DataList};
+  OrderDetailScreen: {
+    item: IOrderInfo;
+    actionFt: (id: string, props: any) => void;
+    orders: DataList;
+  };
 };
 
 // 2024-11-16 : Admin 추가
@@ -123,6 +129,11 @@ export type OrderListScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'OrderListScreen'>;
 };
 
+export type OrderDetailScreenProps = {
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
+};
 export type ProductMainScreenProps = {
   navigation: any;
   route: RouteProp<RootStackParamList, 'ProductMainScreen'>;

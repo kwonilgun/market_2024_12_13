@@ -1,6 +1,7 @@
 import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 
 export interface IOrderInfo {
+  id: string;
   address1: string;
   address2: string;
   buyerName: string;

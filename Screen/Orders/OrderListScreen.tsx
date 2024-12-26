@@ -3,19 +3,13 @@
 import React, {useEffect, useState} from 'react';
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Text,
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
-// import {Expandable} from '../../Admin/Shipping/Expandable';
-// import {updateLayout} from '../../../Shared/Orders/makeExpandable';
-// import {LogoTitle} from '../../../Navigators/LogoTitle';
-// import deleteOrder from '../../../Shared/Orders/OrderDelete';
-
 import {RFPercentage} from 'react-native-responsive-fontsize';
 import colors from '../../styles/colors';
 import isEmpty from '../../utils/isEmpty';
@@ -25,6 +19,7 @@ import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import {OrderListScreenProps} from '../model/types/TUserNavigator';
 import {DataList, updateLayout} from './makeExpandable';
 import {Expandable} from './Expandable';
+import deleteOrder from './deleteOrder';
 
 const OrderListScreen: React.FC<OrderListScreenProps> = ({
   route,
@@ -89,26 +84,28 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({
               <View style={styles.listContainer}>
                 {/* <Text style={styles.title}>주문리스트</Text> */}
 
-                {orders
-                  ? orders.map((item, index) => {
-                      if (!isEmpty(item.subtitle)) {
-                        return (
-                          <View key={index} style={styles.itemContainer}>
-                            <Expandable
-                              navigation={navigation}
-                              item={item}
-                              onClickFunction={() => {
-                                updateLayout(index, orders, setOrders);
-                              }}
-                              actionFt={'deleteOrder'}
-                              orders={orders}
-                            />
-                          </View>
-                        );
-                      }
-                      return null;
-                    })
-                  : null}
+                {orders ? (
+                  orders.map((item, index) => {
+                    if (!isEmpty(item.subtitle)) {
+                      return (
+                        <View key={index} style={styles.itemContainer}>
+                          <Expandable
+                            navigation={navigation}
+                            item={item}
+                            onClickFunction={() => {
+                              updateLayout(index, orders, setOrders);
+                            }}
+                            actionFt={deleteOrder}
+                            orders={orders}
+                          />
+                        </View>
+                      );
+                    }
+                    return null;
+                  })
+                ) : (
+                  <Text style={{textAlign: 'center'}}> 주문 정보 없음</Text>
+                )}
               </View>
             </ScrollView>
           </>

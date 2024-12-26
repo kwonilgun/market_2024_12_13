@@ -1,17 +1,18 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useCallback} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 
 import isEmpty from '../../utils/isEmpty';
 import {dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
-import {DataListItem} from './makeExpandable';
+import {DataList, DataListItem} from './makeExpandable';
 
 interface ExpandableProps {
   navigation: any;
   item: DataListItem;
   onClickFunction: () => void;
-  actionFt: any;
-  orders: any;
+  actionFt: (id: string, props: any) => void;
+  orders: DataList;
 }
 
 export const Expandable: React.FC<ExpandableProps> = ({
@@ -51,11 +52,11 @@ export const Expandable: React.FC<ExpandableProps> = ({
               key={key}
               onPress={() => {
                 console.log('Expandable.tsx : 주문 상세 정보 누름');
-                //  navigation.navigate('OrderedDetail', {
-                //    item: data,
-                //    actionFt: actionFt,
-                //    orders: orders,
-                //  });
+                navigation.navigate('OrderDetailScreen', {
+                  item: data,
+                  actionFt: actionFt,
+                  orders: orders,
+                });
               }}>
               <View style={styles.subtitleContainer}>
                 <Text style={styles.receiverName}>{data.receiverName} :</Text>

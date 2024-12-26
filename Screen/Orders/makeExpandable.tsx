@@ -43,24 +43,6 @@ export function makeExpandableDataList(
   setDataList(dataList);
 }
 
-// export function updateLayout(
-//   index: number,
-//   dataList: DataList,
-//   setDataList: (dataList: DataList) => void,
-// ): void {
-//   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-//   const updatedDataList = _.cloneDeep(dataList); // 깊은 복사
-
-//   updatedDataList.forEach((item, placeIndex) => {
-//     item.isExpanded = placeIndex === index;
-//   });
-
-//   console.log('updateLayout updatedDataList = ', updatedDataList);
-
-//   setDataList(updatedDataList);
-// }
-
 // 2023-10-18: Toggle isExpanded to allow expansion
 export function updateLayout(
   index: number,

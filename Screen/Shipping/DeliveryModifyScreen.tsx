@@ -38,6 +38,7 @@ import {baseURL} from '../../assets/common/BaseUrl';
 import {getToken} from '../../utils/getSaveToken';
 import {jwtDecode} from 'jwt-decode';
 import {UserFormInput} from '../model/interface/IAuthInfo';
+import {areJsonEqual} from '../../utils/etc/areJsonEqual';
 
 const DeliveryModifyScreen: React.FC<DeliveryModifyScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -235,10 +236,6 @@ const DeliveryModifyScreen: React.FC<DeliveryModifyScreenProps> = props => {
       </TouchableOpacity>
     );
   };
-
-  function areJsonEqual(json1: any, json2: any): boolean {
-    return JSON.stringify(json1) === JSON.stringify(json2);
-  }
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
