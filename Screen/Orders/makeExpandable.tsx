@@ -1,7 +1,8 @@
 import {LayoutAnimation} from 'react-native';
 import {IOrderInfo} from '../model/interface/IOrderInfo';
+import _ from 'lodash';
 
-type DataListItem = {
+export type DataListItem = {
   isExpanded: boolean; // 섹션이 확장되었는지 여부
   title: string; // 섹션의 제목 (연도와 월)
   subtitle: IOrderInfo[]; // 해당 월에 대한 데이터 배열
@@ -42,19 +43,47 @@ export function makeExpandableDataList(
   setDataList(dataList);
 }
 
+// export function updateLayout(
+//   index: number,
+//   dataList: DataList,
+//   setDataList: (dataList: DataList) => void,
+// ): void {
+//   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+//   const updatedDataList = _.cloneDeep(dataList); // 깊은 복사
+
+//   updatedDataList.forEach((item, placeIndex) => {
+//     item.isExpanded = placeIndex === index;
+//   });
+
+//   console.log('updateLayout updatedDataList = ', updatedDataList);
+
+//   setDataList(updatedDataList);
+// }
+
 // 2023-10-18: Toggle isExpanded to allow expansion
 export function updateLayout(
   index: number,
-  dataList: any[],
-  setDataList: (dataList: any[]) => void,
+  dataList: DataList,
+  setDataList: (dataList: DataList) => void,
 ): void {
   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  const array = [...dataList];
 
-  array.forEach((value, placeIndex) => {
-    array[placeIndex].isExpanded =
-      placeIndex === index ? !array[placeIndex].isExpanded : false;
+  console.log('array = ', dataList);
+
+  const updatedDataList = dataList.map((item, placeIndex) => {
+    return {
+      ...item, // 객체 복사
+      isExpanded:
+        placeIndex === index
+          ? (dataList[placeIndex]['isExpanded'] =
+              !dataList[placeIndex]['isExpanded'])
+          : (dataList[placeIndex]['isExpanded'] = false),
+      // 선택된 index만 true로 설정
+    };
   });
 
-  setDataList(array);
+  console.log('updateLayout  array = ', updatedDataList);
+
+  setDataList(updatedDataList);
 }

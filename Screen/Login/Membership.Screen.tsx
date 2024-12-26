@@ -321,30 +321,23 @@ const MembershipScreen: React.FC<MembershipScreenProps> = props => {
 
             {/* 개인정보 동의 섹션 */}
             <View style={GlobalStyles.privacyCheckBoxSection}>
-              {/* <CheckBox
-                value={isAgreed}
-                onValueChange={setIsAgreed}
-                // boxType={Platform.OS === 'ios' ? 'square' : undefined}
-                boxType={'square'}
-                style={
-                  Platform.OS === 'ios'
-                    ? GlobalStyles.iosCheckbox
-                    : GlobalStyles.androidCheckbox
-                } // 크기 조정
-                tintColors={{true: '#007BFF', false: '#000'}}
-              /> */}
-
               <TouchableOpacity
                 style={{
                   height: 24,
                   width: 24,
                   borderWidth: 1,
                   borderColor: 'black',
-                  backgroundColor: isAgreed ? '#007BFF' : 'transparent',
+                  backgroundColor: isAgreed ? 'transparent' : 'transparent',
                 }}
                 onPress={() => setIsAgreed(!isAgreed)}>
                 {isAgreed && (
-                  <Text style={{textAlign: 'center', color: 'white'}}>✔</Text>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      color: Platform.OS === 'ios' ? 'white' : 'black',
+                    }}>
+                    ✔
+                  </Text>
                 )}
               </TouchableOpacity>
 

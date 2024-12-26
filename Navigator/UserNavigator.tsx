@@ -13,15 +13,7 @@ import PrivacyPolicyScreen from '../Screen/TermsAndConditions/PrivacyPolicyScree
 import UsageTermScreen from '../Screen/TermsAndConditions/UsageTermScreen';
 import MembershipUsageTermScreen from '../Screen/TermsAndConditions/MembershipUsageTermScreen';
 import MembershipPrivacyPolicyScreen from '../Screen/TermsAndConditions/MembershipPrivacyPolicyScreen';
-
-// import AuthorizeScreen from '../../Screen/Login/Authorize.Screen';
-// import WifiTestScreen from '../../Screen/Wifi/WifiTestScreen';
-// import SettingScreen from '../../Screen/Wifi/SettingScreen';
-// import StartScreen from '../../Screen/Wifi/StartScreen';
-
-// import SoftApScreen from '../../Screen/Wifi/SoftApScreen';
-
-// import ChangePasswordScreen from '../../Screen/Login/ChangePassword.Screen';
+import OrderListScreen from '../Screen/Orders/OrderListScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -191,6 +183,21 @@ function MyStack() {
           })}
         />
       )}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="OrderListScreen"
+          component={OrderListScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
 
       {/* <Stack.Screen
         name="AuthorizeScreen"

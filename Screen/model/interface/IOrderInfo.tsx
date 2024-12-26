@@ -14,6 +14,8 @@ export interface IOrderInfo {
   producerName: string;
   producerPhone: string;
   realPayment: number;
+  receiverName: string;
+  receiverPhone: string;
   status: string;
   user: string;
 }

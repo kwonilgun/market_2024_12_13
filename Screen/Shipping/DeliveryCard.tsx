@@ -120,15 +120,22 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
 
         <TouchableOpacity
           style={{
-            height: 24,
-            width: 24,
+            height: RFPercentage(4),
+            width: RFPercentage(4),
             borderWidth: 1,
             borderColor: 'black',
-            backgroundColor: chkValue ? '#007BFF' : 'transparent',
+            backgroundColor: chkValue ? 'transparent' : 'transparent',
           }}
           onPress={() => changeCheckValue(!chkValue)}>
           {chkValue && (
-            <Text style={{textAlign: 'center', color: 'white'}}>✔</Text>
+            <Text
+              style={{
+                padding: RFPercentage(1),
+                textAlign: 'center',
+                color: Platform.OS === 'ios' ? 'white' : 'black',
+              }}>
+              ✔
+            </Text>
           )}
         </TouchableOpacity>
 

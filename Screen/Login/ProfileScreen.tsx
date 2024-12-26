@@ -33,8 +33,11 @@ import {DataList, makeExpandableDataList} from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {width} from '../../assets/common/BaseValue';
-import {useForm} from 'react-hook-form';
+import {SubmitHandler, useForm} from 'react-hook-form';
 import InputField from '../../utils/InputField';
+import isEmpty from '../../utils/isEmpty';
+import {areJsonEqual} from '../../utils/etc/areJsonEqual';
+import {errorAlert} from '../../utils/alerts/errorAlert';
 
 interface IUserInfo {
   nickName: string;
@@ -49,6 +52,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const [dataList, setDataList] = useState<DataList | null>(null);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
+  const userOriginalInfo = useRef<IUserInfo | null>(null);
 
   const {
     control,
@@ -102,6 +106,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
           nickName: response.data.nickName,
         };
         reset(userData);
+        userOriginalInfo.current = userData;
         setUserProfile(response.data);
       } else {
         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
@@ -177,6 +182,59 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     );
   };
 
+  const isVacancy = () => {
+    const currentValues = getValues();
+    // 여기에서 변경 여부를 확인하고 필요한 로직을 수행
+    console.log('currentValues = ', currentValues);
+
+    const isVacant: boolean = isEmpty(currentValues.phone);
+
+    console.log('isVacant = ', isVacant);
+    return isVacant;
+  };
+
+  const confirmUpload: SubmitHandler<IUserInfo> = async data => {
+    console.log('업로드 사용자 주소 data = ', data);
+
+    const token = await getToken();
+    const decoded = jwtDecode(token!) as UserFormInput;
+    //헤드 정보를 만든다.
+    const config = {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
+    try {
+      const response: AxiosResponse = await axios.put(
+        `${baseURL}users/market/${decoded.userId}`,
+        JSON.stringify(data),
+        config,
+      );
+      if (response.status === 200 || response.status === 201) {
+        alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+      }
+    } catch (error) {
+      alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+    }
+  };
+
+  const uploadUserInfo = () => {
+    console.log('사용자 정보 업로드');
+    if (!isVacancy()) {
+      console.log('데이타가 변경되었습니다. ');
+      const currentValues = getValues();
+      if (!areJsonEqual(currentValues, userOriginalInfo.current!)) {
+        handleSubmit(confirmUpload)();
+      } else {
+        errorAlert(strings.ERROR, strings.NO_CHANGE_DATA);
+      }
+    } else {
+      errorAlert(strings.ERROR, strings.VACANT_DATA);
+    }
+  };
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
@@ -223,7 +281,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 
                     <TouchableOpacity
                       onPress={() => {
-                        console.log('사용자 정보 업로드');
+                        uploadUserInfo();
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>{strings.UPLOAD}</Text>
@@ -273,6 +331,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                       )}
                     </View>
                   </View>
+                  {!userProfile?.isProducer && !userProfile?.isAdmin ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        console.log('click order list');
+                        props.navigation.navigate('OrderListScreen', {
+                          items: dataList!,
+                        });
+                      }}
+                      style={styles.orderButton}>
+                      <Text style={styles.buttonText}>주문 리스트</Text>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
@@ -345,6 +415,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#28a745',
     marginTop: RFPercentage(1),
     padding: RFPercentage(1),
+    borderRadius: RFPercentage(1),
+  },
+  orderButton: {
+    width: width * 0.88,
+    height: 'auto',
+    alignItems: 'center',
+    backgroundColor: '#28a745',
+    marginTop: RFPercentage(2),
+    padding: RFPercentage(2),
     borderRadius: RFPercentage(1),
   },
 });
