@@ -121,16 +121,6 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
     };
 
     confirmAlert(param);
-
-    //     confirmAlert(
-    //          '최종 확인',
-    //          ' 주문을 삭제하시겠습니까? ',
-    //          props.route.params.actionFt === 'deleteOrder'
-    //            ? deleteOrder
-    //            : null,
-    //          item.id,
-    //          props,
-    //        );
   };
 
   return (

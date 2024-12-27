@@ -221,6 +221,10 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
     modalRef.current?.open();
   };
 
+  const deleteCartOrder = (item: CartItem) => {
+    props.removeFromCart(item);
+  };
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
@@ -272,9 +276,30 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                         borderColor: 'black',
                         borderWidth: 2,
                       }}>
-                      <Text style={{fontWeight: 'bold'}}>
-                        상품: {item.product.brand || ''}
-                      </Text>
+                      <View style={styles.HStackHead}>
+                        <Text style={{fontWeight: 'bold'}}>
+                          상품: {item.product.brand || ''}
+                        </Text>
+
+                        <TouchableOpacity
+                          onPress={() => {
+                            const param: ConfirmAlertParams = {
+                              title: strings.CONFIRMATION,
+                              message: '주문을 삭제하시겠습니까?',
+
+                              func: () => {
+                                console.log('주문 삭제 실행.... ');
+                                // onPressStart();
+                                deleteCartOrder(item); // 상태 변경
+                              },
+                              params: [item],
+                            };
+                            confirmAlert(param);
+                          }}>
+                          <Text style={styles.trashIcon}>🗑️</Text>
+                        </TouchableOpacity>
+                      </View>
+
                       <Text>수량: {item.quantity * deliveryList.length}</Text>
                       <Text>송금할 금액: {amount}원</Text>
                       {deliveryList.map((item, index) =>
@@ -340,6 +365,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
   },
+  HStackHead: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignContent: 'center',
+  },
   container: {
     marginTop: 8,
     paddingBottom: 8,
@@ -361,6 +392,10 @@ const styles = StyleSheet.create({
   },
   address: {
     fontSize: 14,
+  },
+  trashIcon: {
+    color: 'blue',
+    fontSize: 20,
   },
 });
 

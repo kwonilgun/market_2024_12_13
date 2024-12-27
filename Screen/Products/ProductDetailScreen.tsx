@@ -31,6 +31,7 @@ import * as actions from '../../Redux/Cart/Actions/cartActions';
 import {height, width} from '../../assets/common/BaseValue';
 import {baseURL} from '../../assets/common/BaseUrl';
 import BottomSheet from './BottomSheet';
+import {showPriceInform} from '../Cart/showPriceInform';
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -91,16 +92,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        //    isCenterView={true}
         centerText={strings.SYSINFO}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
         rightText={''}
-        //    rightTextStyle={{color: colors.lightBlue}}
-        //    onPressRight={() => {}}
         isRightView={false}
-        //    rightCustomView={RightCustomComponent}
       />
 
       <BottomSheet
@@ -140,6 +137,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
                 resizeMode={FastImage.resizeMode.cover}
               />
             </View>
+
+            {showPriceInform(0, item.name, item.discount!, item.price!)}
+            <View style={styles.divider} />
+            <Text style={styles.boldText}>상품 설명</Text>
+            <Text style={styles.descriptionText}>{item.description}</Text>
+            <View style={styles.divider} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -223,8 +226,8 @@ const styles = StyleSheet.create({
     color: '#808080',
   },
   descriptionText: {
-    marginTop: 20,
-    padding: 16,
-    fontSize: 14,
+    marginTop: RFPercentage(1),
+    paddingHorizontal: RFPercentage(2),
+    fontSize: RFPercentage(1.5),
   },
 });

@@ -30,7 +30,10 @@ const deleteOrder = async (id: string, props: any) => {
       //  console.log('OrderDelete : 삭제된 orderList', orderList);
 
       alertMsg('success', '주문을 성공적으로 삭제함');
-      //  props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
+      //  props.navigation.goBack();
+      //  props.navigation.replace('UserMain', {screen: 'ProfileScreen'});
+      //  2024-12-27 : Maximum call stack size exceeded 에러 fix
+      props.navigation.replace('ProfileScreen');
     }
   } catch (error) {
     alertMsg(strings.ERROR, '삭제 실패함');

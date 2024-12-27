@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import {StyleSheet, Text, View} from 'react-native';
 import isEmpty from '../../utils/isEmpty';
+import {RFPercentage} from 'react-native-responsive-fontsize';
 
 export function showPriceInform(
   marginLeft: number,
@@ -9,7 +10,7 @@ export function showPriceInform(
   price: string,
 ) {
   return (
-    <View style={[styles.priceInfoContainer, {marginLeft}]}>
+    <View style={[styles.priceInfoContainer, {marginTop: RFPercentage(1)}]}>
       <Text style={styles.productName}>
         {name.length > 15 ? name.substring(0, 12) + '...' : name}
       </Text>
@@ -50,27 +51,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   productName: {
-    fontSize: 14,
+    fontSize: RFPercentage(2),
     fontWeight: 'bold',
+    marginVertical: RFPercentage(0.5),
   },
   discountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   discountText: {
+    fontSize: RFPercentage(2),
+    fontWeight: 'bold',
+    marginVertical: RFPercentage(0.5),
     color: 'red',
-    fontSize: 12,
   },
   strikethroughPrice: {
     textDecorationLine: 'line-through',
     fontSize: 12,
   },
   priceText: {
-    fontSize: 12,
+    fontSize: RFPercentage(2),
+    fontWeight: 'bold',
+    marginVertical: RFPercentage(0.5),
   },
   finalPriceText: {
-    fontSize: 14,
+    fontSize: RFPercentage(2),
     fontWeight: 'bold',
+    marginVertical: RFPercentage(0.5),
   },
   freeShippingContainer: {
     marginTop: 5,
