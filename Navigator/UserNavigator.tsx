@@ -15,6 +15,7 @@ import MembershipUsageTermScreen from '../Screen/TermsAndConditions/MembershipUs
 import MembershipPrivacyPolicyScreen from '../Screen/TermsAndConditions/MembershipPrivacyPolicyScreen';
 import OrderListScreen from '../Screen/Orders/OrderListScreen';
 import OrderDetailScreen from '../Screen/Orders/OrderDetailScreen';
+import ChatMainScreen from '../Screen/Chat/ChatMainScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -208,6 +209,21 @@ function MyStack() {
             headerShown: false,
             headerLeft: () => null,
             title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="ChatMainScreen"
+          component={ChatMainScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '채팅방',
             // headerTitle: props => (
             //   <LogoTitle title="루트원 마켓" navigation={navigation} />
             // ),

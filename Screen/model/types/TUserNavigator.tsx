@@ -16,6 +16,7 @@ import {ICompany} from '../interface/ICompany';
 import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 import {DataList} from '../../Orders/makeExpandable';
 import {IOrderInfo} from '../interface/IOrderInfo';
+import {SocketItem} from '../../../Redux/Cart/Reducers/socketItems';
 
 export type RootStackParamList = {
   /* 💇‍♀️2024-12-21 :
@@ -54,6 +55,7 @@ export type RootStackParamList = {
     actionFt: (id: string, props: any) => void;
     orders: DataList;
   };
+  ChatMainScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -159,4 +161,13 @@ export type CartMainScreenProps = {
   route: RouteProp<RootStackParamList, 'CartMainScreen'>;
   clearCart: () => void;
   removeFromCart: (item: CartItem) => void;
+};
+
+export type ChatMainScreenProps = {
+  socketItem: SocketItem[];
+  navigation: StackNavigationProp<RootStackParamList, 'ChatMainScreen'>;
+  route: RouteProp<RootStackParamList, 'ChatMainScreen'>;
+  clearSocket: () => void;
+  removeFromSocket: (item: SocketItem) => void;
+  addToSocket: (item: SocketItem) => void;
 };

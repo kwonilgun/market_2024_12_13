@@ -332,16 +332,27 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                     </View>
                   </View>
                   {!userProfile?.isProducer && !userProfile?.isAdmin ? (
-                    <TouchableOpacity
-                      onPress={() => {
-                        console.log('click order list');
-                        props.navigation.navigate('OrderListScreen', {
-                          items: dataList!,
-                        });
-                      }}
-                      style={styles.orderButton}>
-                      <Text style={styles.buttonText}>주문 리스트</Text>
-                    </TouchableOpacity>
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          console.log('click order list');
+                          props.navigation.navigate('OrderListScreen', {
+                            items: dataList!,
+                          });
+                        }}
+                        style={styles.orderButton}>
+                        <Text style={styles.buttonText}>주문 리스트</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => {
+                          console.log('채팅 문의 ....');
+                          props.navigation.navigate('ChatMainScreen');
+                        }}
+                        style={styles.orderButton}>
+                        <Text style={styles.buttonText}>채팅 문의</Text>
+                      </TouchableOpacity>
+                    </View>
                   ) : null}
                 </View>
               </ScrollView>

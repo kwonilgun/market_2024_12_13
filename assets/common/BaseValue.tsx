@@ -43,3 +43,6 @@ export const OZS_PRIVACY_AGREEMENT_EN_ID = '8';
 export const LOGIN_NO_EXIST_EMAIL = 400;
 export const LOGIN_ALREADY_EXIST_EMAIL = 400;
 export const LOGIN_PASSWORD_ERROR = 401;
+
+// 2024-12-30 : chatting 매니저 등록 id
+export const MANAGER_ID = '2f6404d2-d095-4ee7-b908-1806937456c6';

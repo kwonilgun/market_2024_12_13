@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import React, {createContext, useReducer, useContext, ReactNode} from 'react';
 
 import {
@@ -22,6 +23,13 @@ import {
   initialAuthState,
 } from './Auth.Login';
 
+import {
+  socketState,
+  socketReducer,
+  socketAction,
+  initialSocket,
+} from './Socket.Login';
+
 // Context 생성
 const AuthContext = createContext<
   | {
@@ -33,6 +41,9 @@ const AuthContext = createContext<
 
       badgeCountState: BadgeCountState;
       badgeCountDispatch: React.Dispatch<BadgeCountAction>;
+
+      socketState: socketState;
+      socketDispatch: React.Dispatch<socketAction>;
     }
   | undefined
 >(undefined);
@@ -53,6 +64,11 @@ const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
     initialStateBadgeCount,
   );
 
+  const [socketState, socketDispatch] = useReducer(
+    socketReducer,
+    initialSocket,
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -65,6 +81,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         // ozsRunning
         badgeCountState,
         badgeCountDispatch,
+
+        //2024-12-28 : socket 관리
+        socketState,
+        socketDispatch,
       }}>
       {children}
     </AuthContext.Provider>
