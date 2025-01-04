@@ -2,8 +2,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 import React, {useCallback, useRef, useState} from 'react';
-
-import {ProfileScreenProps} from '../model/types/TUserNavigator';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -29,7 +27,6 @@ import {baseURL} from '../../assets/common/BaseUrl';
 import {alertMsg} from '../../utils/alerts/alertMsg';
 import {IOrderInfo} from '../model/interface/IOrderInfo';
 import groupBy from 'group-by';
-import {DataList, makeExpandableDataList} from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {width} from '../../assets/common/BaseValue';
@@ -38,22 +35,31 @@ import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
 import {areJsonEqual} from '../../utils/etc/areJsonEqual';
 import {errorAlert} from '../../utils/alerts/errorAlert';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {ChatRegisterScreenProps} from '../model/types/TUserNavigator';
+import {
+  confirmAlert,
+  ConfirmAlertParams,
+} from '../../utils/alerts/confirmAlert';
 
-interface IUserInfo {
+interface IChatUserInfo {
   nickName: string;
   phone: string;
   email: string;
+  groupName?: string;
+  isManager?: boolean;
 }
 
-const ProfileScreen: React.FC<ProfileScreenProps> = props => {
+const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
   const {state, dispatch} = useAuth();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [chatUser, setChatUser] = useState<IChatUserInfo | null>(null);
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
-  const [dataList, setDataList] = useState<DataList | null>(null);
+
   // const [producersGroup, setProducerGroup] = useState({});
-  const userIdRef = useRef<string>('');
-  const userOriginalInfo = useRef<IUserInfo | null>(null);
+  //   const userIdRef = useRef<string>('');
+  //   const userOriginalInfo = useRef<IUserInfo | null>(null);
 
   const {
     control,
@@ -62,57 +68,54 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     handleSubmit,
     formState: {errors},
     reset,
-  } = useForm<IUserInfo>({
+  } = useForm<IChatUserInfo>({
     defaultValues: {
       phone: '',
       nickName: '',
       email: '',
+      groupName: '', //APT 이름
+      isManager: false,
     },
   });
 
   useFocusEffect(
     useCallback(() => {
       console.log(
-        'UserProfile.tsx: useFocusEffect : isAuthenticated = ',
+        'ChatRegisterScreen: useFocusEffect : isAuthenticated = ',
         state.isAuthenticated,
       );
 
       setIsLogin(true);
-      getUserProfile();
-      checkOrderList();
+      existChatUserInfo();
+      //  makeChatUserInfo();
 
       return () => {
+        //    reset();
         setUserProfile(null);
       };
     }, []),
   );
 
-  const getUserProfile = async () => {
+  const existChatUserInfo = async () => {
     const token = await getToken();
-    const decoded = jwtDecode(token!) as UserFormInput;
-    const userId = decoded.userId;
-    console.log('userProfile userId= ', userId);
-    userIdRef.current = userId!;
-
+    //헤드 정보를 만든다.
+    const config = {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Authorization: `Bearer ${token}`,
+      },
+      params: {email: state.user?.nickName},
+    };
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}users/${userId}`,
-        {
-          headers: {Authorization: `Bearer ${token}`},
-        },
+        `${baseURL}messages/user`,
+        config,
       );
       if (response.status === 200) {
-        // console.log('ProfileScreen 사용자 데이터 = ', response.data);
-        const userData: IUserInfo = {
-          phone: response.data.phone,
-          nickName: response.data.nickName,
-          email: response.data.email,
-        };
-        reset(userData);
-        userOriginalInfo.current = userData;
-        setUserProfile(response.data);
+        reset(response.data);
+        setChatUser(response.data);
       } else {
-        alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
+        alertMsg(strings.ERROR, '사용자 정보 없음');
       }
     } catch (error) {
       console.log('ProfileScreen get user error = ', error);
@@ -120,135 +123,168 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     }
   };
 
-  const checkOrderList = async () => {
-    try {
-      const response: AxiosResponse = await axios.get(
-        `${baseURL}orders/${userIdRef.current}`,
-      );
+  //   const makeChatUserInfo = async () => {
+  //     const token = await getToken();
+  //     const decoded = jwtDecode(token!) as UserFormInput;
+  //     const userId = decoded.userId;
+  //     console.log('userProfile userId= ', userId);
 
-      const orders = response.data as IOrderInfo[];
-
-      if (orders.length) {
-        // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
-        orders.sort(
-          (a, b) =>
-            new Date(b.dateOrdered).getTime() -
-            new Date(a.dateOrdered).getTime(),
-        );
-
-        //💇‍♀️2023-05-22 :생산자 전화번호에  따라서 그룹핑을 한다. 전화번호는 변경이 되지 않기 때문에 이것을 이용해서 그룹핑을 하고, 생산자는 해당 정보에서 추출하면 된다. 전화번호가 핵심이다.
-
-        /***
-            Record는 TypeScript에서 제공하는 유틸리티 타입 중 하나로, 특정 키-값 쌍의 구조를 정의할 때 사용됩니다. Record는 다음과 같은 형태로 사용됩니다:
-            Record<KeyType, ValueType>
-            주요 특징
-            KeyType: 객체의 키에 사용할 타입. 보통 string, number, symbol 또는 이러한 타입의 유니온을 사용합니다.
-            ValueType: 각 키에 해당하는 값의 타입.
-            Record를 사용하면 특정 키-값 쌍을 효율적으로 정의하고 타입 안전성을 유지할 수 있습니다.
-        ****/
-        const result: Record<string, IOrderInfo[]> = groupBy(
-          orders,
-          'producerPhone',
-        );
-
-        console.log('checkOrderList result', result);
-
-        // setProducerGroup(result);
-        makeExpandableDataList(orders, setDataList);
-
-        // setLoading(false);
-      }
-    } catch (error) {
-      console.log('ProfileScreen CheckOrderList error', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onPressRight = () => {
-    console.log('Profile.tsx onPressRight...');
-    props.navigation.navigate('SystemInfoScreen');
-  };
-
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const RightCustomComponent = () => {
-    return (
-      <TouchableOpacity onPress={onPressRight}>
-        <>
-          {/* <Text style={styles.leftTextStyle}>홈</Text> */}
-          <Icon
-            style={{color: colors.lightBlue, fontSize: RFPercentage(5)}}
-            name="gear"
-          />
-        </>
-      </TouchableOpacity>
-    );
-  };
+  //     try {
+  //       const response: AxiosResponse = await axios.get(
+  //         `${baseURL}users/${userId}`,
+  //         {
+  //           headers: {Authorization: `Bearer ${token}`},
+  //         },
+  //       );
+  //       if (response.status === 200) {
+  //         // console.log('ProfileScreen 사용자 데이터 = ', response.data);
+  //         const userData: IChatUserInfo = {
+  //           phone: response.data.phone,
+  //           nickName: response.data.nickName,
+  //           email: response.data.email,
+  //           isManager: false,
+  //         };
+  //         reset(userData);
+  //         //    userOriginalInfo.current = userData;
+  //         setUserProfile(response.data);
+  //       } else {
+  //         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
+  //       }
+  //     } catch (error) {
+  //       console.log('ProfileScreen get user error = ', error);
+  //       alertMsg(strings.ERROR, '사용자 정보 가져오지 못함...');
+  //     }
+  //   };
 
   const isVacancy = () => {
     const currentValues = getValues();
     // 여기에서 변경 여부를 확인하고 필요한 로직을 수행
     console.log('currentValues = ', currentValues);
 
-    const isVacant: boolean =
-      isEmpty(currentValues.phone) || isEmpty(currentValues.nickName);
+    const isVacant: boolean = isEmpty(currentValues.groupName);
 
     console.log('isVacant = ', isVacant);
     return isVacant;
   };
 
-  const confirmUpload: SubmitHandler<IUserInfo> = async data => {
-    console.log('업로드 사용자 주소 data = ', data);
+  const confirmUpload: SubmitHandler<IChatUserInfo> = async data => {
+    const param: ConfirmAlertParams = {
+      title: strings.CONFIRMATION,
+      message: '채팅 등록',
+      func: async (in_data: IChatUserInfo) => {
+        console.log('업로드 사용자 주소 data = ', in_data);
+        const token = await getToken();
 
-    const token = await getToken();
-    const decoded = jwtDecode(token!) as UserFormInput;
-    //헤드 정보를 만든다.
-    const config = {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        Authorization: `Bearer ${token}`,
+        //헤드 정보를 만든다.
+        const config = {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
+        try {
+          const response: AxiosResponse = await axios.post(
+            `${baseURL}messages/register`,
+            JSON.stringify(data),
+            config,
+          );
+          if (response.status === 200 || response.status === 201) {
+            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+          }
+        } catch (error) {
+          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+        }
       },
+      params: [data],
     };
 
-    //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
-    try {
-      const response: AxiosResponse = await axios.put(
-        `${baseURL}users/market/${decoded.userId}`,
-        JSON.stringify(data),
-        config,
-      );
-      if (response.status === 200 || response.status === 201) {
-        alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
-      }
-    } catch (error) {
-      alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-    }
+    confirmAlert(param);
   };
 
-  const uploadUserInfo = () => {
-    console.log('사용자 정보 업로드');
+  const uploadChatUserInfo = () => {
+    console.log('채팅 사용자 정보 업로드');
     if (!isVacancy()) {
       console.log('데이타가 변경되었습니다. ');
-      const currentValues = getValues();
-      if (!areJsonEqual(currentValues, userOriginalInfo.current!)) {
-        handleSubmit(confirmUpload)();
-      } else {
-        errorAlert(strings.ERROR, strings.NO_CHANGE_DATA);
-      }
+      //  const currentValues = getValues();
+      //  if (!areJsonEqual(currentValues, userOriginalInfo.current!)) {
+      handleSubmit(confirmUpload)();
+      //  } else {
+      //    errorAlert(strings.ERROR, strings.NO_CHANGE_DATA);
+      //  }
     } else {
       errorAlert(strings.ERROR, strings.VACANT_DATA);
     }
   };
+
+  const deleteChatUserInfo = async () => {
+    console.log('deleteChatUserInfo');
+    const param: ConfirmAlertParams = {
+      title: strings.DELETE,
+      message: '채팅 사용자 삭제',
+      func: async () => {
+        const token = await getToken();
+
+        //헤드 정보를 만든다.
+        const config = {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${token}`,
+          },
+          params: {email: state.user?.nickName},
+        };
+        //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
+        try {
+          const response: AxiosResponse = await axios.delete(
+            `${baseURL}messages`,
+            config,
+          );
+          if (response.status === 200 || response.status === 201) {
+            alertMsg(strings.DELETE, strings.SUCCESS);
+            setChatUser(null);
+          }
+        } catch (error) {
+          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+        }
+      },
+      params: [],
+    };
+
+    confirmAlert(param);
+  };
+
+  const onPressLeft = () => {
+    props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
+  };
+
+  const LeftCustomComponent = () => {
+    return (
+      <TouchableOpacity onPress={onPressLeft}>
+        <FontAwesome
+          style={{
+            // height: RFPercentage(8),
+            // width: RFPercentage(10),
+            marginHorizontal: RFPercentage(1),
+            color: colors.black,
+            fontSize: RFPercentage(5),
+            fontWeight: 'bold',
+            // transform: [{scaleX: 1.5}], // 폭을 1.5배 넓힘
+          }}
+          name="arrow-left"
+        />
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={strings.USER_PROFILE}
+        centerText={'채팅 등록'}
         containerStyle={{paddingHorizontal: 8}}
-        isLeftView={false}
-        onPressRight={() => {}}
-        isRightView={true}
-        rightCustomView={RightCustomComponent}
+        isLeftView={true}
+        leftCustomView={LeftCustomComponent}
+        isRight={false}
       />
 
       {loading ? (
@@ -257,17 +293,25 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         </>
       ) : (
         <>
-          {!isLogin ? (
+          {isEmpty(chatUser) ? (
             <View style={{alignItems: 'center', marginTop: 10}}>
               <View style={{margin: RFPercentage(2), alignItems: 'flex-end'}}>
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('CartMainScreen: 로그인 필요합니다. ');
+                    console.log('ChatRegister: 등록필요. ');
+                    const info: IChatUserInfo = {
+                      phone: state.user?.phoneNumber!,
+                      nickName: state.user?.nickName!,
+                      email: state.user?.nickName!,
+                      isManager: false,
+                      groupName: '',
+                    };
+
+                    setChatUser(info);
+                    reset(info);
                   }}>
                   <View style={GlobalStyles.buttonSmall}>
-                    <Text style={GlobalStyles.buttonTextStyle}>
-                      "로그인 필요합니다"
-                    </Text>
+                    <Text style={{fontSize: RFPercentage(3)}}> + </Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -281,14 +325,22 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                 keyboardShouldPersistTaps="handled">
                 <View style={GlobalStyles.VStack}>
                   <View style={styles.HStackTitle}>
-                    <Text style={styles.HeadTitleText}>사용자 정보</Text>
+                    {/* <Text style={styles.HeadTitleText}>채팅정보</Text> */}
 
                     <TouchableOpacity
                       onPress={() => {
-                        uploadUserInfo();
+                        uploadChatUserInfo();
                       }}
                       style={styles.saveButton}>
-                      <Text style={styles.buttonText}>{strings.UPLOAD}</Text>
+                      <Text style={styles.buttonText}>{strings.REGISTER}</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        deleteChatUserInfo();
+                      }}
+                      style={styles.saveButton}>
+                      <Text style={styles.buttonText}>{strings.DELETE}</Text>
                     </TouchableOpacity>
                   </View>
                   <View style={styles.UserInfoBorderBox}>
@@ -356,39 +408,28 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                         </Text>
                       )}
                     </View>
-                  </View>
-                  {!userProfile?.isProducer && !userProfile?.isAdmin ? (
-                    <View>
-                      <TouchableOpacity
-                        onPress={() => {
-                          console.log('click order list');
-                          props.navigation.navigate('OrderListScreen', {
-                            items: dataList!,
-                          });
+                    <Text style={GlobalStyles.inputTitle}>아파트 이름</Text>
+                    <View style={GlobalStyles.HStack}>
+                      <InputField
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 2,
+                          // maxLength: 2,
                         }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>주문 리스트</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => {
-                          console.log('채팅 등록 ....');
-                          props.navigation.navigate('ChatRegisterScreen');
-                        }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 등록</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => {
-                          console.log('채팅 문의 ....');
-                          props.navigation.navigate('ChatMainScreen');
-                        }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 문의</Text>
-                      </TouchableOpacity>
+                        name="groupName"
+                        placeholder={'아파트 이름'}
+                        keyboard="name-phone-pad" // 숫자 판으로 변경
+                        isEditable={true}
+                      />
+                      {errors.nickName && (
+                        <Text style={GlobalStyles.errorMessage}>
+                          {/* {strings.NICKNAME} {strings.ERROR} */}
+                          아파트 이름 에러
+                        </Text>
+                      )}
                     </View>
-                  ) : null}
+                  </View>
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
@@ -474,4 +515,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default ChatRegisterScreen;

@@ -56,6 +56,7 @@ export type RootStackParamList = {
     orders: DataList;
   };
   ChatMainScreen: undefined;
+  ChatRegisterScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -170,4 +171,9 @@ export type ChatMainScreenProps = {
   clearSocket: () => void;
   removeFromSocket: (item: SocketItem) => void;
   addToSocket: (item: SocketItem) => void;
+};
+
+export type ChatRegisterScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'ChatMainScreen'>;
+  route: RouteProp<RootStackParamList, 'ChatMainScreen'>;
 };

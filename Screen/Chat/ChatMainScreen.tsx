@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Text,
+  FlatList,
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -30,10 +31,14 @@ import * as actions from '../../Redux/Cart/Actions/socketActions';
 import {useFocusEffect} from '@react-navigation/native';
 import {getToken} from '../../utils/getSaveToken';
 import axios, {AxiosResponse} from 'axios';
-import {IUserAtDB} from '../model/interface/IAuthInfo';
+import {IUserAtDB, UserFormInput} from '../model/interface/IAuthInfo';
 import {alertMsg} from '../../utils/alerts/alertMsg';
 import strings from '../../constants/lang';
-import {height, MANAGER_ID} from '../../assets/common/BaseValue';
+import {
+  height,
+  MANAGER_ID,
+  MANAGER_NICKNAME,
+} from '../../assets/common/BaseValue';
 import RoundImage from '../../utils/basicForm/RoundImage';
 import {useRoute} from '@react-navigation/native';
 // import {IMessage} from '../model/interface/IMessage';
@@ -44,16 +49,23 @@ import {ImageBackground} from 'react-native';
 import imagePath from './GiftedChat/assets/constatns/imagePath';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {InputToolbar} from './GiftedChat/InputToolbar';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
-  const {socketState, socketDispatch} = useAuth();
+  const {state, socketState, socketDispatch} = useAuth();
   const [managers, setManagers] = useState<IUserAtDB | null>(null);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [chatRoomId, setChatRoomId] = useState<string | null>(null);
+
+  const [activeChatUsers, setActiveChatUsers] = useState<any[]>([]); // For user list
+  const [showChat, setShowChat] = useState<boolean>(false); // To toggle between user list and chat
+  const [selectedUser, setSelectedUser] = useState<UserFormInput | null>(null);
 
   const pingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pongInterval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const route = useRoute();
+  const chatRoomIdRef = useRef<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,12 +75,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         console.log('현재 화면 이름:', route.name);
         console.log('useFocusEffect ... 소켓 비어있음');
         fetchManagerData();
-        // activateSocket(MANAGER_ID);
-        initSetMessage();
+        activateSocket(MANAGER_ID);
+        // initSetMessage();
 
         // 2024-12-30 : 일단은 Manager를 producer로 설정하고 진행한다.
       } else {
-        console.log('ChatMainScreen: 이미 소켓이 있음', socketState.socketId);
+        console.log('ChatMainScreen: 이미 소켓이 있음');
         return;
       }
 
@@ -82,49 +94,83 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     //     }, []),
   );
 
-  //   // 메세지를 전송한다.
-  //   useEffect(() => {
-  //     if (messages !== null) {
-  //       console.log('ChatMainScreen sendMessage', messages);
+  // 서버에서 메시지 불러오기
 
-  //       if (socketState.socketId) {
-  //         socketState.socketId.emit('send-message', messages);
-  //       }
-  //     }
-  //   }, [messages]);
-
-  const initSetMessage = () => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello manager',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'Kwon',
+  const fetchMessages = async (roomId: string) => {
+    try {
+      const token = await getToken();
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
         },
-        image: '',
-      },
-    ]);
+        params: {chatRoomId: roomId},
+      };
+      const response = await axios.get(
+        `${baseURL}messages/`,
+
+        // JSON.stringify({chatRoomId: roomId}),
+        config,
+      );
+
+      console.log('fetchMessages:  response.data = ', response.data);
+      if (!isEmpty(response.data)) {
+        const formattedMessages = response.data.map((item: any) => ({
+          _id: item.messageId,
+          text: item.text,
+          createdAt: new Date(item.createdAt),
+          user: item.user,
+        }));
+        setMessages(formattedMessages);
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
   };
 
-  // const onSend = useCallback(
-  //   (newMessages: IMessage[]) => {
-  //     console.log('onSend messages:', newMessages);
-  //     if (socketState.socketId) {
-  //       socketState.socketId.emit('send-message', newMessages);
-  //     }
-  //     setMessages(prevMessages => [...prevMessages, ...newMessages]); // Update local state
-  //   },
-  //   [socketState.socketId],
-  // );
+  const onSend = useCallback(
+    async (messages = []) => {
+      console.log('onSend messages ', messages);
+      if (socketState.socketId) {
+        try {
+          const token = await getToken();
+          const config = {
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              Authorization: `Bearer ${token}`,
+            },
+          };
 
-  const onSend = useCallback((messages = []) => {
-    console.log('onSend messages ', messages);
-    setMessages(previousMessages =>
-      GiftedChatAppend(previousMessages, messages),
-    );
-  }, []);
+          const newMessage = messages.map((item: IMessage) => {
+            return {
+              chatRoomId: chatRoomIdRef.current,
+              createdAt: item.createdAt.toString(),
+              messageId: item._id,
+              text: item.text,
+              user: item.user,
+            };
+          });
+
+          console.log('onSend newMessage = ', newMessage[0]);
+
+          const response: AxiosResponse = await axios.post(
+            `${baseURL}messages`,
+            JSON.stringify(newMessage[0]),
+            config,
+          );
+
+          // console.log('response = ', response);
+        } catch (error) {}
+        socketState.socketId.emit('send-message', ...messages);
+        setMessages(previousMessages =>
+          GiftedChatAppend(previousMessages, messages),
+        );
+      }
+    },
+    [socketState.socketId],
+  );
 
   const fetchManagerData = async () => {
     console.log('fetchManagerData');
@@ -142,7 +188,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         config,
       );
       if (response.status === 200) {
-        console.log('Manager data = ', response.data);
+        // console.log('Manager data = ', response.data);
         setManagers(response.data);
 
         setLoading(false);
@@ -197,17 +243,88 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       }
     });
 
+    //2025-01-02 : 나 자신을 새로운 유저에 등록한다. 그러면 get-users 가 날라온다.
+    socket.emit('new-user-add', state.user);
+
     // 서버로부터 메시지 수신 예제
-    socket.on('message', (data: IMessage) => {
+    socket.on('receive-message', (data: IMessage) => {
       console.log('Message from server:', data);
-      setMessages(prevMessages => [...prevMessages, data]);
+      setMessages(prevMessages => GiftedChatAppend(prevMessages, [data]));
     });
+
+    // if (state.user?.userId! !== MANAGER_ID) {
+    socket.on('get-users', users => {
+      console.log('socketTurnOn:소켓으로 get-users 받음= ', users);
+
+      const newList = users.filter(
+        (user: UserFormInput) => user.userId !== state.user?.userId!,
+      );
+
+      console.log('get-users newList = ', newList);
+      setActiveChatUsers(newList);
+    });
+    // }
 
     // 연결 종료 이벤트 처리
     socket.on('disconnect', () => {
       console.log('Disconnected from server');
     });
   }
+
+  const makeRoomId = (item: UserFormInput): string => {
+    return [state.user?.nickName!.split('@')[0], item.nickName!.split('@')[0]]
+      .sort()
+      .join('-');
+  };
+
+  const renderUserList = () => (
+    <View style={styles.userListContainer}>
+      <Text style={styles.title}>대화 리스트</Text>
+      <FlatList
+        data={activeChatUsers}
+        keyExtractor={item => item.userId.toString()}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            style={styles.userItem}
+            onPress={() => {
+              setShowChat(true);
+              const roomId = makeRoomId(item);
+              console.log('roomId = ', roomId);
+              chatRoomIdRef.current = roomId;
+              setChatRoomId(roomId);
+              setSelectedUser(item);
+              fetchMessages(roomId);
+            }} // Navigate to chat when a user is selected
+          >
+            <Text style={styles.userName}>{item.nickName.split('@')[0]}</Text>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+        }
+      />
+    </View>
+  );
+
+  const renderChat = () => (
+    <ImageBackground
+      source={imagePath.icBigLight}
+      style={{
+        flex: 1,
+        marginTop: RFPercentage(1),
+        height: 'auto',
+      }}>
+      <GiftedChat
+        messages={messages}
+        onSend={onSend}
+        renderInputToolbar={renderInputToolbar}
+        user={{
+          _id: selectedUser?.userId!,
+          name: state.user?.nickName!.split('@')[0],
+        }}
+      />
+    </ImageBackground>
+  );
 
   const stopPingSend = () => {
     console.log('ChatMainScreen: stopPingSend....');
@@ -219,14 +336,13 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       props.clearSocket();
 
       console.log('props.socket = ', props.socketItem);
-
-      //pingInterval 및 pongInterval 정리
-      if (pingInterval.current) {
-        clearInterval(pingInterval.current);
-      }
-      if (pongInterval.current) {
-        clearTimeout(pongInterval.current);
-      }
+    }
+    //pingInterval 및 pongInterval 정리
+    if (pingInterval.current) {
+      clearInterval(pingInterval.current);
+    }
+    if (pongInterval.current) {
+      clearTimeout(pongInterval.current);
     }
     setLoading(true);
     setLoading(true);
@@ -260,7 +376,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
           isStatic={true}
         />
         <Text style={{marginHorizontal: RFPercentage(1)}}>
-          {managers?.nickName.split('@')[0]}
+          {state.user?.nickName!.split('@')[0]}
         </Text>
       </View>
     );
@@ -291,25 +407,15 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
           <LoadingWheel />
         ) : (
           <View style={GlobalStyles.VStack}>
-            <ImageBackground
-              source={imagePath.icBigLight}
-              style={{
-                flex: 1,
-                marginTop: RFPercentage(1),
-                height: 'auto',
-              }}>
-              <GiftedChat
-                messages={messages}
-                onSend={onSend}
-                renderInputToolbar={renderInputToolbar}
-                user={{
-                  _id: 1,
-                  name: 'Manager',
-                }}
-
-                // Add other props to customize the chat UI
-              />
-            </ImageBackground>
+            <>
+              {loading ? (
+                <LoadingWheel />
+              ) : showChat ? (
+                renderChat()
+              ) : (
+                renderUserList()
+              )}
+            </>
           </View>
         )}
       </>
@@ -345,6 +451,19 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     backgroundColor: 'white',
   },
+  userListContainer: {
+    padding: 10,
+  },
+  userItem: {
+    padding: 10,
+    marginBottom: 5,
+    backgroundColor: colors.grey,
+    borderRadius: 5,
+  },
+  userName: {
+    fontSize: 16,
+    color: colors.black,
+  },
   title: {
     fontWeight: 'bold',
     fontSize: 18,
@@ -353,6 +472,12 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     marginBottom: 10,
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
 

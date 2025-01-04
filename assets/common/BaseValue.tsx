@@ -46,3 +46,4 @@ export const LOGIN_PASSWORD_ERROR = 401;
 
 // 2024-12-30 : chatting 매니저 등록 id
 export const MANAGER_ID = '2f6404d2-d095-4ee7-b908-1806937456c6';
+export const MANAGER_NICKNAME = 'MANAGER';
