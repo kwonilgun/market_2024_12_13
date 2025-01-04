@@ -42,7 +42,8 @@ import {
   ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
 
-interface IChatUserInfo {
+export interface IChatUserInfo {
+  userId: string;
   nickName: string;
   phone: string;
   email: string;
@@ -70,6 +71,7 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
     reset,
   } = useForm<IChatUserInfo>({
     defaultValues: {
+      userId: '',
       phone: '',
       nickName: '',
       email: '',
@@ -300,6 +302,7 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
                   onPress={() => {
                     console.log('ChatRegister: 등록필요. ');
                     const info: IChatUserInfo = {
+                      userId: state.user?.userId!,
                       phone: state.user?.phoneNumber!,
                       nickName: state.user?.nickName!,
                       email: state.user?.nickName!,

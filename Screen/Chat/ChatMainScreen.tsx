@@ -50,6 +50,7 @@ import imagePath from './GiftedChat/assets/constatns/imagePath';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {InputToolbar} from './GiftedChat/InputToolbar';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {IChatUserInfo} from './ChatRegisterScreen';
 
 const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -59,8 +60,9 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const [chatRoomId, setChatRoomId] = useState<string | null>(null);
 
   const [activeChatUsers, setActiveChatUsers] = useState<any[]>([]); // For user list
+  const [chatUsers, setChatUsers] = useState<IChatUserInfo[] | null>(null);
   const [showChat, setShowChat] = useState<boolean>(false); // To toggle between user list and chat
-  const [selectedUser, setSelectedUser] = useState<UserFormInput | null>(null);
+  const [selectedUser, setSelectedUser] = useState<IChatUserInfo | null>(null);
 
   const pingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pongInterval = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,10 +73,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     useCallback(() => {
       setLoading(false);
 
+      console.log('useFocusEffect sockeId = ', socketState.socketId);
+
       if (isEmpty(socketState.socketId)) {
         console.log('현재 화면 이름:', route.name);
         console.log('useFocusEffect ... 소켓 비어있음');
-        fetchManagerData();
+        fetchChatUsers();
         activateSocket(MANAGER_ID);
         // initSetMessage();
 
@@ -95,6 +99,34 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   );
 
   // 서버에서 메시지 불러오기
+  const fetchChatUsers = async () => {
+    console.log('fetchChatUsers');
+    try {
+      const token = await getToken();
+      //헤드 정보를 만든다.
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}messages/chatList`,
+        config,
+      );
+      if (response.status === 200) {
+        // console.log('Manager data = ', response.data);
+        const chatUser = response.data.filter((item: IChatUserInfo) => {
+          return item.email !== state.user?.nickName;
+        });
+        setChatUsers(chatUser);
+
+        setLoading(false);
+      }
+    } catch (error) {
+      alertMsg(strings.ERROR, '매니저 데이타 다운로드 실패');
+    }
+  };
 
   const fetchMessages = async (roomId: string) => {
     try {
@@ -172,32 +204,6 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     [socketState.socketId],
   );
 
-  const fetchManagerData = async () => {
-    console.log('fetchManagerData');
-    try {
-      const token = await getToken();
-      //헤드 정보를 만든다.
-      const config = {
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response: AxiosResponse = await axios.get(
-        `${baseURL}users/${MANAGER_ID}`,
-        config,
-      );
-      if (response.status === 200) {
-        // console.log('Manager data = ', response.data);
-        setManagers(response.data);
-
-        setLoading(false);
-      }
-    } catch (error) {
-      alertMsg(strings.ERROR, '매니저 데이타 다운로드 실패');
-    }
-  };
-
   //id는
   async function activateSocket(id: string) {
     console.log('activateSocket...');
@@ -271,8 +277,8 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     });
   }
 
-  const makeRoomId = (item: UserFormInput): string => {
-    return [state.user?.nickName!.split('@')[0], item.nickName!.split('@')[0]]
+  const makeRoomId = (item: IChatUserInfo): string => {
+    return [state.user?.nickName!.split('@')[0], item.email!.split('@')[0]]
       .sort()
       .join('-');
   };
@@ -281,8 +287,8 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     <View style={styles.userListContainer}>
       <Text style={styles.title}>대화 리스트</Text>
       <FlatList
-        data={activeChatUsers}
-        keyExtractor={item => item.userId.toString()}
+        data={chatUsers}
+        keyExtractor={item => item.email}
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.userItem}
@@ -296,7 +302,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
               fetchMessages(roomId);
             }} // Navigate to chat when a user is selected
           >
-            <Text style={styles.userName}>{item.nickName.split('@')[0]}</Text>
+            <Text style={styles.userName}>{item.email.split('@')[0]}</Text>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
@@ -332,11 +338,11 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       // 소켓 연결 종료
       console.log('Socket disconnected.');
       socketState.socketId.disconnect();
-      socketDispatch({type: 'RESET'});
-      props.clearSocket();
 
       console.log('props.socket = ', props.socketItem);
     }
+    socketDispatch({type: 'RESET'});
+    props.clearSocket();
     //pingInterval 및 pongInterval 정리
     if (pingInterval.current) {
       clearInterval(pingInterval.current);
