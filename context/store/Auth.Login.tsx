@@ -1,4 +1,5 @@
-import {UserFormInput} from '../../Screen/Login/model/interface/IAuthInfo';
+// import {UserFormInput} from '../Screen/Login/model/interface/IAuthInfo';
+import {UserFormInput} from '../../Screen/model/interface/IAuthInfo';
 import isEmpty from '../../utils/isEmpty';
 
 // 액션 타입 정의

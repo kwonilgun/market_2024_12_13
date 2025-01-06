@@ -8,7 +8,7 @@
 
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
-import {IProduct} from '../../../Products/interface/IProductInfo';
+import {IProduct} from '../interface/IProductInfo';
 
 export type HomeStackParamList = {
   ProductsScreen: undefined;

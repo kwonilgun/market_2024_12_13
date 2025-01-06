@@ -1,144 +1,121 @@
-/*
- * File: MainTab.tsx
- * Project: market_2024_12_13
- * File Created: Saturday, 14th December 2024 7:52:19 am
- * Author: Kwonilgun(권일근) (kwonilgun@naver.com)
- * -----
- * Last Modified: Saturday, 14th December 2024 8:46:02 am
- * Modified By: Kwonilgun(권일근) (kwonilgun@naver.com>)
- * -----
- * Copyright <<projectCreationYear>> - 2024 루트원 AI, 루트원 AI
- * 1. 2024-12-14 : Main tab 생성
- */
-
 /* eslint-disable react/no-unstable-nested-components */
-/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-// import {View} from 'react-native';
-// import Icon from 'react-native-vector-icons/FontAwesome';
-// import Icon from 'react-native-vector-icons/FontAwesome';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {RFPercentage} from 'react-native-responsive-fontsize';
+import {Platform} from 'react-native';
 
 import {useAuth} from '../context/store/Context.Manager';
 import HomeNavigator from './HomeNavigator';
 import UserNavigator from './UserNavigator';
-
-import {RFPercentage} from 'react-native-responsive-fontsize';
 import AdminNavigator from './AdminNavigator';
-import {Platform} from 'react-native';
-
-// const Tab = createBottomTabNavigator();
+import CartNavigator from './CartNavigator';
+import ShippingNavigator from './ShippingNavigator';
+import PaymentNavigator from './PaymentNavigator';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
-// Define the type for the tab navigator's parameters
 type RootTabParamList = {
   Home: undefined;
-  'User Main': undefined;
+  UserMain: undefined;
   Admin: undefined;
-  // Chat: undefined;
+  ShoppingCart: undefined;
+  ShippingNavigator: undefined;
+  PaymentNavigator: undefined;
 };
+
+const getTabIconStyle = () => ({
+  color: undefined,
+  height: Platform.OS === 'ios' ? RFPercentage(6) : RFPercentage(7),
+  width: Platform.OS === 'ios' ? RFPercentage(6) : RFPercentage(7),
+  marginTop: Platform.OS === 'ios' ? RFPercentage(1) : RFPercentage(2),
+  padding: RFPercentage(1),
+  fontSize: Platform.OS === 'ios' ? RFPercentage(4) : RFPercentage(4),
+});
+
+const TabIcon = ({name, color}: {name: string; color: string}) => (
+  <FontAwesome style={{...getTabIconStyle(), color}} name={name} />
+);
 
 const MainTab: React.FC = () => {
   const {state} = useAuth();
-  // console.log(
-  //   'MainTab.jsx 진입 .... state.isAuthenticated = ',
-  //   state.isAuthenticated,
-  // );
-  console.log('MainTab.jsx 진입 .... state.isAdmin = ', state.user?.isAdmin);
+
+  const isAuthenticated = state.isAuthenticated;
+  const isAdmin = state.user?.isAdmin;
+  const isProducer = state.user?.isProducer;
 
   return (
-    <>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarHideOnKeyboard: true,
-          tabBarActiveTintColor: '#e91e63',
-          headerShown: false, //2022-12-16 Button Tab Navigator의 제목을 삭제하는 옵션이다.
-          tabBarShowLabel: false,
-          tabBarStyle: [
-            {
-              display: 'flex',
-              height: RFPercentage(7), // 적절한 높이 설정
-              paddingTop: RFPercentage(1),
-            },
-            null,
-          ],
-        }}>
-        {/* 2024-06-14 : 홈 메뉴 추가 */}
-        {state.isAuthenticated ? (
-          <Tab.Screen
-            name="Home"
-            component={HomeNavigator}
-            options={{
-              tabBarIcon: ({color}) => (
-                // <Icon name="home" color={color} size={RFPercentage(5)} />
-                <FontAwesome
-                  style={{
-                    color: color,
-
-                    height: Platform.OS === 'ios' ? undefined : RFPercentage(7),
-                    // width: RFPercentage(10),
-                    fontSize:
-                      Platform.OS === 'ios'
-                        ? RFPercentage(4)
-                        : RFPercentage(5.5),
-                  }}
-                  name="home"
-                />
-              ),
-            }}
-          />
-        ) : null}
-
+    <Tab.Navigator
+      screenOptions={{
+        tabBarHideOnKeyboard: true,
+        tabBarActiveTintColor: '#e91e63',
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          display: 'flex',
+          backgroundColor: 'white',
+          alignItems: 'center',
+          height: RFPercentage(8),
+          borderTopWidth: 4,
+          borderTopColor: 'black',
+        },
+      }}>
+      {isAuthenticated && (
         <Tab.Screen
-          name="User Main"
-          component={UserNavigator}
+          name="Home"
+          component={HomeNavigator}
           options={{
-            tabBarIcon: ({color}) => (
-              //     <Icon name="user" color={color} size={25} />
-              <FontAwesome
-                style={{
-                  color: color,
-                  // height: RFPercentage(7),
-                  // width: RFPercentage(10),
-                  height: Platform.OS === 'ios' ? undefined : RFPercentage(5),
-                  fontSize:
-                    Platform.OS === 'ios' ? RFPercentage(4) : RFPercentage(5.5),
-                }}
-                name="user"
-              />
-            ),
+            tabBarIcon: ({color}) => <TabIcon name="home" color={color} />,
           }}
         />
+      )}
 
-        {state.isAuthenticated && state.user?.isAdmin ? (
+      {!isAdmin && !isProducer && isAuthenticated && (
+        <>
           <Tab.Screen
-            name="Admin"
-            component={AdminNavigator}
+            name="ShoppingCart"
+            component={CartNavigator}
             options={{
               tabBarIcon: ({color}) => (
-                <FontAwesome
-                  style={{
-                    color: color,
-                    // height: RFPercentage(7),
-                    // width: RFPercentage(10),
-                    height: Platform.OS === 'ios' ? undefined : RFPercentage(7),
-                    fontSize:
-                      Platform.OS === 'ios'
-                        ? RFPercentage(4)
-                        : RFPercentage(5.5),
-                  }}
-                  name="cog"
-                />
+                <TabIcon name="shopping-cart" color={color} />
               ),
             }}
           />
-        ) : null}
-      </Tab.Navigator>
+          <Tab.Screen
+            name="ShippingNavigator"
+            component={ShippingNavigator}
+            options={{
+              tabBarIcon: ({color}) => <TabIcon name="truck" color={color} />,
+            }}
+          />
+          <Tab.Screen
+            name="PaymentNavigator"
+            component={PaymentNavigator}
+            options={{
+              tabBarIcon: ({color}) => <TabIcon name="krw" color={color} />,
+            }}
+          />
+        </>
+      )}
 
-      {/* </SafeAreaView> */}
-    </>
+      <Tab.Screen
+        name="UserMain"
+        component={UserNavigator}
+        options={{
+          tabBarIcon: ({color}) => <TabIcon name="user" color={color} />,
+        }}
+      />
+
+      {isAuthenticated && isAdmin && (
+        <Tab.Screen
+          name="Admin"
+          component={AdminNavigator}
+          options={{
+            tabBarIcon: ({color}) => <TabIcon name="cog" color={color} />,
+          }}
+        />
+      )}
+    </Tab.Navigator>
   );
 };
 

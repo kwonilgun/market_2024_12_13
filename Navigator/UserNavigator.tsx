@@ -2,23 +2,21 @@ import React from 'react';
 
 import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from '../Screen/model/types/TUserNavigator';
-import LoginScreen from '../Screen/Login.Screen';
+import LoginScreen from '../Screen/Login/Login.Screen';
 import {useAuth} from '../context/store/Context.Manager';
-import ProfileScreen from '../Screen/ProfileScreen';
-// import AuthorizeScreen from '../../Screen/Login/Authorize.Screen';
-// import WifiTestScreen from '../../Screen/Wifi/WifiTestScreen';
-// import SettingScreen from '../../Screen/Wifi/SettingScreen';
-// import StartScreen from '../../Screen/Wifi/StartScreen';
-
-// import MembershipScreen from '../../Screen/Login/Membership.Screen';
-// import SystemInfoScreen from '../../Screen/Wifi/SystemInfoScreen';
-// import SoftApScreen from '../../Screen/Wifi/SoftApScreen';
-// import PrivacyPolicyScreen from '../../Screen/TermsAndConditions/PrivacyPolicyScreen';
-// import PasswordResetScreen from '../../Screen/Login/PasswordReset.Screen';
-// import ChangePasswordScreen from '../../Screen/Login/ChangePassword.Screen';
-// import UsageTermScreen from '../../Screen/TermsAndConditions/UsageTermScreen';
-// import MembershipUsageTermScreen from '../../Screen/TermsAndConditions/MembershipUsageTermScreen';
-// import MembershipPrivacyPolicyScreen from '../../Screen/TermsAndConditions/MembershipPrivacyPolicyScreen';
+import ProfileScreen from '../Screen/Login/ProfileScreen';
+import MembershipScreen from '../Screen/Login/Membership.Screen';
+import PasswordResetScreen from '../Screen/Login/PasswordReset.Screen';
+import ProductMainScreen from '../Screen/Products/ProductMainScreen';
+import SystemInfoScreen from '../Screen/Systems/SystemInfoScreen';
+import PrivacyPolicyScreen from '../Screen/TermsAndConditions/PrivacyPolicyScreen';
+import UsageTermScreen from '../Screen/TermsAndConditions/UsageTermScreen';
+import MembershipUsageTermScreen from '../Screen/TermsAndConditions/MembershipUsageTermScreen';
+import MembershipPrivacyPolicyScreen from '../Screen/TermsAndConditions/MembershipPrivacyPolicyScreen';
+import OrderListScreen from '../Screen/Orders/OrderListScreen';
+import OrderDetailScreen from '../Screen/Orders/OrderDetailScreen';
+import ChatMainScreen from '../Screen/Chat/ChatMainScreen';
+import ChatRegisterScreen from '../Screen/Chat/ChatRegisterScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -71,35 +69,7 @@ function MyStack() {
         />
       )}
 
-      {/* <Stack.Screen
-        name="AuthorizeScreen"
-        component={AuthorizeScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '인증 확인',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      /> */}
-      {/* <Stack.Screen name="OrderListsScreen" component={OrderListsScreen} />
-      <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} /> */}
-      {/* <Stack.Screen
-        name="WifiTestScreen"
-        component={WifiTestScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '와이파이',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      /> */}
-
-      {/* 2024-05-31 : 하단 icon을 선택 시에 SystemInfo로 들어가는 문제 Fix */}
-      {/* {state.isAuthenticated ? (
+      {state.isAuthenticated ? (
         <Stack.Screen
           name="SystemInfoScreen"
           component={SystemInfoScreen}
@@ -112,35 +82,41 @@ function MyStack() {
             // ),
           })}
         />
-      ) : null} */}
+      ) : null}
 
-      {/* <Stack.Screen
-        name="SettingScreen"
-        component={SettingScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '와이파이',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="MembershipScreen"
+          component={MembershipScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '회원 가입',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="PasswordResetScreen"
+          component={PasswordResetScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '패스워드리셋',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
       <Stack.Screen
-        name="StartScreen"
-        component={StartScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '오존 동작',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
-      <Stack.Screen
-        name="MembershipScreen"
-        component={MembershipScreen}
+        name="ProductMainScreen"
+        component={ProductMainScreen}
         options={({navigation, route}) => ({
           headerShown: false,
           headerLeft: () => null,
@@ -150,92 +126,126 @@ function MyStack() {
           // ),
         })}
       />
-      <Stack.Screen
-        name="SoftApScreen"
-        component={SoftApScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '회원 가입',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
-      <Stack.Screen
-        name="PrivacyPolicyScreen"
-        component={PrivacyPolicyScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '개인정보',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
-      <Stack.Screen
-        name="MembershipPrivacyPolicyScreen"
-        component={MembershipPrivacyPolicyScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '개인정보',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
-      <Stack.Screen
-        name="UsageTermScreen"
-        component={UsageTermScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '개인정보',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
 
-      <Stack.Screen
-        name="MembershipUsageTermScreen"
-        component={MembershipUsageTermScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '개인정보',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="PrivacyPolicyScreen"
+          component={PrivacyPolicyScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
 
-      <Stack.Screen
-        name="PasswordResetScreen"
-        component={PasswordResetScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '패스워드리셋',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      />
-      <Stack.Screen
-        name="ChangePasswordScreen"
-        component={ChangePasswordScreen}
-        options={({navigation, route}) => ({
-          headerShown: false,
-          headerLeft: () => null,
-          title: '패스워드리셋',
-          // headerTitle: props => (
-          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
-          // ),
-        })}
-      /> */}
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="UsageTermScreen"
+          component={UsageTermScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
+
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="MembershipPrivacyPolicyScreen"
+          component={MembershipPrivacyPolicyScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="MembershipUsageTermScreen"
+          component={MembershipUsageTermScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="OrderListScreen"
+          component={OrderListScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="OrderDetailScreen"
+          component={OrderDetailScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '개인정보',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="ChatMainScreen"
+          component={ChatMainScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '채팅방',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
+
+      {state.isAuthenticated ? (
+        <Stack.Screen
+          name="ChatRegisterScreen"
+          component={ChatRegisterScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '채팅방',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      ) : null}
     </Stack.Navigator>
   );
 }

@@ -2,7 +2,7 @@
 /*
  * File: TNavigator.tsx
  * Project: root_project
- * File Created: Thursday, 15th February 2024
+ * File Created: Thursday, 15th February 2024The navigation method (likely navigate() or push())
  * Author: Kwonilgun(권일근) (kwonilgun@naver.com)
  * Copyright <<projectCreationYear>> - 2024 루트원 AI, 루트원 AI
  */
@@ -11,15 +11,25 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {IAuthInfo} from '../interface/IAuthInfo';
 import {RouteProp} from '@react-navigation/native';
 import {UserFormInput} from '../interface/IAuthInfo';
-import {IOrderInfo} from '../../../Order/interface/IOrderInfo';
-import {IPlasmaSetting} from '../../../Wifi/SettingScreen';
-import {INotification} from '../../../Chat/chatManager';
-import {
-  INotify,
-  IPushNotify,
-} from '../../../Notification/PushNotificationScreen';
+import {IProduct} from '../interface/IProductInfo';
+import {ICompany} from '../interface/ICompany';
+import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
+import {DataList} from '../../Orders/makeExpandable';
+import {IOrderInfo} from '../interface/IOrderInfo';
+import {SocketItem} from '../../../Redux/Cart/Reducers/socketItems';
 
 export type RootStackParamList = {
+  /* 💇‍♀️2024-12-21 :
+  The TypeScript error you're encountering indicates a type mismatch when trying to pass an array ["Home", { screen: string }] to a function or property expecting a specific structure for navigation parameters. This typically happens in a React Native project using a navigation library like React Navigation.
+
+  Root Cause
+  The navigation method (likely navigate() or push()) expects specific screen names and parameter types, but "Home" with { screen: string } does not match any of the expected types.
+  */
+  Home: {screen: string};
+
+  UserMain: {screen: string};
+  ShippingNavigator: {screen: string};
+
   AdminScreen: undefined;
   EditUsageTermScreen: undefined;
   EditPrivatePolicyScreen: undefined;
@@ -28,24 +38,25 @@ export type RootStackParamList = {
   ChangePasswordScreen: undefined;
   ProfileScreen: {userInfo: UserFormInput};
   AuthorizeScreen: {authInfo: IAuthInfo};
-  OrderListsScreen: {orderInfo: IOrderInfo[]};
-  OrderDetailScreen: {detailInfo: IOrderInfo};
-  WifiTestScreen: undefined;
-  SoftApScreen: undefined;
+  // OrderListsScreen: {orderInfo: IOrderInfo[]};
+  // OrderDetailScreen: {detailInfo: IOrderInfo};
   SystemInfoScreen: undefined;
   MembershipUsageTermScreen: undefined;
   UsageTermScreen: undefined;
   MembershipPrivacyPolicyScreen: undefined;
   PrivacyPolicyScreen: undefined;
-  DeliveredNotificationScreen: undefined;
-  AlarmListScreen: undefined;
-  PushNotificationScreen: {notifySetting: INotify};
-  PushNotificationTimeScreen: {notifySetting: INotify};
-  PushNotificationDailyScreen: {notifySetting: INotify};
-  PushNotificationWeeklyScreen: {notifySetting: INotify};
-  SettingScreen: {plasmaSetting: IPlasmaSetting};
-  StartScreen: {plasmaSetting: IPlasmaSetting};
   MembershipScreen: undefined;
+  ProductMainScreen: undefined;
+  ProductDetailScreen: undefined;
+  CartMainScreen: undefined;
+  OrderListScreen: {items: DataList};
+  OrderDetailScreen: {
+    item: IOrderInfo;
+    actionFt: (id: string, props: any) => void;
+    orders: DataList;
+  };
+  ChatMainScreen: undefined;
+  ChatRegisterScreen: undefined;
 };
 
 // 2024-11-16 : Admin 추가
@@ -76,14 +87,6 @@ export type ChangePasswordScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'ChangePasswordScreen'>;
 };
 
-export type WifiTestScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'WifiTestScreen'>;
-};
-
-export type SoftApScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'SoftApScreen'>;
-};
-
 export type SystemInfoScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'SystemInfoScreen'>;
 };
@@ -110,56 +113,6 @@ export type PrivacyPolicyScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'PrivacyPolicyScreen'>;
 };
 
-export type DeliveredNotificationScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'DeliveredNotificationScreen'
-  >;
-};
-
-export type AlarmListScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'AlarmListScreen'>;
-};
-
-export type SettingScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'SettingScreen'>;
-  route: RouteProp<RootStackParamList, 'SettingScreen'>;
-};
-
-export type PushNotificationScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'PushNotificationScreen'>;
-  route: RouteProp<RootStackParamList, 'PushNotificationScreen'>;
-};
-
-export type PushNotificationTimeScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationTimeScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationTimeScreen'>;
-};
-
-export type PushNotificationDailyScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationDailyScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationDailyScreen'>;
-};
-
-export type PushNotificationWeeklyScreenProps = {
-  navigation: StackNavigationProp<
-    RootStackParamList,
-    'PushNotificationWeeklyScreen'
-  >;
-  route: RouteProp<RootStackParamList, 'PushNotificationWeeklyScreen'>;
-};
-
-export type StartScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'StartScreen'>;
-  route: RouteProp<RootStackParamList, 'StartScreen'>;
-};
-
 export type AuthorizeScreenProps = {
   route: RouteProp<RootStackParamList, 'AuthorizeScreen'>;
 };
@@ -173,12 +126,54 @@ export type ProfileScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'ProfileScreen'>;
 };
 
-export type OrderListsScreenProps = {
-  route: RouteProp<RootStackParamList, 'OrderListsScreen'>;
-  navigation: StackNavigationProp<RootStackParamList, 'OrderListsScreen'>;
+export type OrderListScreenProps = {
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderListScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderListScreen'>;
 };
 
 export type OrderDetailScreenProps = {
+  // items: DataList | null;
   route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
   navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
+};
+export type ProductMainScreenProps = {
+  navigation: any;
+  route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
+};
+
+export type ProductDetailScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'ProductDetailScreen'>;
+  route: {
+    params: {
+      item: IProduct;
+      companyInform: ICompany;
+    };
+  };
+  // items: IProduct;
+  // companyInform: ICompany;
+  addItemToCart: (product: {quantity: number; product: IProduct}) => void;
+  // cartItems: any[];
+};
+
+export type CartMainScreenProps = {
+  cart: CartItem[];
+  navigation: StackNavigationProp<RootStackParamList, 'CartMainScreen'>;
+  route: RouteProp<RootStackParamList, 'CartMainScreen'>;
+  clearCart: () => void;
+  removeFromCart: (item: CartItem) => void;
+};
+
+export type ChatMainScreenProps = {
+  socketItem: SocketItem[];
+  navigation: StackNavigationProp<RootStackParamList, 'ChatMainScreen'>;
+  route: RouteProp<RootStackParamList, 'ChatMainScreen'>;
+  clearSocket: () => void;
+  removeFromSocket: (item: SocketItem) => void;
+  addToSocket: (item: SocketItem) => void;
+};
+
+export type ChatRegisterScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'ChatMainScreen'>;
+  route: RouteProp<RootStackParamList, 'ChatMainScreen'>;
 };

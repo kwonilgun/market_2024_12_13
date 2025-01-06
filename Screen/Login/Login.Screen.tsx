@@ -14,26 +14,29 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import {useAuth} from '../context/store/Context.Manager';
+import {useAuth} from '../../context/store/Context.Manager';
 
 import {useForm, SubmitHandler} from 'react-hook-form';
 // import {getInfoOfPhoneNumberFromDb} from './useLogin';
-// import {branchByStatus} from './branchByStatus';
+import {branchByStatus} from './branchByStatus';
 
-import {UserFormInput} from './model/interface/IAuthInfo';
-import {LoginScreenProps} from './model/types/TUserNavigator';
-import InputField from '../utils/InputField';
+import {UserFormInput} from '../model/interface/IAuthInfo';
+import {LoginScreenProps} from '../model/types/TUserNavigator';
+import InputField from '../../utils/InputField';
 // import {styles} from './Profile';
 // import {SocketState} from '../Chat/socketSingleton';
 // import {ChatManager, INotification} from '../Chat/chatManager';
-import WrapperContainer from '../utils/basicForm/WrapperContainer';
-import HeaderComponent from '../utils/basicForm/HeaderComponents';
-import strings from '../constants/lang';
-import {alertMsg} from '../utils/alerts/alertMsg';
+import WrapperContainer from '../../utils/basicForm/WrapperContainer';
+import HeaderComponent from '../../utils/basicForm/HeaderComponents';
+import strings from '../../constants/lang';
+import {alertMsg} from '../../utils/alerts/alertMsg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LoadingWheel from '../utils/loading/LoadingWheel';
+import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {RFPercentage} from 'react-native-responsive-fontsize';
-import {LanguageContext, useLanguage} from '../context/store/LanguageContext';
+import {
+  LanguageContext,
+  useLanguage,
+} from '../../context/store/LanguageContext';
 // import {height} from '../../styles/responsiveSize';
 import {Image} from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -46,9 +49,10 @@ import {getInfoOfEmailFromDb} from './useLogin';
 import {
   LOGIN_NO_EXIST_EMAIL,
   LOGIN_PASSWORD_ERROR,
-} from '../assets/common/BaseValue';
+} from '../../assets/common/BaseValue';
 import CheckBox from '@react-native-community/checkbox';
-import GlobalStyles from '../styles/GlobalStyles';
+// import {Checkbox} from 'react-native-paper';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // const [username, setUsername] = useState('');
@@ -91,7 +95,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       initializeSocket();
 
       *****************************************/
-      loginLocalSaveAndGoToProfile();
+      loginLocalSaveAndGoToProduct();
     }
   }, [state.isAuthenticated]);
 
@@ -181,8 +185,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   // 2024-05-26 : 자동 로그인을 위해서 추가,
-  const loginLocalSaveAndGoToProfile = async () => {
+  const loginLocalSaveAndGoToProduct = async () => {
     try {
+      console.log('login/loginLocalSaveGoToProduct phoneNumber = ', state.user);
       await AsyncStorage.setItem('phoneNumber', state.user!.phoneNumber);
 
       // navigation.navigate('ProfileScreen', {userInfo: state.user!});
@@ -190,7 +195,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       // 2024-06-14 : 로그인 후에 home 메뉴로 간다.
 
       navigation.navigate('Home', {
-        screen: 'WifiTestScreen',
+        screen: 'ProductMainScreen',
       });
     } catch (error) {
       console.log('phoneNumber save to local error = ', error);
@@ -252,7 +257,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
     console.log('onSubmit, dispatch, loggedInUser = ', data);
 
-    /* 
     const savedAutoLogin = await AsyncStorage.getItem('autoLogin');
     if (
       (isAutoLogin || savedAutoLogin === 'true') &&
@@ -290,7 +294,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           console.log('branchByStatus.tsx 메세지 없음');
         }
 
-        //    branchByStatus({navigation}, element, dispatch);
+        branchByStatus({navigation}, element, dispatch);
       })
       .catch(error => {
         // 2024-11-17 : 이메일 로그인 에러 처리, 서버에서 에러를 보내는 경우 send와 json에 따라서 status가 달라진다.
@@ -315,7 +319,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             alertMsg(strings.ERROR, strings.NO_USER_AND_REGISTER_MEMBER);
             break;
         }
-      }); */
+      });
   };
 
   const togglePasswordVisibility = () => {
@@ -328,7 +332,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   };
 
   const handleCheckboxChange = async (value: boolean) => {
-    console.log('Before state update: isAutoLogin:', isAutoLogin);
+    console.log('Before state update: isAutoLogin:', value);
     try {
       setIsAutoLogin(value);
       await AsyncStorage.setItem('autoLogin', value ? 'true' : 'false');
@@ -357,7 +361,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               color: 'black',
               marginRight: -RFPercentage(20),
               height: RFPercentage(8),
-              width: RFPercentage(20),
+              width: RFPercentage(8),
               fontSize: RFPercentage(6),
             }}
             name="sign-in"
@@ -374,10 +378,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           <FontAwesome
             style={{
               color: 'black',
-              marginRight: -RFPercentage(13),
+              marginRight: -RFPercentage(2),
               height: RFPercentage(8),
-              width: RFPercentage(20),
-              fontSize: RFPercentage(6),
+              width: RFPercentage(8),
+              fontSize: RFPercentage(5),
               fontWeight: 'bold',
             }}
             name="language"
@@ -414,7 +418,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 <View>
                   {/* 로고 이미지 삽입 */}
                   <Image
-                    source={require('../assets/images/package_002.png')} // 로컬 이미지 경로 사용
+                    source={require('../../assets/images/package_002.png')} // 로컬 이미지 경로 사용
                     style={GlobalStyles.logo} // 스타일을 통해 크기 조정
                     resizeMode="contain" // 이미지가 영역에 맞게 조정되도록 설정
                   />
@@ -465,7 +469,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                   style={[GlobalStyles.icon]}>
                   <Icon
                     name={passwordVisible ? 'eyeo' : 'eye'}
-                    size={25 * 2}
+                    size={RFPercentage(4)}
                     color="grey"
                   />
                 </TouchableOpacity>
@@ -488,23 +492,33 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                 </Text>
               </View>
 
-              {/* <View style={GlobalStyles.checkboxContainer}> */}
+              <View style={GlobalStyles.checkboxContainer}>
+                <TouchableOpacity
+                  style={{
+                    height: 24,
+                    width: 24,
+                    borderWidth: 1,
+                    borderColor: 'black',
+                    backgroundColor: isAutoLogin
+                      ? 'transparent'
+                      : 'transparent',
+                  }}
+                  onPress={() => handleCheckboxChange(!isAutoLogin)}>
+                  {isAutoLogin && (
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        color: Platform.OS === 'ios' ? 'white' : 'black',
+                      }}>
+                      ✔
+                    </Text>
+                  )}
+                </TouchableOpacity>
 
-              <CheckBox
-                value={isAutoLogin}
-                onValueChange={handleCheckboxChange}
-                boxType={'square'}
-                style={[
-                  Platform.OS === 'ios'
-                    ? GlobalStyles.iosCheckbox
-                    : GlobalStyles.androidCheckbox,
-                ]} // 크기 조정
-                tintColors={{true: '#007BFF', false: '#000'}}
-              />
-              <Text style={GlobalStyles.checkboxLabel}>
-                {strings.AUTO_LOGIN}
-              </Text>
-              {/* </View> */}
+                <Text style={GlobalStyles.checkboxLabel}>
+                  {strings.AUTO_LOGIN}
+                </Text>
+              </View>
 
               <View style={GlobalStyles.HStack_LOGIN}>
                 <TouchableOpacity

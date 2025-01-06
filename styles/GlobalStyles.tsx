@@ -12,7 +12,7 @@ const GlobalStyles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    // backgroundColor: 'white',
+    backgroundColor: 'gainsboro',
   },
   VStack: {
     flex: 1,
@@ -50,7 +50,7 @@ const GlobalStyles = StyleSheet.create({
   logo: {
     width: RFPercentage(20),
     height: RFPercentage(20),
-    marginBottom: RFPercentage(1),
+    // marginBottom: RFPercentage(1),
   },
   inputMember: {
     fontWeight: 'bold',
@@ -66,7 +66,7 @@ const GlobalStyles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: RFPercentage(2.2),
     color: 'black',
-    marginTop: RFPercentage(3),
+    marginTop: RFPercentage(1),
   },
   passwordText: {
     textDecorationLine: 'underline',
@@ -76,7 +76,7 @@ const GlobalStyles = StyleSheet.create({
   icon: {
     position: 'absolute',
     right: -15,
-    top: '40%',
+    top: '55%',
     transform: [
       {
         translateY:
@@ -106,14 +106,15 @@ const GlobalStyles = StyleSheet.create({
   },
   iosCheckbox: {
     color: 'black',
-    width: RFPercentage(3),
-    height: RFPercentage(3),
+    width: RFPercentage(4),
+    height: RFPercentage(4),
   },
   androidCheckbox: {
-    //     transform: [{scale: 1.6}],
-    color: 'black',
+    transform: [{scale: 1.6}],
+    //     color: 'blue',
     width: RFPercentage(5),
     height: RFPercentage(5),
+    margin: RFPercentage(1),
   },
   textInputField: {
     height: Platform.OS === 'android' ? 'auto' : height * 0.05,
@@ -125,6 +126,70 @@ const GlobalStyles = StyleSheet.create({
     borderRadius: 5,
     fontSize: RFPercentage(1.8),
     fontWeight: 'bold',
+  },
+  privacyCheckBoxText: {
+    margin: RFPercentage(1),
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+  privacyCheckBoxSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  usageText: {
+    margin: RFPercentage(2),
+    padding: RFPercentage(1),
+    textDecorationLine: 'underline',
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+  privacyText: {
+    marginHorizontal: RFPercentage(2),
+    padding: RFPercentage(1),
+    textDecorationLine: 'underline',
+    fontSize: RFPercentage(2),
+    color: 'black',
+  },
+
+  buttonTextStyle: {
+    fontWeight: 'bold',
+    fontSize: RFPercentage(2.5), // Adjust the percentage based on your design
+    color: colors.white,
+    // alignItems: 'center',
+  },
+  buttonStyle: {
+    width: 'auto',
+    height: 'auto',
+    marginHorizontal: RFPercentage(0.3),
+    // paddingHorizontal: RFPercentage(0.5),
+  },
+  buttonSmall: {
+    marginTop: RFPercentage(1),
+    // marginHorizontal: RFPercentage(3),
+    // height: RFPercentage(),
+    padding: RFPercentage(1),
+    flexDirection: 'row',
+    justifyContent: 'center', // 수평 중앙 정렬
+    alignItems: 'center', // 수직 중앙 정렬
+    alignContent: 'center',
+    backgroundColor: colors.lightBlue,
+    borderRadius: 5,
+  },
+  buttonViewText: {
+    marginTop: RFPercentage(4),
+    // marginHorizontal: RFPercentage(3),
+    height: RFPercentage(8),
+    padding: RFPercentage(2),
+    flexDirection: 'row',
+    justifyContent: 'center',
+    // alignContent: 'space-between',
+    alignItems: 'center',
+    // borderColor: 'blue',
+    // borderWidth: 1,
+    backgroundColor: colors.blue,
+    borderRadius: 5,
   },
 });
 

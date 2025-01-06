@@ -9,9 +9,18 @@
 export interface IAuth {
   phoneNumber: string;
   nickName?: string;
+  // 2024-12-23 : 추가
+  name?: string;
   // 2024-05-05 : plasma id, iot 사물번호
-  ozsId?: string;
+  // ozsId?: string;
 }
+
+// export interface IDeliveryInfo extends IAuth {
+//   address1: string;
+//   address2?: string;
+//   deliveryMethod: number;
+//   checkMark: boolean;
+// }
 
 export interface IAuthResult {
   status: number;
@@ -43,8 +52,8 @@ export interface IUserAtDB {
   id: string;
   isAdmin: boolean;
   isProducer: boolean;
-  lastText: string;
   nickName: string;
+  ozsId: string;
   phone: string;
   token: string;
 }
