@@ -43,7 +43,8 @@ yarn-error.log
 #주요 assets사게
 assets/
 constants/
-android/app/google-service.json
+android/app/google-services.json
+
 
 # fastlane
 #
