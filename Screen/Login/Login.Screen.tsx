@@ -53,6 +53,10 @@ import {
 import CheckBox from '@react-native-community/checkbox';
 // import {Checkbox} from 'react-native-paper';
 import GlobalStyles from '../../styles/GlobalStyles';
+import {
+  displayNotification,
+  displayNotificationNoParams,
+} from '../Chat/notification/displayNotification';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // const [username, setUsername] = useState('');
@@ -538,7 +542,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate('MembershipScreen');
+                    // navigation.navigate('MembershipScreen');
+                    console.log('회원가입 click');
+                    displayNotificationNoParams();
                   }}>
                   <Text
                     style={{

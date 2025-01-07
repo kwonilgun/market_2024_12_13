@@ -41,6 +41,7 @@ import {
   confirmAlert,
   ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface IChatUserInfo {
   userId: string;
@@ -49,6 +50,7 @@ export interface IChatUserInfo {
   email: string;
   groupName?: string;
   isManager?: boolean;
+  fcmToken?: string;
 }
 
 const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
@@ -77,6 +79,7 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
       email: '',
       groupName: '', //APT 이름
       isManager: false,
+      fcmToken: '',
     },
   });
 
@@ -299,8 +302,9 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
             <View style={{alignItems: 'center', marginTop: 10}}>
               <View style={{margin: RFPercentage(2), alignItems: 'flex-end'}}>
                 <TouchableOpacity
-                  onPress={() => {
+                  onPress={async () => {
                     console.log('ChatRegister: 등록필요. ');
+                    const fcmToken = await AsyncStorage.getItem('fcmToken');
                     const info: IChatUserInfo = {
                       userId: state.user?.userId!,
                       phone: state.user?.phoneNumber!,
@@ -308,6 +312,7 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
                       email: state.user?.nickName!,
                       isManager: false,
                       groupName: '',
+                      fcmToken: fcmToken!,
                     };
 
                     setChatUser(info);

@@ -193,12 +193,13 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
             config,
           );
 
+          socketState.socketId.emit('send-message', ...messages);
+          setMessages(previousMessages =>
+            GiftedChatAppend(previousMessages, messages),
+          );
+
           // console.log('response = ', response);
         } catch (error) {}
-        socketState.socketId.emit('send-message', ...messages);
-        setMessages(previousMessages =>
-          GiftedChatAppend(previousMessages, messages),
-        );
       }
     },
     [socketState.socketId],
@@ -283,6 +284,27 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       .join('-');
   };
 
+  const startChat = (item: IChatUserInfo) => {
+    if (socketState.socketId) {
+      const roomId = makeRoomId(item);
+      console.log('roomId = ', roomId);
+      chatRoomIdRef.current = roomId;
+
+      socketState.socketId.emit('chat-opened', {
+        chatRoomId: roomId,
+        userId: state.user?.userId,
+      });
+
+      setChatRoomId(roomId);
+      setSelectedUser(item);
+      fetchMessages(roomId);
+
+      setShowChat(true);
+    } else {
+      console.log('socketState.socketId is empty');
+    }
+  };
+
   const renderUserList = () => (
     <View style={styles.userListContainer}>
       <Text style={styles.title}>대화 리스트</Text>
@@ -293,13 +315,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
           <TouchableOpacity
             style={styles.userItem}
             onPress={() => {
-              setShowChat(true);
-              const roomId = makeRoomId(item);
-              console.log('roomId = ', roomId);
-              chatRoomIdRef.current = roomId;
-              setChatRoomId(roomId);
-              setSelectedUser(item);
-              fetchMessages(roomId);
+              startChat(item);
             }} // Navigate to chat when a user is selected
           >
             <Text style={styles.userName}>{item.email.split('@')[0]}</Text>
@@ -335,6 +351,11 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const stopPingSend = () => {
     console.log('ChatMainScreen: stopPingSend....');
     if (socketState.socketId) {
+      socketState.socketId.emit('chat-closed', {
+        chatRoomId: chatRoomIdRef.current,
+        userId: state.user?.userId,
+      });
+
       // 소켓 연결 종료
       console.log('Socket disconnected.');
       socketState.socketId.disconnect();
