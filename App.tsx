@@ -34,15 +34,12 @@ import {
 } from './Screen/Chat/notification/displayNotification';
 import notifee, {EventType} from '@notifee/react-native';
 import {getFcmToken} from './Screen/Chat/notification/services';
+import {
+  notificationListeners,
+  requestUserPermission,
+} from './Screen/Chat/notification/notificationServices';
 
-// import firebase
-
-// import {getFcmToken} from './Screen/Chat/notification/services';
-// import StartNotify from './StartNotify.text';
 // import {GoogleSignin} from '@react-native-google-signin/google-signin';
-
-// import {Store} from './Redux/Slice/Store';
-// import strings from './constants/lang';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 // const Stack = createStackNavigator<RootStackParamList>();
@@ -58,12 +55,6 @@ import {getFcmToken} from './Screen/Chat/notification/services';
 //     '858777442491-od1pqhd3ekeubrpv5a87d7d8g33f7k8a.apps.googleusercontent.com',
 // });
 
-// let firebase, messaging;
-
-// if (Platform.OS === 'android') {
-//   console.log('index : android >>>>>');
-// }
-
 const App: React.FC = () => {
   // const {changeLanguage} = useContext(LanguageContext);
 
@@ -71,9 +62,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log('App.tsx:');
-
-    let unsubscribeForegroundMessage: () => void;
-    let unsubscribeBackgroundMessage: () => void;
 
     LogBox.ignoreLogs([
       'Non-serializable values were found in the navigation state',
@@ -86,66 +74,16 @@ const App: React.FC = () => {
       console.log('This is in debug mode and activate console.log');
     }
 
-    getFcmToken();
-    requestNotificationPermission();
-
-    // initializeNotificationChannel();
-
-    unsubscribeForegroundMessage = messaging().onMessage(
-      async remoteMessage => {
-        console.log('Foreground FCM Message:', remoteMessage);
-        // Handle the notification in the foreground
-        //   await initializeNotificationChannel();
-        await displayNotification(remoteMessage);
-      },
-    );
-
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-      await displayNotification(remoteMessage);
-    });
-
-    notifee.onForegroundEvent(({type, detail}) => {
-      console.log('Notifee Foreground Event:', type, detail);
-
-      if (type === EventType.PRESS) {
-        console.log('Notification pressed:', detail.notification);
-      }
-
-      if (type === EventType.ACTION_PRESS) {
-        console.log('Notification action pressed:', detail.pressAction);
-      }
-    });
-
-    // // Background event handler
-    notifee.onBackgroundEvent(async ({type, detail}) => {
-      console.log('Notifee Background Event:', type, detail);
-
-      if (type === EventType.PRESS) {
-        // 사용자 알림 클릭 이벤트 처리
-        console.log('Notification pressed:', detail.notification);
-      }
-
-      if (type === EventType.ACTION_PRESS) {
-        // 알림 액션 버튼 클릭 이벤트 처리
-        console.log('Notification action pressed:', detail.pressAction);
-      }
-    });
+    // getFcmToken();
+    notificationPermission();
+    requestUserPermission();
+    notificationListeners();
 
     setLanguage();
-    return () => {
-      if (unsubscribeForegroundMessage) {
-        console.error('unsubscribe foreground');
-        unsubscribeForegroundMessage();
-      }
-      // if (unsubscribeBackgroundMessage) {
-      //   console.error('unsubscribe foreground');
-      //   unsubscribeForegroundMessage();
-      // }
-    };
+    return () => {};
   }, []);
 
-  async function requestNotificationPermission() {
+  async function notificationPermission() {
     console.log('Platform.version = ', Platform.Version);
 
     const hasPermission = await PermissionsAndroid.check(

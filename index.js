@@ -12,13 +12,8 @@ import {
   initializeNotificationChannel,
 } from './Screen/Chat/notification/displayNotification';
 
-// initializeNotificationChannel();
-// Handle foreground messageså
-// unsubscribeForegroundMessage = messaging().onMessage(async remoteMessage => {
-//   console.log('Foreground FCM Message:', remoteMessage);
-//   // Handle the notification in the foreground
-//   //   await initializeNotificationChannel();
-//   await displayNotification(remoteMessage);
-// });
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log('Message handled in the background!', remoteMessage);
+});
 
 AppRegistry.registerComponent(appName, () => App);
