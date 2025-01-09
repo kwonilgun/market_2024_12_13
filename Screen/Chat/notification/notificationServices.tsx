@@ -4,6 +4,8 @@ import messaging, {
 import {Platform} from 'react-native';
 
 import notifee, {AndroidImportance} from '@notifee/react-native';
+import isEmpty from '../../../utils/isEmpty';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
@@ -19,10 +21,16 @@ export async function requestUserPermission() {
 
 const getFcmToken = async () => {
   try {
-    const token = await messaging().getToken();
-    console.log('fcm token:', token);
+    const fcmToken = await messaging().getToken();
+    console.log('fcm token:', fcmToken);
+    if (fcmToken && !isEmpty(fcmToken)) {
+      // Save the token
+      await AsyncStorage.setItem('fcmToken', fcmToken);
+    } else {
+      console.log('services: getFcmToken : firebase token이 없다.');
+    }
   } catch (error) {
-    console.log('error in creating token');
+    console.error('services : getFcmToken :  error =', error);
   }
 };
 
@@ -50,7 +58,7 @@ async function onDisplayNotification(
     title: data?.notification?.title,
     body: data?.notification?.body,
     android: {
-      channelId: '1',
+      channelId,
       color: 'red',
     },
   });

@@ -74,10 +74,11 @@ const App: React.FC = () => {
       console.log('This is in debug mode and activate console.log');
     }
 
-    // getFcmToken();
-    notificationPermission();
-    requestUserPermission();
-    notificationListeners();
+    if (Platform.OS === 'android') {
+      notificationPermission();
+      requestUserPermission();
+      notificationListeners();
+    }
 
     setLanguage();
     return () => {};

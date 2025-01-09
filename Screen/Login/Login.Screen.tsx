@@ -542,9 +542,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
                 <TouchableOpacity
                   onPress={() => {
-                    // navigation.navigate('MembershipScreen');
+                    navigation.navigate('MembershipScreen');
                     console.log('회원가입 click');
-                    displayNotificationNoParams();
+                    // displayNotificationNoParams();
                   }}>
                   <Text
                     style={{

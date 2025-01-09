@@ -73,13 +73,13 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     useCallback(() => {
       setLoading(false);
 
-      console.log('useFocusEffect sockeId = ', socketState.socketId);
+      // console.log('useFocusEffect sockeId = ', socketState.socketId);
 
       if (isEmpty(socketState.socketId)) {
         console.log('현재 화면 이름:', route.name);
         console.log('useFocusEffect ... 소켓 비어있음');
         fetchChatUsers();
-        activateSocket(MANAGER_ID);
+        activateSocket();
         // initSetMessage();
 
         // 2024-12-30 : 일단은 Manager를 producer로 설정하고 진행한다.
@@ -145,7 +145,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         config,
       );
 
-      console.log('fetchMessages:  response.data = ', response.data);
+      // console.log('fetchMessages:  response.data = ', response.data);
       if (!isEmpty(response.data)) {
         const formattedMessages = response.data.map((item: any) => ({
           _id: item.messageId,
@@ -187,7 +187,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
           console.log('onSend newMessage = ', newMessage[0]);
 
-          const response: AxiosResponse = await axios.post(
+          await axios.post(
             `${baseURL}messages`,
             JSON.stringify(newMessage[0]),
             config,
@@ -206,7 +206,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   );
 
   //id는
-  async function activateSocket(id: string) {
+  async function activateSocket() {
     console.log('activateSocket...');
 
     const socket: Socket = io(socketURL); // 서버 주소를 입력하세요
@@ -226,12 +226,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     // 서버와의 연결 이벤트 처리
     socket.on('connect', () => {
       socketData.id = socket.id!; // 연결된 소켓 ID 할당
-      console.log('Connected to server:', socketData);
+      // console.log('Connected to server:', socketData);
     });
 
     socketData.pingInterval = pingInterval.current = setInterval(() => {
       // console.log('activateSocket : ping을 보낸다.', id);
-      socket.emit('ping', '핑을 보냅니다: from ' + id);
+      socket.emit('ping', '핑을 보냅니다: from ' + state.user?.userId);
 
       socketData.pongInterval = pongInterval.current = setTimeout(() => {
         //  handleLogout(socketData.pingInterval, props); // 특정 시간 내에 pong을 받지 못하면
@@ -254,7 +254,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     socket.emit('new-user-add', state.user);
 
     // 서버로부터 메시지 수신 예제
-    socket.on('receive-message', (data: IMessage) => {
+    socket.on('receive-message', (data: any) => {
       console.log('Message from server:', data);
       setMessages(prevMessages => GiftedChatAppend(prevMessages, [data]));
     });
@@ -263,12 +263,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     socket.on('get-users', users => {
       console.log('socketTurnOn:소켓으로 get-users 받음= ', users);
 
-      const newList = users.filter(
-        (user: UserFormInput) => user.userId !== state.user?.userId!,
-      );
+      // const newList = users.filter(
+      //   (user: UserFormInput) => user.userId !== state.user?.userId!,
+      // );
 
-      console.log('get-users newList = ', newList);
-      setActiveChatUsers(newList);
+      // console.log('get-users newList = ', newList);
+      // setActiveChatUsers(newList);
     });
     // }
 
