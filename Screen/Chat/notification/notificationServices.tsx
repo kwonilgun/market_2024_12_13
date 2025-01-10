@@ -3,7 +3,7 @@ import messaging, {
 } from '@react-native-firebase/messaging';
 import {Platform} from 'react-native';
 
-import notifee, {AndroidImportance} from '@notifee/react-native';
+import notifee, {EventType, AndroidImportance} from '@notifee/react-native';
 import isEmpty from '../../../utils/isEmpty';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -34,12 +34,12 @@ const getFcmToken = async () => {
   }
 };
 
-async function onDisplayNotification(
-  data: FirebaseMessagingTypes.RemoteMessage,
+export async function onDisplayNotification(
+  item: FirebaseMessagingTypes.RemoteMessage,
 ) {
   // Request permissions (required for iOS)
 
-  console.log('onDisplayNotification data ', data);
+  console.log('onDisplayNotification data ', item);
 
   if (Platform.OS == 'ios') {
     await notifee.requestPermission();
@@ -55,8 +55,8 @@ async function onDisplayNotification(
 
   // Display a notification
   await notifee.displayNotification({
-    title: data?.notification?.title,
-    body: data?.notification?.body,
+    title: item.data?.title.toString(),
+    body: item.data?.body.toString(),
     android: {
       channelId,
       color: 'red',
@@ -65,10 +65,14 @@ async function onDisplayNotification(
 }
 
 export async function notificationListeners() {
-  const unsubscribe = messaging().onMessage(async remoteMessage => {
+  messaging().onMessage(async remoteMessage => {
     console.log('A new FCM message arrived!', remoteMessage);
     onDisplayNotification(remoteMessage);
   });
+
+  // messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //   console.log('Message handled in the background!', remoteMessage);
+  // });
 
   messaging().onNotificationOpenedApp(remoteMessage => {
     console.log(
@@ -76,28 +80,28 @@ export async function notificationListeners() {
       remoteMessage,
     );
 
-    if (
-      !!remoteMessage?.data &&
-      remoteMessage?.data?.redirect_to === 'ProductDetail'
-    ) {
-      setTimeout(() => {
-        // NavigationService.navigate('ProductDetail', {
-        //   data: remoteMessage?.data,
-        // });
-        console.log('onNotificationOpenedApp: ProductDetail');
-      }, 1200);
-    }
+    // if (
+    //   !!remoteMessage?.data &&
+    //   remoteMessage?.data?.redirect_to === 'ProductDetail'
+    // ) {
+    //   setTimeout(() => {
+    //     // NavigationService.navigate('ProductDetail', {
+    //     //   data: remoteMessage?.data,
+    //     // });
+    //     console.log('onNotificationOpenedApp: ProductDetail');
+    //   }, 1200);
+    // }
 
-    if (
-      !!remoteMessage?.data &&
-      remoteMessage?.data?.redirect_to === 'Profile'
-    ) {
-      setTimeout(() => {
-        // NavigationService.navigate('Profile', {data: remoteMessage?.data});
+    // if (
+    //   !!remoteMessage?.data &&
+    //   remoteMessage?.data?.redirect_to === 'Profile'
+    // ) {
+    //   setTimeout(() => {
+    //     // NavigationService.navigate('Profile', {data: remoteMessage?.data});
 
-        console.log('onNotificationOpenedApp: Profile');
-      }, 1200);
-    }
+    //     console.log('onNotificationOpenedApp: Profile');
+    //   }, 1200);
+    // }
   });
 
   // Check whether an initial notification is available
@@ -112,5 +116,5 @@ export async function notificationListeners() {
       }
     });
 
-  return unsubscribe;
+  // return unsubscribe;
 }

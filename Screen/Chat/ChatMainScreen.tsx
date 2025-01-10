@@ -147,12 +147,15 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
       // console.log('fetchMessages:  response.data = ', response.data);
       if (!isEmpty(response.data)) {
-        const formattedMessages = response.data.map((item: any) => ({
-          _id: item.messageId,
-          text: item.text,
-          createdAt: new Date(item.createdAt),
-          user: item.user,
-        }));
+        const formattedMessages = response.data
+          .map((item: any) => ({
+            _id: item.messageId,
+            text: item.text,
+            createdAt: new Date(item.createdAt),
+            user: item.user,
+          }))
+          .sort((a: any, b: any) => b.createdAt - a.createdAt); // createdAt 기준 오름차순 정렬
+
         setMessages(formattedMessages);
       } else {
         setMessages([]);
@@ -297,6 +300,8 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
       setChatRoomId(roomId);
       setSelectedUser(item);
+
+      //2025-01-10 : 서버에서 저장된 메세지를 가져온다.
       fetchMessages(roomId);
 
       setShowChat(true);

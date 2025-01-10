@@ -31,12 +31,12 @@
         </intent-filter>
       </activity>
 
-      <!-- <service
+      <service
           android:name="io.invertase.notifee.background.NotifeeFirebaseMessagingService"
           android:exported="false">
-          <intent-filter>
+          <!-- <intent-filter> 💇‍♀️2025-01-10 : 이것을 추가하면 안된다. 이것으로 인해서 앱 충돌이 발생하고 앱이 알림을 받고 kill 된다...... 
             <action android:name="com.google.firebase.MESSAGING_EVENT" />
-          </intent-filter>
-      </service> -->
+          </intent-filter> -->
+      </service>
     </application>
 </manifest>

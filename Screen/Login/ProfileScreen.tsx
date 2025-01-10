@@ -151,7 +151,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
           'producerPhone',
         );
 
-        console.log('checkOrderList result', result);
+        // console.log('checkOrderList result', result);
 
         // setProducerGroup(result);
         makeExpandableDataList(orders, setDataList);
