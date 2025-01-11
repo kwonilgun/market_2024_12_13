@@ -28,7 +28,7 @@ if (Platform.OS === 'android') {
       console.log('onBackgroundEvent pressed....');
 
       // // Remove the notification
-      // await notifee.cancelNotification(notification.id);
+      await notifee.cancelNotification(notification.id);
       // 앱을 특정 탭으로 열기
       badgeCount++;
       await notifee.setBadgeCount(badgeCount);

@@ -13,7 +13,13 @@ import {Provider} from 'react-redux';
 import {AuthProvider} from './context/store/Context.Manager';
 import MainTab from './Navigator/MainTab';
 import store from './Redux/Cart/Store/store';
-import {Alert, LogBox, PermissionsAndroid, Platform} from 'react-native';
+import {
+  Alert,
+  Linking,
+  LogBox,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 
 import messaging from '@react-native-firebase/messaging';
 
@@ -60,6 +66,21 @@ const App: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [initialUrl, setInitialUrl] = useState<string | null>(null);
+  const linking = {
+    prefixes: ['myapp://'],
+    config: {
+      screens: {
+        UserMain: 'UserMain', // URL과 매칭
+        Home: 'Home',
+        ShoppingCart: 'ShoppingCart',
+        ShippingNavigator: 'ShippingNavigator',
+        PaymentNavigator: 'PaymentNavigator',
+        Admin: 'Admin',
+      },
+    },
+  };
+
   useEffect(() => {
     console.log('App.tsx:');
 
@@ -80,18 +101,29 @@ const App: React.FC = () => {
       notificationListeners();
     }
 
+    fetchInitialUrl();
+
     setLanguage();
-    if (Platform.OS === 'android') {
-      // 앱 실행 시 뱃지 카운트 초기화
-      const notifee = require('@notifee/react-native').default;
-      const resetBadgeCount = async () => {
-        await notifee.setBadgeCount(0);
-      };
-      resetBadgeCount();
-    }
+    // if (Platform.OS === 'android') {
+    //   // 앱 실행 시 뱃지 카운트 초기화
+    //   const notifee = require('@notifee/react-native').default;
+    //   const resetBadgeCount = async () => {
+    //     await notifee.setBadgeCount(0);
+    //   };
+    //   resetBadgeCount();
+    // }
 
     return () => {};
   }, []);
+
+  const fetchInitialUrl = async () => {
+    const url = await Linking.getInitialURL();
+    console.log('App.tsx : Initial URL:', url);
+    if (url) {
+      // console.log('App.tsx : Initial URL:', url);
+      setInitialUrl(url); // URL 설정
+    }
+  };
 
   async function notificationPermission() {
     console.log('Platform.version = ', Platform.Version);
@@ -134,10 +166,10 @@ const App: React.FC = () => {
     <AuthProvider>
       <LanguageProvider>
         <Provider store={store}>
-          <NavigationContainer>
+          <NavigationContainer linking={linking}>
             {/* <StartNotify /> */}
 
-            <MainTab />
+            <MainTab initialUrl={initialUrl} />
           </NavigationContainer>
         </Provider>
       </LanguageProvider>

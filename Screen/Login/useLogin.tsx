@@ -63,7 +63,7 @@ export const getInfoOfEmailFromDb = (
   return new Promise(async (resolve, reject) => {
     try {
       const deviceId = await DeviceInfo.getUniqueId();
-      console.log('Device ID:', deviceId);
+      // console.log('Device ID:', deviceId);
 
       const deviceUser = {...user, deviceId: deviceId};
       const response: AxiosResponse = await axios.post(

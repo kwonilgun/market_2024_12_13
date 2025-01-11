@@ -37,7 +37,7 @@ const TabIcon = ({name, color}: {name: string; color: string}) => (
   <FontAwesome style={{...getTabIconStyle(), color}} name={name} />
 );
 
-const MainTab: React.FC = () => {
+const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const {state} = useAuth();
   const [badgeCount, setBadgeCount] = useState<number>(0);
 
@@ -58,6 +58,16 @@ const MainTab: React.FC = () => {
           setBadgeCount(prevCount => prevCount + 1);
         }
       });
+
+      // 초기 URL 처리
+      if (initialUrl) {
+        console.log('Handling initial URL:', initialUrl);
+        if (initialUrl === 'myapp://UserMain') {
+          // UserMain으로 이동
+          console.log('Navigate to UserMain from initial URL');
+          setBadgeCount(prevCount => prevCount + 1);
+        }
+      }
 
       // 딥 링크 이벤트 처리
       const handleLink = ({url}) => {

@@ -84,7 +84,7 @@ export const branchByStatus = async (
   }
   // 같은 디바이스 로그인
   else if (element.status === AuthStatus.SAME_DEVICE_LOGIN) {
-    console.log('branchByStatus : SAME_DEVICE_LOGIN:  element = ', element);
+    // console.log('branchByStatus : SAME_DEVICE_LOGIN:  element = ', element);
 
     saveToken(element.data.token);
 
@@ -92,7 +92,7 @@ export const branchByStatus = async (
       // await initializeSettings();
 
       const decoded = jwtDecode(element.data.token) as UserFormInput;
-      console.log('branchByStatus decoded = ', decoded);
+      // console.log('branchByStatus decoded = ', decoded);
 
       makeUserDataAndDispatch(decoded);
 
