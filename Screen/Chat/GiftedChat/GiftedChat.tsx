@@ -272,7 +272,7 @@ const GiftedChat: React.FC<GiftedChatProps> = props => {
     isStatusBarTranslucentAndroid,
   } = props;
 
-  console.log('GiftedChat.tsx 진입');
+  // console.log('GiftedChat.tsx 진입');
 
   const actionSheetRef = useRef<ActionSheetProviderRef>(null);
 

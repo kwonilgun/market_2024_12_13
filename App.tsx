@@ -32,7 +32,7 @@ import {
   displayNotification,
   initializeNotificationChannel,
 } from './Screen/Chat/notification/displayNotification';
-import notifee, {EventType} from '@notifee/react-native';
+
 import {getFcmToken} from './Screen/Chat/notification/services';
 import {
   notificationListeners,
@@ -81,6 +81,15 @@ const App: React.FC = () => {
     }
 
     setLanguage();
+    if (Platform.OS === 'android') {
+      // 앱 실행 시 뱃지 카운트 초기화
+      const notifee = require('@notifee/react-native').default;
+      const resetBadgeCount = async () => {
+        await notifee.setBadgeCount(0);
+      };
+      resetBadgeCount();
+    }
+
     return () => {};
   }, []);
 
