@@ -1,9 +1,9 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {RFPercentage} from 'react-native-responsive-fontsize';
-import {Platform} from 'react-native';
+import {Linking, Platform} from 'react-native';
 
 import {useAuth} from '../context/store/Context.Manager';
 import HomeNavigator from './HomeNavigator';
@@ -37,12 +37,68 @@ const TabIcon = ({name, color}: {name: string; color: string}) => (
   <FontAwesome style={{...getTabIconStyle(), color}} name={name} />
 );
 
-const MainTab: React.FC = () => {
+const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const {state} = useAuth();
+  const [badgeCount, setBadgeCount] = useState<number>(0);
 
   const isAuthenticated = state.isAuthenticated;
   const isAdmin = state.user?.isAdmin;
   const isProducer = state.user?.isProducer;
+
+  if (Platform.OS === 'android') {
+    const notifee = require('@notifee/react-native').default;
+    const {EventType} = require('@notifee/react-native');
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      // 알림 수신 시 뱃지 카운트 업데이트
+      const subscription = notifee.onForegroundEvent(({type, detail}) => {
+        console.log('MainTab type = ', type);
+        if (type === EventType.DELIVERED) {
+          setBadgeCount(prevCount => prevCount + 1);
+        }
+      });
+
+      // 초기 URL 처리
+      if (initialUrl) {
+        console.log('Handling initial URL:', initialUrl);
+        if (initialUrl === 'myapp://UserMain') {
+          // UserMain으로 이동
+          console.log('Navigate to UserMain from initial URL');
+          setBadgeCount(prevCount => prevCount + 1);
+        }
+      }
+
+      // 딥 링크 이벤트 처리
+      const handleLink = ({url}) => {
+        if (url === 'myapp://UserMain') {
+          console.log('handleLink count 증가');
+          setBadgeCount(prevCount => prevCount + 1); // 뱃지 증가
+        }
+      };
+
+      Linking.addEventListener('url', handleLink);
+
+      return () => {
+        subscription();
+        Linking.removeAllListeners('myapp://UserMain');
+      };
+    }, []);
+  }
+
+  // 알림 취소 함수
+  const cancelNotifications = async () => {
+    if (Platform.OS === 'android') {
+      const notifee = require('@notifee/react-native').default;
+
+      try {
+        await notifee.cancelAllNotifications(); // 모든 알림 취소
+        console.log('All notifications canceled');
+      } catch (error) {
+        console.error('Failed to cancel notifications:', error);
+      }
+    }
+  };
 
   return (
     <Tab.Navigator
@@ -101,8 +157,16 @@ const MainTab: React.FC = () => {
       <Tab.Screen
         name="UserMain"
         component={UserNavigator}
+        listeners={{
+          tabPress: () => {
+            console.log('사용자 tab pressed');
+            setBadgeCount(0); // Chat 탭을 누르면 뱃지 초기화
+            cancelNotifications();
+          },
+        }}
         options={{
           tabBarIcon: ({color}) => <TabIcon name="user" color={color} />,
+          tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
         }}
       />
 

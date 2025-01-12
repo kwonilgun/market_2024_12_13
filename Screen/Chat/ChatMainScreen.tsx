@@ -73,13 +73,13 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     useCallback(() => {
       setLoading(false);
 
-      console.log('useFocusEffect sockeId = ', socketState.socketId);
+      // console.log('useFocusEffect sockeId = ', socketState.socketId);
 
       if (isEmpty(socketState.socketId)) {
         console.log('현재 화면 이름:', route.name);
         console.log('useFocusEffect ... 소켓 비어있음');
         fetchChatUsers();
-        activateSocket(MANAGER_ID);
+        activateSocket();
         // initSetMessage();
 
         // 2024-12-30 : 일단은 Manager를 producer로 설정하고 진행한다.
@@ -145,14 +145,17 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         config,
       );
 
-      console.log('fetchMessages:  response.data = ', response.data);
+      // console.log('fetchMessages:  response.data = ', response.data);
       if (!isEmpty(response.data)) {
-        const formattedMessages = response.data.map((item: any) => ({
-          _id: item.messageId,
-          text: item.text,
-          createdAt: new Date(item.createdAt),
-          user: item.user,
-        }));
+        const formattedMessages = response.data
+          .map((item: any) => ({
+            _id: item.messageId,
+            text: item.text,
+            createdAt: new Date(item.createdAt),
+            user: item.user,
+          }))
+          .sort((a: any, b: any) => b.createdAt - a.createdAt); // createdAt 기준 오름차순 정렬
+
         setMessages(formattedMessages);
       } else {
         setMessages([]);
@@ -187,25 +190,26 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
           console.log('onSend newMessage = ', newMessage[0]);
 
-          const response: AxiosResponse = await axios.post(
+          await axios.post(
             `${baseURL}messages`,
             JSON.stringify(newMessage[0]),
             config,
           );
 
+          socketState.socketId.emit('send-message', ...messages);
+          setMessages(previousMessages =>
+            GiftedChatAppend(previousMessages, messages),
+          );
+
           // console.log('response = ', response);
         } catch (error) {}
-        socketState.socketId.emit('send-message', ...messages);
-        setMessages(previousMessages =>
-          GiftedChatAppend(previousMessages, messages),
-        );
       }
     },
     [socketState.socketId],
   );
 
   //id는
-  async function activateSocket(id: string) {
+  async function activateSocket() {
     console.log('activateSocket...');
 
     const socket: Socket = io(socketURL); // 서버 주소를 입력하세요
@@ -225,12 +229,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     // 서버와의 연결 이벤트 처리
     socket.on('connect', () => {
       socketData.id = socket.id!; // 연결된 소켓 ID 할당
-      console.log('Connected to server:', socketData);
+      // console.log('Connected to server:', socketData);
     });
 
     socketData.pingInterval = pingInterval.current = setInterval(() => {
       // console.log('activateSocket : ping을 보낸다.', id);
-      socket.emit('ping', '핑을 보냅니다: from ' + id);
+      socket.emit('ping', '핑을 보냅니다: from ' + state.user?.userId);
 
       socketData.pongInterval = pongInterval.current = setTimeout(() => {
         //  handleLogout(socketData.pingInterval, props); // 특정 시간 내에 pong을 받지 못하면
@@ -253,7 +257,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     socket.emit('new-user-add', state.user);
 
     // 서버로부터 메시지 수신 예제
-    socket.on('receive-message', (data: IMessage) => {
+    socket.on('receive-message', (data: any) => {
       console.log('Message from server:', data);
       setMessages(prevMessages => GiftedChatAppend(prevMessages, [data]));
     });
@@ -262,12 +266,12 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     socket.on('get-users', users => {
       console.log('socketTurnOn:소켓으로 get-users 받음= ', users);
 
-      const newList = users.filter(
-        (user: UserFormInput) => user.userId !== state.user?.userId!,
-      );
+      // const newList = users.filter(
+      //   (user: UserFormInput) => user.userId !== state.user?.userId!,
+      // );
 
-      console.log('get-users newList = ', newList);
-      setActiveChatUsers(newList);
+      // console.log('get-users newList = ', newList);
+      // setActiveChatUsers(newList);
     });
     // }
 
@@ -283,6 +287,29 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       .join('-');
   };
 
+  const startChat = (item: IChatUserInfo) => {
+    if (socketState.socketId) {
+      const roomId = makeRoomId(item);
+      console.log('roomId = ', roomId);
+      chatRoomIdRef.current = roomId;
+
+      socketState.socketId.emit('chat-opened', {
+        chatRoomId: roomId,
+        userId: state.user?.userId,
+      });
+
+      setChatRoomId(roomId);
+      setSelectedUser(item);
+
+      //2025-01-10 : 서버에서 저장된 메세지를 가져온다.
+      fetchMessages(roomId);
+
+      setShowChat(true);
+    } else {
+      console.log('socketState.socketId is empty');
+    }
+  };
+
   const renderUserList = () => (
     <View style={styles.userListContainer}>
       <Text style={styles.title}>대화 리스트</Text>
@@ -293,13 +320,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
           <TouchableOpacity
             style={styles.userItem}
             onPress={() => {
-              setShowChat(true);
-              const roomId = makeRoomId(item);
-              console.log('roomId = ', roomId);
-              chatRoomIdRef.current = roomId;
-              setChatRoomId(roomId);
-              setSelectedUser(item);
-              fetchMessages(roomId);
+              startChat(item);
             }} // Navigate to chat when a user is selected
           >
             <Text style={styles.userName}>{item.email.split('@')[0]}</Text>
@@ -335,6 +356,11 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const stopPingSend = () => {
     console.log('ChatMainScreen: stopPingSend....');
     if (socketState.socketId) {
+      socketState.socketId.emit('chat-closed', {
+        chatRoomId: chatRoomIdRef.current,
+        userId: state.user?.userId,
+      });
+
       // 소켓 연결 종료
       console.log('Socket disconnected.');
       socketState.socketId.disconnect();

@@ -1,0 +1,76 @@
+import {useEffect} from 'react';
+
+// import {useAuth} from '../../context/store/Context.Manager';
+import {PermissionsAndroid, Platform} from 'react-native';
+
+import PushNotification from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
+// import Badge from 'react-native-app-badge';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const StartNotify: React.FC = () => {
+  // const {badgeCountState, badgeCountDispatch} = useAuth();
+  useEffect(() => {
+    console.log('StartNotify : notification setup:');
+
+    PushNotification.configure({
+      onNotification: async function (notification) {
+        console.log('Notification received', notification);
+
+        await AsyncStorage.setItem(
+          'notifyMessage',
+          String(notification.message!),
+        );
+
+        // badgeCountDispatch({type: 'increment'});
+
+        // Only for iOS, set the badge count
+        if (Platform.OS === 'ios') {
+          PushNotificationIOS.setApplicationIconBadgeNumber(0);
+          // notification.finish(PushNotificationIOS.FetchResult.NoData);
+        } else {
+          // Badge.setCount(0);
+        }
+      },
+      onAction: function (notification) {
+        console.log('on Action notification = ', notification);
+      },
+      requestPermissions: Platform.OS === 'ios',
+      popInitialNotification: true,
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+    });
+
+    PushNotification.createChannel(
+      {
+        channelId: 'chat-channel',
+        channelName: 'Chat Notification',
+        channelDescription: 'Notifications for new messages',
+        playSound: true,
+        soundName: 'default',
+        importance: 4,
+        vibrate: true,
+      },
+      created => console.log(`createChannel returned '${created}'`),
+    );
+
+    // 2025-01-05 : permission을 요청한다.
+    requestNotificationPermission();
+  }, []);
+
+  const requestNotificationPermission = async () => {
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+      );
+    }
+  };
+
+  return null;
+};
+
+export default StartNotify;

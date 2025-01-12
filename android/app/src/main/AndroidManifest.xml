@@ -1,6 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    
+
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    
 
     <application
       android:name=".MainApplication"
@@ -18,9 +26,26 @@
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
         <intent-filter>
+
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
+         <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="myapp" android:host="UserMain" />  
+        </intent-filter>
       </activity>
+      
+
+      <service
+          android:name="io.invertase.notifee.background.NotifeeFirebaseMessagingService"
+          android:exported="false">
+          <!-- <intent-filter> 💇‍♀️2025-01-10 : 이것을 추가하면 안된다. 이것으로 인해서 앱 충돌이 발생하고 앱이 알림을 받고 kill 된다...... 
+            <action android:name="com.google.firebase.MESSAGING_EVENT" />
+          </intent-filter> -->
+      </service>
+
     </application>
 </manifest>

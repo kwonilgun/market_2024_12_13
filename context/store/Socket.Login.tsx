@@ -26,7 +26,7 @@ export const socketReducer = (
     case 'SET_SOCKET_ID':
       const temp = {...state, socketId: action.socketId};
 
-      console.log('Socket_Login.tsx: SET_SOCKET_ID 새로운 state = ', temp);
+      // console.log('Socket_Login.tsx: SET_SOCKET_ID 새로운 state = ', temp);
 
       return temp;
     case 'RESET':
