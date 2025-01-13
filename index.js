@@ -28,10 +28,10 @@ if (Platform.OS === 'android') {
       console.log('onBackgroundEvent pressed....');
 
       // // Remove the notification
-      await notifee.cancelNotification(notification.id);
-      // 앱을 특정 탭으로 열기
-      badgeCount++;
-      await notifee.setBadgeCount(badgeCount);
+      // await notifee.cancelNotification(notification.id);
+      // // 앱을 특정 탭으로 열기
+      // badgeCount++;
+      // await notifee.setBadgeCount(badgeCount);
 
       Linking.openURL('myapp://UserMain'); // 'chat'은 특정 탭의 딥 링크
     }

@@ -100,22 +100,19 @@ const App: React.FC = () => {
       requestUserPermission();
       notificationListeners();
     }
+    if (Platform.OS === 'ios') {
+      console.log('App.tsx : IOS, requestUserPermission...');
+      requestUserPermission();
+    }
 
     fetchInitialUrl();
 
     setLanguage();
-    // if (Platform.OS === 'android') {
-    //   // 앱 실행 시 뱃지 카운트 초기화
-    //   const notifee = require('@notifee/react-native').default;
-    //   const resetBadgeCount = async () => {
-    //     await notifee.setBadgeCount(0);
-    //   };
-    //   resetBadgeCount();
-    // }
 
     return () => {};
   }, []);
 
+  // 2025-01-11 : 앱이 시작이 될 때 이 곳에서 linking url을 가져온다. 이것을 MainTab에 전달을 한다.
   const fetchInitialUrl = async () => {
     const url = await Linking.getInitialURL();
     console.log('App.tsx : Initial URL:', url);

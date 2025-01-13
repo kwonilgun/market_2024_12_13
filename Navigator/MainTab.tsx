@@ -59,7 +59,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         }
       });
 
-      // 초기 URL 처리
+      //2025-01-11 : 초기 URL 처리, App.tsx에서 link url을 받고 <MainTab> 에서 url 파라미터를 전달한다. Linking url이 전달이 되면 이곳에서 badge를 증가한다.
       if (initialUrl) {
         console.log('Handling initial URL:', initialUrl);
         if (initialUrl === 'myapp://UserMain') {

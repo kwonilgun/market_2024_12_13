@@ -1,2 +1,8 @@
 1. 2024-12-18 : 
      npx react-native start --experimental-debugger
+
+2. 애플 인증 키 
+
+     Name:packageMarket
+     Key ID:TKQ3J2X866
+     Services:Apple Push Notifications service (APNs)

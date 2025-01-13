@@ -10,7 +10,11 @@ export function showPriceInform(
   price: string,
 ) {
   return (
-    <View style={[styles.priceInfoContainer, {marginTop: RFPercentage(1)}]}>
+    <View
+      style={[
+        styles.priceInfoContainer,
+        {marginTop: RFPercentage(1), marginLeft: marginLeft},
+      ]}>
       <Text style={styles.productName}>
         {name.length > 15 ? name.substring(0, 12) + '...' : name}
       </Text>

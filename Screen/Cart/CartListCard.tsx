@@ -15,6 +15,7 @@ import {
 import {IProduct} from '../model/interface/IProductInfo';
 import {connect} from 'react-redux';
 import strings from '../../constants/lang';
+import {RFPercentage} from 'react-native-responsive-fontsize';
 
 interface CartListCardProps {
   item: CartItem;
@@ -76,7 +77,7 @@ const CartListCard: React.FC<CartListCardProps> = props => {
     <View style={styles.cardContainer}>
       <FastImage
         style={{
-          width: width * 0.28,
+          width: width * 0.2,
           height: height * 0.15,
           borderRadius: 10,
         }}
@@ -109,10 +110,21 @@ const CartListCard: React.FC<CartListCardProps> = props => {
           원
         </Text>
 
-        <View style={styles.quantityContainer}>
+        {/* <View style={styles.quantityContainer}>
           <Button title="-" onPress={decNum} />
           <Text style={styles.quantityText}>{refNumber.current}</Text>
           <Button title="+" onPress={incNum} />
+        </View> */}
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity onPress={decNum} style={styles.button}>
+            <Text style={styles.buttonText}>-</Text>
+          </TouchableOpacity>
+          <View style={styles.quantityBox}>
+            <Text style={styles.quantityText}>{refNumber.current}</Text>
+          </View>
+          <TouchableOpacity onPress={incNum} style={styles.button}>
+            <Text style={styles.buttonText}>+</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -139,14 +151,13 @@ const CartListCard: React.FC<CartListCardProps> = props => {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    margin: 8,
-    padding: 4,
+    marginVertical: RFPercentage(1),
+    width: width * 0.92,
     borderWidth: 1,
     borderColor: 'green',
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
   },
   image: {
     width: width * 0.28,
@@ -155,7 +166,6 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     marginTop: 4,
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -163,18 +173,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   quantityContainer: {
-    marginTop: 4,
-    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 10,
-    padding: 4,
+    // padding: 5,
+    margin: RFPercentage(1),
+  },
+
+  button: {
+    width: 40, // 버튼의 너비
+    height: 40, // 버튼의 높이
+    justifyContent: 'center', // 텍스트를 수직 중앙 정렬
+    alignItems: 'center', // 텍스트를 가로 중앙 정렬
+    backgroundColor: 'indigo', // 버튼 배경색
+    borderRadius: 5, // 둥근 모서리
+    marginHorizontal: 5, // 버튼 간 간격
+  },
+  buttonText: {
+    color: 'white', // 텍스트 색상
+    fontSize: 20, // 텍스트 크기
+    fontWeight: 'bold', // 텍스트 굵기
+  },
+  quantityBox: {
+    width: 50, // 고정된 너비
+    alignItems: 'center', // 텍스트를 가운데 정렬
+    justifyContent: 'center', // 수직 중앙 정렬
   },
   quantityText: {
-    marginHorizontal: 8,
-    fontSize: 16,
+    marginHorizontal: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   trashIcon: {
     color: 'blue',
