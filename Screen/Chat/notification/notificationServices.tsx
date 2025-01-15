@@ -56,14 +56,26 @@ export async function onDisplayNotification(
   });
 
   // Display a notification
-  await notifee.displayNotification({
-    title: item.data?.title.toString(),
-    body: item.data?.body.toString(),
-    android: {
-      channelId,
-      color: 'red',
-    },
-  });
+  if (item.notification) {
+    await notifee.displayNotification({
+      title: item.notification?.title!.toString(),
+      body: item.notification?.body!.toString(),
+      android: {
+        channelId,
+        color: 'red',
+      },
+    });
+  }
+  if (item.data) {
+    await notifee.displayNotification({
+      title: item.data?.title.toString(),
+      body: item.data?.body.toString(),
+      android: {
+        channelId,
+        color: 'red',
+      },
+    });
+  }
 }
 
 export async function notificationListeners() {

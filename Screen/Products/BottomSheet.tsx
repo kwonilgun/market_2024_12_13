@@ -113,9 +113,15 @@ const BottomSheet: React.FC<Props> = props => {
           <Text>갯수:</Text>
 
           <View style={styles.quantityContainer}>
-            <Button title="-" onPress={decNum} color="indigo" />
-            <Text style={styles.quantityText}>{buyNumber}</Text>
-            <Button title="+" onPress={incNum} color="indigo" />
+            <TouchableOpacity onPress={decNum} style={styles.button}>
+              <Text style={styles.buttonText}>-</Text>
+            </TouchableOpacity>
+            <View style={styles.quantityBox}>
+              <Text style={styles.quantityText}>{buyNumber}</Text>
+            </View>
+            <TouchableOpacity onPress={incNum} style={styles.button}>
+              <Text style={styles.buttonText}>+</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -189,9 +195,32 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 10,
+    padding: 5,
+  },
+
+  button: {
+    width: 40, // 버튼의 너비
+    height: 40, // 버튼의 높이
+    justifyContent: 'center', // 텍스트를 수직 중앙 정렬
+    alignItems: 'center', // 텍스트를 가로 중앙 정렬
+    backgroundColor: 'indigo', // 버튼 배경색
+    borderRadius: 5, // 둥근 모서리
+    marginHorizontal: 5, // 버튼 간 간격
+  },
+  buttonText: {
+    color: 'white', // 텍스트 색상
+    fontSize: 20, // 텍스트 크기
+    fontWeight: 'bold', // 텍스트 굵기
+  },
+  quantityBox: {
+    width: 50, // 고정된 너비
+    alignItems: 'center', // 텍스트를 가운데 정렬
+    justifyContent: 'center', // 수직 중앙 정렬
   },
   quantityText: {
     marginHorizontal: 10,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   actionContainer: {
     margin: 15,
