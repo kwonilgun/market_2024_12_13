@@ -1,3 +1,13 @@
+/**
+ * @ Author: Kwonilgun
+ * @ Create Time: 2025-01-14 16:42:49
+ * @ Modified by: Your name
+ * @ Modified time: 2025-01-15 14:25:10
+ * @ Description:
+ */
+
+
+
 import {AppRegistry, Platform, Linking} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
