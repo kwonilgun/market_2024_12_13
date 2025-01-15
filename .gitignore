@@ -33,8 +33,8 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
-
 # node.js
+
 #
 node_modules/
 npm-debug.log
@@ -44,6 +44,7 @@ yarn-error.log
 assets/
 constants/
 android/app/*.json
+
 
 
 # fastlane
@@ -78,3 +79,4 @@ android/app/*.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+node_modules

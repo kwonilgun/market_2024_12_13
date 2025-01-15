@@ -44,6 +44,7 @@
 		66F6D0737D1F423ACEBD3467 /* Pods-market_2024_12_13-market_2024_12_13Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-market_2024_12_13-market_2024_12_13Tests.release.xcconfig"; path = "Target Support Files/Pods-market_2024_12_13-market_2024_12_13Tests/Pods-market_2024_12_13-market_2024_12_13Tests.release.xcconfig"; sourceTree = "<group>"; };
 		768EDE492D36271800001134 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = market_2024_12_13/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		CC30C9642D36536500942857 /* main.jsbundle */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		DBEF5B4DEB51E87794DBEDC7 /* Pods_market_2024_12_13.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_market_2024_12_13.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FE7E336B848AFA4303D06165 /* Pods-market_2024_12_13.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-market_2024_12_13.release.xcconfig"; path = "Target Support Files/Pods-market_2024_12_13/Pods-market_2024_12_13.release.xcconfig"; sourceTree = "<group>"; };
@@ -122,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				768EDE492D36271800001134 /* main.jsbundle */,
+				CC30C9642D36536500942857 /* main.jsbundle */,
 				13B07FAE1A68108700A75B9A /* market_2024_12_13 */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* market_2024_12_13Tests */,
