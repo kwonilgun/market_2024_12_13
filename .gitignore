@@ -3,7 +3,9 @@
 assets/
 constants/
 #
-android/app/*.json
+!android/app/*.json
+
+#ignore 
 
 # OSX
 #
