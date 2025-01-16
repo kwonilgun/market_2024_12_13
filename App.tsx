@@ -134,7 +134,7 @@ const App: React.FC = () => {
     console.log('알림 권한 상태:', hasPermission);
 
     if (Platform.OS === 'android' && Platform.Version >= 33) {
-      console.error('permission ');
+      console.log('permission ');
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         {

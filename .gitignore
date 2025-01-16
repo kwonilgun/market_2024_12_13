@@ -1,3 +1,10 @@
+
+#주요 assets사게
+assets/
+constants/
+#
+android/app/*.json
+
 # OSX
 #
 .DS_Store
@@ -40,10 +47,8 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
-#주요 assets사게
-assets/
-constants/
-android/app/*.json
+
+
 
 
 
