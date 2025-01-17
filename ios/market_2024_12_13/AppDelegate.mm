@@ -1,11 +1,17 @@
 #import "AppDelegate.h"
 
+#import <Firebase.h> // 추가
+
 #import <React/RCTBundleURLProvider.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+
+// 추가 - 상단에 작성 필요!
+    [FIRApp configure];
+
   self.moduleName = @"market_2024_12_13";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
