@@ -103,6 +103,12 @@ const App: React.FC = () => {
       notificationListeners();
     }
 
+    if(Platform.OS === 'ios'){
+      console.log('ios user permission');
+      requestIosUserPermission();
+      notificationListeners();
+    }
+
     fetchInitialUrl();
 
     setLanguage();
@@ -117,6 +123,24 @@ const App: React.FC = () => {
 
     return () => {};
   }, []);
+
+  const requestIosUserPermission = async () => {
+    try {
+      const authStatus = await messaging().requestPermission();
+    console.log('IOS Authorization status: ', authStatus);
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+      console.log('IOS Authorization enabled: ', enabled);
+    if (enabled) {
+      getFcmToken();
+    }
+    } catch (error) {
+      console.error('request Ios user permisson 에러', error);
+    }
+
+  };
 
   const fetchInitialUrl = async () => {
     const url = await Linking.getInitialURL();

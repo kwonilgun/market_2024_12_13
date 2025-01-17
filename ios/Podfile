@@ -23,7 +23,16 @@ end
 # pod 'Firebase/Installations'
 
 target 'market_2024_12_13' do
+
+  $RNFirebaseAsStaticFramework = true
+
   config = use_native_modules!
+
+
+  pod 'FirebaseAuth' 
+  pod 'FirebaseFirestore'
+
+  pod 'GoogleUtilities', :modular_headers => true
 
   # Flags change depending on the env values.
   flags = get_default_flags()
