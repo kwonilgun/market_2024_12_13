@@ -2,7 +2,7 @@
  * @ Author: Kwonilgun
  * @ Create Time: 2025-01-14 16:42:49
  * @ Modified by: Your name
- * @ Modified time: 2025-01-15 14:25:10
+ * @ Modified time: 2025-01-18 15:59:24
  * @ Description:
  */
 
@@ -12,11 +12,22 @@ import {AppRegistry, Platform, Linking} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import {onDisplayNotification} from './Screen/Chat/notification/notificationServices';
-import firebase from '@react-native-firebase/app';
 
 
+if(Platform.OS === 'ios'){
+  const messaging = require('@react-native-firebase/messaging').default;
 
-if (Platform.OS === 'android') {
+  messaging().onNotificationOpenedApp((notification) => {
+    console.log('Background Notification', JSON.stringify(notification));
+    // Handle Your notification here
+  });
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log(' IOS Message handled in the background!!!!!', remoteMessage);
+
+    await onDisplayNotification(remoteMessage);
+  });
+}
+else if (Platform.OS === 'android') {
   const messaging = require('@react-native-firebase/messaging').default;
   const notifee = require('@notifee/react-native').default;
   const {EventType} = require('@notifee/react-native');

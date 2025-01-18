@@ -43,9 +43,9 @@ export async function onDisplayNotification(
 
   console.log('onDisplayNotification data ', item);
 
-  if (Platform.OS == 'ios') {
-    await notifee.requestPermission();
-  }
+  // if (Platform.OS == 'ios') {
+  //   await notifee.requestPermission();
+  // }
 
   // Create a channel (required for Android)
   const channelId = await notifee.createChannel({
@@ -56,16 +56,16 @@ export async function onDisplayNotification(
   });
 
   // Display a notification
-  if (item.notification) {
-    await notifee.displayNotification({
-      title: item.notification?.title!.toString(),
-      body: item.notification?.body!.toString(),
-      android: {
-        channelId,
-        color: 'red',
-      },
-    });
-  }
+  // if (item.notification) {
+  //   await notifee.displayNotification({
+  //     title: item.notification?.title!.toString(),
+  //     body: item.notification?.body!.toString(),
+  //     android: {
+  //       channelId,
+  //       color: 'red',
+  //     },
+  //   });
+  // }
   if (item.data) {
     await notifee.displayNotification({
       title: item.data?.title.toString(),
@@ -81,42 +81,27 @@ export async function onDisplayNotification(
 export async function notificationListeners() {
   messaging().onMessage(async remoteMessage => {
     console.log('A new FCM message arrived!', remoteMessage);
-    onDisplayNotification(remoteMessage);
+    if(Platform.OS === 'android'){
+      console.log('android notificationListeners....');
+      onDisplayNotification(remoteMessage);
+    } else {
+      console.log('ios notificationListeners....');
+      onDisplayNotification(remoteMessage);
+    }
+    
   });
 
   // messaging().setBackgroundMessageHandler(async remoteMessage => {
   //   console.log('Message handled in the background!', remoteMessage);
   // });
 
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log(
-      'Notification caused app to open from background state:',
-      remoteMessage,
-    );
+  // messaging().onNotificationOpenedApp(remoteMessage => {
+  //   console.log(
+  //     'Notification caused app to open from background state:',
+  //     remoteMessage,
+  //   );
 
-    // if (
-    //   !!remoteMessage?.data &&
-    //   remoteMessage?.data?.redirect_to === 'ProductDetail'
-    // ) {
-    //   setTimeout(() => {
-    //     // NavigationService.navigate('ProductDetail', {
-    //     //   data: remoteMessage?.data,
-    //     // });
-    //     console.log('onNotificationOpenedApp: ProductDetail');
-    //   }, 1200);
-    // }
-
-    // if (
-    //   !!remoteMessage?.data &&
-    //   remoteMessage?.data?.redirect_to === 'Profile'
-    // ) {
-    //   setTimeout(() => {
-    //     // NavigationService.navigate('Profile', {data: remoteMessage?.data});
-
-    //     console.log('onNotificationOpenedApp: Profile');
-    //   }, 1200);
-    // }
-  });
+  // });
 
   // Check whether an initial notification is available
   messaging()

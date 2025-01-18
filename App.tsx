@@ -47,6 +47,10 @@ import {
   requestUserPermission,
 } from './Screen/Chat/notification/notificationServices';
 
+import notifee from '@notifee/react-native';
+
+
+
 // import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
@@ -85,6 +89,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log('App.tsx:');
+
+    (async () => {
+      await notifee.setBadgeCount(0); // 앱 실행 시 뱃지 초기화
+    })();
 
     LogBox.ignoreLogs([
       'Non-serializable values were found in the navigation state',
