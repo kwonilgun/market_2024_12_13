@@ -115,7 +115,7 @@ export const branchByStatus = async (
       userId: decoded.userId === null || undefined ? '' : decoded.userId,
     };
 
-    console.log('branchByStatus/makeUserDataAndDispatch userData', userData);
+    // console.log('branchByStatus/makeUserDataAndDispatch userData', userData);
 
     dispatch({type: 'LOGIN', payload: userData});
   }

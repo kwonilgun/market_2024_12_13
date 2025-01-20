@@ -2,7 +2,7 @@
  * @ Author: Kwonilgun
  * @ Create Time: 2025-01-14 16:42:49
  * @ Modified by: Your name
- * @ Modified time: 2025-01-18 15:59:24
+ * @ Modified time: 2025-01-20 11:17:52
  * @ Description:
  */
 
@@ -12,15 +12,12 @@ import {AppRegistry, Platform, Linking} from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
 import {onDisplayNotification} from './Screen/Chat/notification/notificationServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 if(Platform.OS === 'ios'){
   const messaging = require('@react-native-firebase/messaging').default;
 
-  messaging().onNotificationOpenedApp((notification) => {
-    console.log('Background Notification', JSON.stringify(notification));
-    // Handle Your notification here
-  });
   messaging().setBackgroundMessageHandler(async remoteMessage => {
     console.log(' IOS Message handled in the background!!!!!', remoteMessage);
 
@@ -58,6 +55,13 @@ else if (Platform.OS === 'android') {
       await notifee.setBadgeCount(badgeCount);
 
       Linking.openURL('myapp://UserMain'); // 'chat'은 특정 탭의 딥 링크
+    }
+    else if(type === EventType.DELIVERED){
+      console.log('onBackgroundEvent delivered');
+      // 알림 데이터를 저장
+      badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+      badgeCount += 1;
+      await AsyncStorage.setItem('badgeCount', badgeCount.toString());
     }
   });
 }

@@ -12,11 +12,13 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
-import {AuthProvider} from './context/store/Context.Manager';
+import {AuthProvider, useAuth} from './context/store/Context.Manager';
 import MainTab from './Navigator/MainTab';
 import store from './Redux/Cart/Store/store';
 import {
   Alert,
+  AppState,
+  AppStateStatus,
   Linking,
   LogBox,
   PermissionsAndroid,
@@ -69,8 +71,7 @@ import notifee from '@notifee/react-native';
 
 const App: React.FC = () => {
   // const {changeLanguage} = useContext(LanguageContext);
-
-  const [loading, setLoading] = useState<boolean>(false);
+  
 
   const [initialUrl, setInitialUrl] = useState<string | null>(null);
   const linking = {
@@ -131,6 +132,7 @@ const App: React.FC = () => {
 
     return () => {};
   }, []);
+
 
   const requestIosUserPermission = async () => {
     try {
