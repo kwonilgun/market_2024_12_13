@@ -281,7 +281,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
     getInfoOfEmailFromDb(data)
       .then(element => {
-        console.log(element);
+        // console.log(element);
         const message: string =
           element.data.message === null || element.data.message === undefined
             ? 'no'

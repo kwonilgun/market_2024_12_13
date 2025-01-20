@@ -136,14 +136,40 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
 
   useEffect(() => {
 
-    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
         console.log('앱이 백그라운드에서 포그라운드로 전환되었습니다.');
 
         // badgeCountDispatch({type: 'increment'});
         // 업데이트 로직 실행
         // setBadgeCount(1);
-        checkBackgroundUpdate();
+        if(Platform.OS === 'android'){
+          checkBackgroundUpdate();
+        }
+        if(Platform.OS === 'ios'){
+            // 푸시 알림 권한 확인
+            // const settings = await notifee.getNotificationSettings();
+            // if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
+            //   console.log('알림 권한이 활성화되었습니다.');
+
+              // 표시된 알림 가져오기
+              const notifications = await notifee.getDisplayedNotifications();
+              console.log('현재 표시된 알림:', notifications);
+
+              if (notifications.length > 0) {
+                setBadgeCount(1);
+                // 알림이 있는 경우 상태 업데이트
+                // checkBackgroundUpdate();
+              }
+              else{
+                checkBackgroundUpdate();
+              }
+            // } else {
+            //   console.log('알림 권한이 비활성화되었습니다.');
+            // }
+
+        }
+        
       }
       setAppState(nextAppState);
     };
@@ -174,6 +200,9 @@ const cancelNotifications = async () => {
       // 표시 중인 알림이 있으면 취소
       await AsyncStorage.removeItem('badgeCount');
       await notifee.cancelAllNotifications(); // 모든 알림 취소
+      
+      // 앱 아이콘 뱃지 초기화
+      await notifee.setBadgeCount(0);
       console.log('All notifications canceled');
     
   } catch (error) {
