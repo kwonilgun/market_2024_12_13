@@ -34,10 +34,10 @@ export const authReducer = (
         isAuthenticated: !isEmpty(action.payload),
         user: action.payload,
       };
-      console.log('Auth.context.tsx :LOGIN : temp = ', temp);
+      // console.log('Auth.context.tsx :LOGIN : temp = ', temp);
       return temp;
     case 'LOGOUT':
-      console.log('Auth.context.tsx :LOGOUT');
+      // console.log('Auth.context.tsx :LOGOUT');
       return {...state, isAuthenticated: false, user: null};
     default:
       return state;

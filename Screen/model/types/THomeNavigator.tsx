@@ -14,10 +14,6 @@ export type HomeStackParamList = {
   ProductsScreen: undefined;
   ProductDetailScreen: {productInfo: IProduct};
   CartScreen: undefined;
-  // ProfileScreen: {userInfo: UserFormInput};
-  // AuthorizeScreen: {authInfo: IAuthInfo};
-  // OrderListsScreen: {orderInfo: IOrderInfo[]};
-  // OrderDetailScreen: {detailInfo: IOrderInfo};
 };
 
 export type ProductsScreenProps = {

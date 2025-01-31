@@ -67,26 +67,26 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('1. ProductMainScreen : useFocusEffect... 진입');
+      // console.log('1. ProductMainScreen : useFocusEffect... 진입');
       setFocus(false);
       setActive(-1);
 
       if (state.isAuthenticated) {
-        console.log(
-          'ProductMainScreen useFocusEffect: 소켓이 있고, 로그인 상태, 💇‍♀️상품정보를 읽어온다',
-        );
+        // console.log(
+        //   'ProductMainScreen useFocusEffect: 소켓이 있고, 로그인 상태, 💇‍♀️상품정보를 읽어온다',
+        // );
 
         setIsLogin(true);
 
         fetchProductInformFromServer();
       } else {
-        console.log('ProductMainScreen useFocusEffect: 로그 아웃상태');
+        // console.log('ProductMainScreen useFocusEffect: 로그 아웃상태');
         setIsLogin(false);
         setLoading(false);
       }
 
       return () => {
-        console.log('ProductMainScreen useFocusEffect 나감');
+        // console.log('ProductMainScreen useFocusEffect 나감');
         setProducts([]);
         setProductsFiltered([]);
         setFocus(false);

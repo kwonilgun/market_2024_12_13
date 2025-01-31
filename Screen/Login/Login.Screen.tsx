@@ -191,7 +191,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // 2024-05-26 : 자동 로그인을 위해서 추가,
   const loginLocalSaveAndGoToProduct = async () => {
     try {
-      console.log('login/loginLocalSaveGoToProduct phoneNumber = ', state.user);
+      // console.log('login/loginLocalSaveGoToProduct phoneNumber = ', state.user);
       await AsyncStorage.setItem('phoneNumber', state.user!.phoneNumber);
 
       // navigation.navigate('ProfileScreen', {userInfo: state.user!});
@@ -281,7 +281,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
     getInfoOfEmailFromDb(data)
       .then(element => {
-        console.log(element);
+        // console.log(element);
         const message: string =
           element.data.message === null || element.data.message === undefined
             ? 'no'

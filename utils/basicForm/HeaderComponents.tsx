@@ -98,13 +98,13 @@ const HeaderComponent: FC<HeaderComponentProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: RFPercentage(8),
+    height: RFPercentage(6.5),
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 4,
     borderColor: 'black',
     paddingHorizontal: height * 0.02,
-    paddingVertical: height * 0.01,
+    // paddingVertical: height * 0.008,
   },
   centerTextStyle: {
     color: 'black',

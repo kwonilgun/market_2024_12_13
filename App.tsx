@@ -12,11 +12,13 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {Provider} from 'react-redux';
-import {AuthProvider} from './context/store/Context.Manager';
+import {AuthProvider, useAuth} from './context/store/Context.Manager';
 import MainTab from './Navigator/MainTab';
 import store from './Redux/Cart/Store/store';
 import {
   Alert,
+  AppState,
+  AppStateStatus,
   Linking,
   LogBox,
   PermissionsAndroid,
@@ -47,6 +49,10 @@ import {
   requestUserPermission,
 } from './Screen/Chat/notification/notificationServices';
 
+import notifee from '@notifee/react-native';
+
+
+
 // import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
@@ -65,8 +71,7 @@ import {
 
 const App: React.FC = () => {
   // const {changeLanguage} = useContext(LanguageContext);
-
-  const [loading, setLoading] = useState<boolean>(false);
+  
 
   const [initialUrl, setInitialUrl] = useState<string | null>(null);
   const linking = {
@@ -85,6 +90,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log('App.tsx:');
+
+    (async () => {
+      await notifee.setBadgeCount(0); // 앱 실행 시 뱃지 초기화
+    })();
 
     LogBox.ignoreLogs([
       'Non-serializable values were found in the navigation state',
@@ -124,6 +133,7 @@ const App: React.FC = () => {
     return () => {};
   }, []);
 
+
   const requestIosUserPermission = async () => {
     try {
       const authStatus = await messaging().requestPermission();
@@ -134,6 +144,17 @@ const App: React.FC = () => {
 
       console.log('IOS Authorization enabled: ', enabled);
     if (enabled) {
+
+      // 표시된 알림 가져오기
+      const notifications = await notifee.getDisplayedNotifications();
+      console.log('App.tsx: 현재 표시된 알림:', notifications);
+      if(notifications.length > 0){
+          
+          let count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+           count = count + 1;
+          await AsyncStorage.setItem('badgeCount', count.toString());
+      }
+
       getFcmToken();
     }
     } catch (error) {

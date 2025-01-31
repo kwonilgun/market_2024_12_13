@@ -357,7 +357,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                       )}
                     </View>
                   </View>
-                  {!userProfile?.isProducer && !userProfile?.isAdmin ? (
+                  {!userProfile?.isAdmin && (
                     <View>
                       <TouchableOpacity
                         onPress={() => {
@@ -369,8 +369,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                         style={styles.orderButton}>
                         <Text style={styles.buttonText}>주문 리스트</Text>
                       </TouchableOpacity>
-
-                      <TouchableOpacity
+                     
+                    </View>
+                  ) }
+                   <TouchableOpacity
                         onPress={() => {
                           console.log('채팅 등록 ....');
                           props.navigation.navigate('ChatRegisterScreen');
@@ -387,8 +389,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                         style={styles.orderButton}>
                         <Text style={styles.buttonText}>채팅 문의</Text>
                       </TouchableOpacity>
-                    </View>
-                  ) : null}
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>

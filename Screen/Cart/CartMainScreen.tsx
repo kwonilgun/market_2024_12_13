@@ -46,7 +46,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
 
 const CartMainScreen: React.FC<CartMainScreenProps> = props => {
-  const {state, dispatch} = useAuth();
+  const {state} = useAuth();
   const [total, setTotal] = useState<number>(0);
   const [isLogin, setIsLogin] = useState<boolean>(false);
   useFocusEffect(
@@ -81,7 +81,7 @@ const CartMainScreen: React.FC<CartMainScreenProps> = props => {
         setIsLogin(false);
         setTotal(0);
       };
-    }, [state.isAuthenticated, props.cart]),
+    }, [state.isAuthenticated, props.cart, props.navigation]),
   );
 
   const gotoDeliveryScreen = async () => {
@@ -121,6 +121,7 @@ const CartMainScreen: React.FC<CartMainScreenProps> = props => {
             <TouchableOpacity
               onPress={() => {
                 console.log('CartMainScreen: 로그인 필요합니다. ');
+                props.navigation.navigate('UserMain', {screen:'LoginScreen'});
               }}>
               <View style={GlobalStyles.buttonSmall}>
                 <Text style={GlobalStyles.buttonTextStyle}>

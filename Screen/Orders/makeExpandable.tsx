@@ -38,7 +38,7 @@ export function makeExpandableDataList(
     };
   });
 
-  console.log('makeExpandableDataList: dataList = ', dataList);
+  // console.log('makeExpandableDataList: dataList = ', dataList);
 
   setDataList(dataList);
 }

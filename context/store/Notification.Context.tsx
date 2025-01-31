@@ -25,7 +25,7 @@ export const notificationReducer = (
         ...state,
         isNotificationArrived: true,
       };
-      console.log('Auth.context.tsx :LOGIN : temp = ', temp);
+      // console.log('Auth.context.tsx :LOGIN : temp = ', temp);
       return temp;
     case 'OFF':
       console.log('notificationReducer: OFF');

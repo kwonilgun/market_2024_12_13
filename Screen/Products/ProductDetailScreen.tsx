@@ -41,7 +41,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
   );
 
   const imageName = props.route.params.item.image!.split('/').pop(); // Image last name
-  const [isProducer, setIsProducer] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const modalRef = useRef<any>(null);
   const [star, setStar] = useState<number>(5);
 
@@ -50,13 +50,12 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
       console.log('ProductDetailScreen: useCallback');
 
       if (state.isAuthenticated) {
-        const producer = state.user.isProducer;
-        producer ? setIsProducer(true) : setIsProducer(false);
+        state.user!.isAdmin ? setIsAdmin(true) : setIsAdmin(false);
       } else {
-        setIsProducer(false);
+        setIsAdmin(false);
       }
       return () => {
-        setIsProducer(false);
+        setIsAdmin(false);
       };
     }, [state]),
   );
@@ -110,7 +109,7 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
         style={GlobalStyles.containerKey}>
         <ScrollView style={GlobalStyles.scrollView}>
           <View style={GlobalStyles.VStack}>
-            {isProducer ? null : (
+            {isAdmin ? null : (
               <View style={styles.producerView}>
                 <TouchableOpacity
                   onPress={() => {

@@ -92,7 +92,7 @@ export const branchByStatus = async (
       // await initializeSettings();
 
       const decoded = jwtDecode(element.data.token) as UserFormInput;
-      // console.log('branchByStatus decoded = ', decoded);
+      console.log('branchByStatus decoded = ', decoded);
 
       makeUserDataAndDispatch(decoded);
 
@@ -113,9 +113,10 @@ export const branchByStatus = async (
       nickName: decoded.nickName,
       phoneNumber: decoded.phoneNumber,
       userId: decoded.userId === null || undefined ? '' : decoded.userId,
+      isAdmin: decoded.isAdmin,
     };
 
-    console.log('branchByStatus/makeUserDataAndDispatch userData', userData);
+    // console.log('branchByStatus/makeUserDataAndDispatch userData', userData);
 
     dispatch({type: 'LOGIN', payload: userData});
   }
