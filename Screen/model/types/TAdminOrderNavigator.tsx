@@ -14,6 +14,9 @@ export type AdminOrderStackParamList = {
   // EditProductScreen: {item: IProduct}
   OrderStatusScreen: undefined;
   OrderRxScreen: undefined;
+  PaymentCompleteScreen: undefined;
+  OrderDetailScreen: undefined;
+  PrepareDeliveryScreen: undefined;
 };
 
 export type AdminOrderMainScreenProps = {
@@ -26,4 +29,16 @@ export type OrderStatusScreenProps = {
 
 export type OrderRxScreenProps = {
   navigation: StackNavigationProp<AdminOrderStackParamList, 'OrderRxScreen'>;
+};
+
+export type PaymentCompleteScreenProps = {
+  navigation: StackNavigationProp<AdminOrderStackParamList, 'PaymentCompleteScreen'>;
+};
+
+export type OrderDetailScreenProps = {
+  navigation: StackNavigationProp<AdminOrderStackParamList, 'OrderDetailScreen'>;
+};
+
+export type PrepareDeliveryScreenProps = {
+  navigation: StackNavigationProp<AdminOrderStackParamList, 'PrepareDeliveryScreen'>;
 };
