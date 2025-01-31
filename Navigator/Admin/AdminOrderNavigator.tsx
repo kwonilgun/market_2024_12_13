@@ -8,6 +8,7 @@ import OrderRxScreen from '../../Screen/Admin/Order/OrderRxScreen';
 import PaymentCompleteScreen from '../../Screen/Admin/Order/PaymentCompleteScreen';
 import OrderDetailScreen from '../../Screen/Orders/OrderDetailScreen';
 import PrepareDeliveryScreen from '../../Screen/Admin/Order/PrepareDeliveryScreen';
+import FindOrderNumberScreen from '../../Screen/Admin/Order/FindOrderNumberScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<AdminOrderStackParamList>();
@@ -87,6 +88,16 @@ function MyStack() {
               headerShown: false,
               headerLeft: () => null,
               title: '배송준비',
+            })}
+          />
+
+          <Stack.Screen
+            name="FindOrderNumberScreen"
+            component={FindOrderNumberScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '주문번호 찾기',
             })}
           />
 
