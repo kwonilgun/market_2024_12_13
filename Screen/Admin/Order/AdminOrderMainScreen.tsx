@@ -56,6 +56,14 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                 </TouchableOpacity>
                 <TouchableOpacity
                       onPress={() => {
+                        console.log('주문 번호 찾기 클릭');
+                        props.navigation.navigate('FindOrderNumberScreen');
+                      }}
+                      style={styles.saveButton}>
+                      <Text style={styles.buttonText}>주문 번호 찾기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                      onPress={() => {
                         console.log('주문 접수 클릭');
                         props.navigation.navigate('OrderRxScreen');
                       }}

@@ -17,6 +17,7 @@ export type AdminOrderStackParamList = {
   PaymentCompleteScreen: undefined;
   OrderDetailScreen: undefined;
   PrepareDeliveryScreen: undefined;
+  FindOrderNumberScreen: undefined;
 };
 
 export type AdminOrderMainScreenProps = {
@@ -41,4 +42,8 @@ export type OrderDetailScreenProps = {
 
 export type PrepareDeliveryScreenProps = {
   navigation: StackNavigationProp<AdminOrderStackParamList, 'PrepareDeliveryScreen'>;
+};
+
+export type FindOrderNumberScreenProps = {
+  navigation: StackNavigationProp<AdminOrderStackParamList, 'FindOrderNumberScreen'>;
 };
