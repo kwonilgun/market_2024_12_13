@@ -52,10 +52,13 @@ export const Expandable: React.FC<ExpandableProps> = ({
               key={key}
               onPress={() => {
                 console.log('Expandable.tsx : 주문 상세 정보 누름');
-                navigation.navigate('OrderDetailScreen', {
-                  item: data,
-                  actionFt: actionFt,
-                  orders: orders,
+                navigation.navigate('UserMain', {
+                  screen: 'OrderDetailScreen',
+                  params: {
+                    item: data,
+                    actionFt: actionFt,
+                    orders: orders,
+                  },
                 });
               }}>
               <View style={styles.subtitleContainer}>

@@ -4,15 +4,18 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../context/store/Context.Manager';
 import HomeNavigator from './HomeNavigator';
 import UserNavigator from './UserNavigator';
-import AdminNavigator from './AdminNavigator';
+import AdminNavigator from './Admin/AdminOrderNavigator';
 import CartNavigator from './CartNavigator';
 import ShippingNavigator from './ShippingNavigator';
 import PaymentNavigator from './PaymentNavigator';
+import EditNavigator from './Admin/EditNavigator';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { AppState, AppStateStatus, Linking, Platform } from 'react-native';
 import notifee, {EventType} from '@notifee/react-native';
+import AdminOrderNavigator from './Admin/AdminOrderNavigator';
 
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -47,7 +50,12 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
 
   const isAuthenticated = state.isAuthenticated;
   const isAdmin = state.user?.isAdmin;
-  const isProducer = state.user?.isProducer;
+
+  console.log('MainTab, state =', state);
+  console.log('MainTab: isAdmin = ', isAdmin);
+  // const isProducer = state.user?.isProducer;
+
+
 
   if (Platform.OS === 'android') {
     // const notifee = require('@notifee/react-native').default;
@@ -235,7 +243,7 @@ const cancelNotifications = async () => {
         />
       )}
 
-      {!isAdmin && !isProducer && isAuthenticated && (
+      {!isAdmin && (
         <>
           <Tab.Screen
             name="ShoppingCart"
@@ -263,6 +271,26 @@ const cancelNotifications = async () => {
         </>
       )}
 
+      {isAdmin && (
+        <>
+        <Tab.Screen
+                name="EditManager"
+                component={EditNavigator}
+                options={{
+                  tabBarIcon: ({color}) => <TabIcon name="edit" color={color} />,
+                }}
+              />
+        <Tab.Screen
+                name="AdminOder"
+                component={AdminOrderNavigator}
+                options={{
+                  tabBarIcon: ({color}) => <TabIcon name="list" color={color} />,
+                }}
+              />
+        </>
+              
+      )}
+
       <Tab.Screen
         name="UserMain"
         component={UserNavigator}
@@ -279,15 +307,7 @@ const cancelNotifications = async () => {
         }}
       />
 
-      {isAuthenticated && isAdmin && (
-        <Tab.Screen
-          name="Admin"
-          component={AdminNavigator}
-          options={{
-            tabBarIcon: ({color}) => <TabIcon name="cog" color={color} />,
-          }}
-        />
-      )}
+      
     </Tab.Navigator>
   );
 };

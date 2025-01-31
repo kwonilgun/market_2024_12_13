@@ -233,7 +233,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     });
 
     socketData.pingInterval = pingInterval.current = setInterval(() => {
-      // console.log('activateSocket : ping을 보낸다.', id);
+      console.log('activateSocket : ping을 보낸다.', state.user?.userId);
       socket.emit('ping', '핑을 보냅니다: from ' + state.user?.userId);
 
       socketData.pongInterval = pongInterval.current = setTimeout(() => {
@@ -246,10 +246,10 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
     // 2023-09-17 : pong을 받으면 세팅된 pongInterval.current에 해당되는 setTimeout을 해제한다. 10초 간의 모니터링을 통해서 연결이 살아있는 지 확인을 한다.
     socket.on('ping', res => {
-      // console.log(' ping을 받음 = ', res);
+      console.log(' ping을 받음 = ', res);
       if (!isEmpty(socketData.pingInterval)) {
         clearTimeout(socketData.pongInterval!);
-        socketData.pongInterval = null;
+        // socketData.pongInterval = null;
       }
     });
 
@@ -371,9 +371,11 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     props.clearSocket();
     //pingInterval 및 pongInterval 정리
     if (pingInterval.current) {
+      console.log('pingInterval 을 중단한다.');
       clearInterval(pingInterval.current);
     }
     if (pongInterval.current) {
+      console.log('pongInterval 을 중단한다.');
       clearTimeout(pongInterval.current);
     }
     setLoading(true);

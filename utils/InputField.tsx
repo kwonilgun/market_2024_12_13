@@ -1,5 +1,3 @@
-// InputField.tsx
-
 import React from 'react';
 import {Controller} from 'react-hook-form';
 import {
@@ -8,9 +6,6 @@ import {
   KeyboardTypeOptions,
   Platform,
 } from 'react-native';
-// import {RFPercentage} from 'react-native-responsive-fontsize';
-
-// import {height, width} from '../assets/common/BaseValue';
 import GlobalStyles from '../styles/GlobalStyles';
 
 interface InputFieldProps {
@@ -27,6 +22,8 @@ interface InputFieldProps {
   isEditable?: boolean;
   isPassword?: boolean;
   defaultValue?: string;
+  multiline?: boolean; // 추가: multiline 지원
+  numberOfLines?: number; // 추가: numberOfLines 지원
 }
 
 const InputField = ({
@@ -37,8 +34,9 @@ const InputField = ({
   keyboard,
   isEditable = true,
   isPassword = false,
-}: // defaultValue = '',
-InputFieldProps) => {
+  multiline = false, // 기본값 설정
+  numberOfLines = 1, // 기본값 설정
+}: InputFieldProps) => {
   return (
     <>
       <Controller
@@ -46,16 +44,20 @@ InputFieldProps) => {
         rules={rules}
         render={({field: {onChange, onBlur, value}}) => (
           <TextInput
-            style={GlobalStyles.textInputField}
+            style={[
+              GlobalStyles.textInputField,
+              multiline && styles.multilineInput, // 멀티라인 스타일 추가
+            ]}
             placeholder={placeholder}
             placeholderTextColor={'grey'}
             onBlur={onBlur}
             onChangeText={onChange}
             value={value}
             keyboardType={keyboard}
-            editable={isEditable} // 추가: 사용자가 입력 가능한지 여부 설정
-            secureTextEntry={isPassword} // Use secureTextEntry based on isPassword
-            // defaultValue={defaultValue} // 추가: 초기 값 설정
+            editable={isEditable}
+            secureTextEntry={isPassword}
+            multiline={multiline} // 멀티라인 활성화
+            numberOfLines={numberOfLines} // 줄 수 지정
           />
         )}
         name={name}
@@ -64,18 +66,11 @@ InputFieldProps) => {
   );
 };
 
-// const styles = StyleSheet.create({
-//   input: {
-//     height: Platform.OS === 'android' ? 'auto' : height * 0.05,
-//     width: width * 0.75,
-//     margin: RFPercentage(1),
-//     borderWidth: 1,
-//     paddingHorizontal: 10,
-//     borderColor: 'black',
-//     borderRadius: 5,
-//     fontSize: RFPercentage(1.8),
-//     fontWeight: 'bold',
-//   },
-// });
+const styles = StyleSheet.create({
+  multilineInput: {
+    textAlignVertical: 'top', // 텍스트의 수직 정렬을 상단으로
+    paddingVertical: 10, // 위아래 패딩 추가
+  },
+});
 
 export default InputField;

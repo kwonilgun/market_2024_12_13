@@ -33,7 +33,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({
       console.log('OrderLists: useEffect: 초기화시에 orders가 비어 있다.');
       setLoading(false);
     } else {
-      console.log('OrderLists: useEffect: 실행 이후에 orders가 있다.');
+      console.log('useEffect: 실행 이후에 orders가 있다.');
       setLoading(false);
     }
     return () => {
