@@ -17,6 +17,6 @@ export interface IOrderInfo {
   realPayment: number;
   receiverName: string;
   receiverPhone: string;
-  status: string;
+  status: number;
   user: string;
 }

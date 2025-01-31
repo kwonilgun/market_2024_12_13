@@ -1,39 +1,37 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useRef, useState} from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import WrapperContainer from '../../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../../utils/basicForm/HeaderComponents';
-import {RFPercentage} from 'react-native-responsive-fontsize';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import colors from '../../../styles/colors';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import GlobalStyles from '../../../styles/GlobalStyles';
 
 import LoadingWheel from '../../../utils/loading/LoadingWheel';
-import { OrderRxScreenProps} from '../../model/types/TAdminOrderNavigator';
+import { OrderRxScreenProps } from '../../model/types/TAdminOrderNavigator';
 import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../../assets/common/BaseUrl';
 import { IOrderInfo } from '../../model/interface/IOrderInfo';
 import groupBy from 'group-by';
 import { DataList, makeExpandableDataList, updateLayout } from '../../Orders/makeExpandable';
 import isEmpty from '../../../utils/isEmpty';
-import { Expandable } from '../../Orders/Expandable';
 import deleteOrder from '../../Orders/deleteOrder';
-import { RECEIVE_ORDER } from '../../../assets/common/BaseValue';
-import { errorAlert } from '../../../utils/alerts/errorAlert';
+import { PAYMENT_COMPLETE } from '../../../assets/common/BaseValue';
 import { AdminExpandable } from '../../Orders/AdminExpandable';
 
 
-const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
+const PaymentCompleteScreen: React.FC<OrderRxScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
   const [dataList, setDataList] = useState<DataList | null>(null);
   const [orderList, setOrderList] = useState<DataList | null>(null);
@@ -59,7 +57,7 @@ const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
     //2025-01-31 10:47:59, 접수된 주문 필터링
-      const filteredOrders = orders.filter(order => order.status === RECEIVE_ORDER);
+      const filteredOrders = orders.filter(order => order.status === PAYMENT_COMPLETE);
       console.log('filteredOrders = ', orders);
 
       if (filteredOrders.length) {
@@ -130,7 +128,7 @@ const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="주문 접수"
+        centerText="결재 완료"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
@@ -169,7 +167,7 @@ const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
                     return null;
                   })
                 ) : (
-                  <Text style={{textAlign: 'center'}}> 접수된 주문 정보 없음</Text>
+                  <Text style={{textAlign: 'center'}}> 결재 완료 정보 없음</Text>
                 )}
               </View>
             </ScrollView>
@@ -192,4 +190,4 @@ const styles = StyleSheet.create({
       },
 });
 
-export default OrderRxScreen;
+export default PaymentCompleteScreen;

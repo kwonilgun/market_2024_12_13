@@ -1,7 +1,8 @@
+/* eslint-disable react/self-closing-comp */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,31 +14,70 @@ import {
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {RFPercentage} from 'react-native-responsive-fontsize';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import colors from '../../styles/colors';
 import isEmpty from '../../utils/isEmpty';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
-import {OrderDetailScreenProps} from '../model/types/TUserNavigator';
-import {IOrderInfo} from '../model/interface/IOrderInfo';
+import { OrderDetailScreenProps } from '../model/types/TUserNavigator';
+import { IOrderInfo } from '../model/interface/IOrderInfo';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
-import {getToken} from '../../utils/getSaveToken';
-import axios, {AxiosResponse} from 'axios';
-import {baseURL} from '../../assets/common/BaseUrl';
-import {IOrderItem} from '../model/interface/IOrderItem';
+import { dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
+import { getToken } from '../../utils/getSaveToken';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
+import { IOrderItem } from '../model/interface/IOrderItem';
 import {
   confirmAlert,
   ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
 import strings from '../../constants/lang';
+import { useAuth } from '../../context/store/Context.Manager';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { alertMsg } from '../../utils/alerts/alertMsg';
+import { errorAlert } from '../../utils/alerts/errorAlert';
+
+type IOrderStatus = {
+  status: number|null,
+};
 
 const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
+  const {state} = useAuth();
   const [loading, setLoading] = useState<boolean>(true);
   const [item] = useState<IOrderInfo>(props.route.params?.item);
   const [orderItem, setOrderItem] = useState<IOrderItem | null>(null);
   const [total, setTotal] = useState<Number>(0);
+
+  const [openMethod, setOpenMethod] = useState<boolean>(false);
+  const [valueMethod, setValueMethod] = useState<number>(Number(props.route.params?.item.status));
+  const [itemsMethod, setItemsMethod] = useState([
+      {label: '주문 접수', value: 1},
+      {label: '결재 완료', value: 2},
+      {label: '배송 준비', value: 3},
+      {label: '배송중', value: 4},
+      {label: '배송 완료', value: 5},
+      {label: '반품 요청', value: 6},
+      {label: '반품 완료', value: 7},
+    ]);
+
+  const isAdmin = state.user?.isAdmin;
+  console.log('item = ', props.route.params?.item);
+
+
+  const {
+      control,
+      setValue,
+      getValues,
+      handleSubmit,
+      formState: {errors},
+      reset,
+    } = useForm<IOrderStatus>({
+      defaultValues: {
+       status: Number(props.route.params?.item.status),
+      },
+    });
 
   useEffect(() => {
     if (!isEmpty(props.route.params.item)) {
@@ -122,6 +162,48 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     confirmAlert(param);
   };
+  
+  const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
+    console.log('업로드 order status = ', data);
+
+    const param: ConfirmAlertParams = {
+      title: strings.CONFIRMATION,
+      message: '주문상태 변경',
+      func: async (in_data: IOrderStatus) => {
+        console.log('주문상태 업로드 data = ', in_data);
+        const status: IOrderStatus = in_data;
+
+        const token = await getToken();
+       
+        const config = {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        try {
+          const response: AxiosResponse = await axios.put(
+            `${baseURL}orders/status/${item.id}`,
+            JSON.stringify(status),
+            config,
+          );
+          if (response.status === 200 || response.status === 201) {
+            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+          } else if (response.status === 202) {
+            alertMsg('에러', '주문상태 202');
+          } else if (response.status === 203) {
+            alertMsg('에러', '주문 ');
+          }
+        } catch (error) {
+          console.log('confirmUpload error, error = ', error);
+          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+        }
+      },
+      params: [data],
+    };
+
+    confirmAlert(param);
+  };
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -144,18 +226,48 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
               style={GlobalStyles.scrollView}
               keyboardShouldPersistTaps="handled">
               <View style={GlobalStyles.VStack}>
-                {props.route.params.actionFt === null ? null : (
-                  <View style={styles.actionContainer}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        deleteOrderItem();
-                      }}>
-                      <View style={GlobalStyles.buttonSmall}>
-                        <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    margin: RFPercentage(0.2),
+                    alignContent: 'center',
+                    alignItems: 'center',
+                  }} >
+                    {isAdmin && (
+                      <TouchableOpacity onPress={() => {
+
+                          if(Number(props.route.params?.item.status) !== getValues('status')){
+                            handleSubmit(confirmUpload)();
+                          }
+                          else{
+                            errorAlert('에러', '주문상태 변경 안됨');
+                          }
+
+                          }
+
+                          }>
+                          <View style={GlobalStyles.buttonSmall}>
+                          <Text style={GlobalStyles.buttonTextStyle}>
+                          업데이트
+                          </Text>
+                          </View>
+                          </TouchableOpacity>
+                    )}
+
+                  {props.route.params.actionFt === null ? null : (
+                    <View style={styles.actionContainer}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          deleteOrderItem();
+                        }}>
+                        <View style={GlobalStyles.buttonSmall}>
+                          <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
                 )}
+                </View>
+
 
                 <View style={styles.orderContainer}>
                   <Text style={styles.heading}>주문 정보</Text>
@@ -206,7 +318,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                     <Text style={styles.value}>{total?.toLocaleString()}</Text>
                   </View>
 
-                  <Text style={styles.label}>받는사람:</Text>
+                  <Text style={styles.label}>받는사람(전화번호):</Text>
                   <Text style={styles.value}>
                     {item.receiverName} : {item.receiverPhone}
                   </Text>
@@ -220,6 +332,35 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                     {item.buyerName} : {item.buyerPhone}
                   </Text>
                 </View>
+
+{/* 2025-01-31 11:34:25: isAdmin 이면 상태 변경을 허용한다. */}
+              {isAdmin && (
+                <View style={{flex: 0.8}}>
+                <Text style={GlobalStyles.inputTitle}>주문 상태 변경</Text>
+                <View style={styles.HCStack}>
+                  <DropDownPicker
+                    style={{backgroundColor: 'gainsboro'}}
+                    listMode="MODAL"
+                    open={openMethod}
+                    value={valueMethod}
+                    items={itemsMethod}
+                    setOpen={setOpenMethod}
+                    setValue={setValueMethod}
+                    setItems={setItemsMethod}
+                    onChangeValue={value => {
+                      console.log('act value', value);
+                      setValue('status', value);
+                      // setValue('deliveryMethod', Number(value));
+                    }} // 값이 바뀔 때마다 실행
+                    listItemContainerStyle={{
+                      margin: RFPercentage(2),
+                      backgroundColor: 'gainsboro',
+                    }}
+                  />
+                </View>
+              </View>
+              )}
+
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
@@ -230,14 +371,21 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  HCStack: {
+      margin: RFPercentage(0.2),
+      // padding: 5,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   actionContainer: {
-    margin: 8,
-    padding: 8,
+     marginVertical: RFPercentage(1),
+    // padding: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   orderContainer: {
-    margin: 8,
+    margin: RFPercentage(0.2),
     padding: 16,
     borderWidth: 1,
     borderRadius: 10,

@@ -26,8 +26,8 @@ import { IOrderInfo } from '../../model/interface/IOrderInfo';
 import groupBy from 'group-by';
 import { DataList, makeExpandableDataList, updateLayout } from '../../Orders/makeExpandable';
 import isEmpty from '../../../utils/isEmpty';
-import { Expandable } from '../../Orders/Expandable';
 import deleteOrder from '../../Orders/deleteOrder';
+import { AdminExpandable } from '../../Orders/AdminExpandable';
 
 
 const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
@@ -144,7 +144,7 @@ const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
                     if (!isEmpty(item.subtitle)) {
                       return (
                         <View key={index} style={styles.itemContainer}>
-                          <Expandable
+                          <AdminExpandable
                             navigation={props.navigation}
                             item={item}
                             onClickFunction={() => {

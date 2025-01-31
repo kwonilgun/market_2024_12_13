@@ -5,6 +5,9 @@ import {AdminOrderStackParamList} from '../../Screen/model/types/TAdminOrderNavi
 import AdminOrderMainScreen from '../../Screen/Admin/Order/AdminOrderMainScreen';
 import OrderStatusScreen from '../../Screen/Admin/Order/OrderStatusScreen';
 import OrderRxScreen from '../../Screen/Admin/Order/OrderRxScreen';
+import PaymentCompleteScreen from '../../Screen/Admin/Order/PaymentCompleteScreen';
+import OrderDetailScreen from '../../Screen/Orders/OrderDetailScreen';
+import PrepareDeliveryScreen from '../../Screen/Admin/Order/PrepareDeliveryScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<AdminOrderStackParamList>();
@@ -55,6 +58,35 @@ function MyStack() {
               headerShown: false,
               headerLeft: () => null,
               title: '주문접수',
+            })}
+          />
+        <Stack.Screen
+            name="PaymentCompleteScreen"
+            component={PaymentCompleteScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '결재완료',
+            })}
+          />
+
+          <Stack.Screen
+            name="OrderDetailScreen"
+            component={OrderDetailScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '결재완료',
+            })}
+          />
+
+          <Stack.Screen
+            name="PrepareDeliveryScreen"
+            component={PrepareDeliveryScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '배송준비',
             })}
           />
 

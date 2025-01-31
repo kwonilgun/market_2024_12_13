@@ -177,7 +177,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
             // }
 
         }
-        
+
       }
       setAppState(nextAppState);
     };
@@ -201,7 +201,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   };
 
   // 알림 취소 함수
-const cancelNotifications = async () => {
+  const cancelNotifications = async () => {
   try {
     // 현재 표시 중인 알림 가져오기
     
@@ -216,7 +216,7 @@ const cancelNotifications = async () => {
   } catch (error) {
     console.error('Failed to cancel notifications:', error);
   }
-};
+  };
   return (
     <Tab.Navigator
       screenOptions={{
@@ -281,7 +281,7 @@ const cancelNotifications = async () => {
                 }}
               />
         <Tab.Screen
-                name="AdminOder"
+                name="AdminOrder"
                 component={AdminOrderNavigator}
                 options={{
                   tabBarIcon: ({color}) => <TabIcon name="list" color={color} />,
