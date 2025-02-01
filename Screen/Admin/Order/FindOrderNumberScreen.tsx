@@ -61,29 +61,8 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
       if (orders.length) {
-        // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
-        // orders.sort(
-        //   (a, b) =>
-        //     new Date(b.dateOrdered).getTime() -
-        //     new Date(a.dateOrdered).getTime(),
-        // );
 
-        // //💇‍♀️2023-05-22 :생산자 전화번호에  따라서 그룹핑을 한다. 전화번호는 변경이 되지 않기 때문에 이것을 이용해서 그룹핑을 하고, 생산자는 해당 정보에서 추출하면 된다. 전화번호가 핵심이다.
-
-        // /***
-        //     Record는 TypeScript에서 제공하는 유틸리티 타입 중 하나로, 특정 키-값 쌍의 구조를 정의할 때 사용됩니다. Record는 다음과 같은 형태로 사용됩니다:
-        //     Record<KeyType, ValueType>
-        //     주요 특징
-        //     KeyType: 객체의 키에 사용할 타입. 보통 string, number, symbol 또는 이러한 타입의 유니온을 사용합니다.
-        //     ValueType: 각 키에 해당하는 값의 타입.
-        //     Record를 사용하면 특정 키-값 쌍을 효율적으로 정의하고 타입 안전성을 유지할 수 있습니다.
-        // ****/
-        // const result: Record<string, IOrderInfo[]> = groupBy(
-        //   orders,
-        //   'producerPhone',
-        // );
-
-        // console.log('checkOrderList result', result);
+        console.log('checkOrderList result', orders);
 
         // // setProducerGroup(result);
         // makeExpandableDataList(orders, setDataList);
@@ -120,7 +99,7 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
   };
 
 
-  const renderOrderList =  () => (
+  const renderOrderList =  (props: any) => (
       <View style={styles.orderListContainer}>
           <Text style={styles.title}>상품 리스트</Text>
           <FlatList
@@ -130,11 +109,18 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
               <TouchableOpacity
                 style={styles.orderItem}
                 onPress={() => {
-                  console.log('renderOrderList')
+                  console.log('renderOrderList, 주문서 선택됨...');
+                  props.navigation.navigate('AdminOrder', {
+                    screen: 'OrderDetailScreen',
+                    params: {
+                      item: item,
+                      actionFt: deleteOrder,
+                    },
+                  });
                   // startEdit(item);
                 }} // Navigate to chat when a user is selected
               >
-                <Text style={styles.orderName}>{item.receiverName}</Text>
+                <Text style={styles.orderName}>{item.orderNumber}--{item.receiverName}</Text>
               </TouchableOpacity>
             )}
             // ListHeaderComponent={renderAddProduct} // 리스트 상단에 추가 버튼 배치
@@ -152,7 +138,7 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
     setSearchText(text);
     if (orderList) {
       const filtered = orderList?.filter(item => 
-        item.orderNumber.toLowerCase().includes(text.toLowerCase())
+        item.orderNumber.toLowerCase() === text.toLowerCase()
       );
 
       // makeExpandableDataList(filtered!, setFilteredOrders);
@@ -186,7 +172,10 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
             value={searchText}
             onChangeText={handleSearch}
           />
-          renderOrderList()
+
+          {renderOrderList(props)}
+
+
         </KeyboardAvoidingView>
       )}
     </WrapperContainer>
