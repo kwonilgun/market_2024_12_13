@@ -9,6 +9,10 @@ import PaymentCompleteScreen from '../../Screen/Admin/Order/PaymentCompleteScree
 import OrderDetailScreen from '../../Screen/Orders/OrderDetailScreen';
 import PrepareDeliveryScreen from '../../Screen/Admin/Order/PrepareDeliveryScreen';
 import FindOrderNumberScreen from '../../Screen/Admin/Order/FindOrderNumberScreen';
+import DuringDeliveryScreen from '../../Screen/Admin/Order/DuringDeliveryScreen';
+import CompleteDeliveryScreen from '../../Screen/Admin/Order/CompleteDeliveryScreen';
+import CompleteReturnScreen from '../../Screen/Admin/Order/CompleteReturnScreen';
+import RequestReturnScreen from '../../Screen/Admin/Order/RequestReturnScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<AdminOrderStackParamList>();
@@ -77,7 +81,7 @@ function MyStack() {
             options={({navigation, route}) => ({
               headerShown: false,
               headerLeft: () => null,
-              title: '결재완료',
+              title: '주문 상세',
             })}
           />
 
@@ -98,6 +102,42 @@ function MyStack() {
               headerShown: false,
               headerLeft: () => null,
               title: '주문번호 찾기',
+            })}
+          />
+          <Stack.Screen
+            name="DuringDeliveryScreen"
+            component={DuringDeliveryScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '배송 중',
+            })}
+          />
+          <Stack.Screen
+            name="CompleteDeliveryScreen"
+            component={CompleteDeliveryScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '배송 완료',
+            })}
+          />
+          <Stack.Screen
+            name="CompleteReturnScreen"
+            component={CompleteReturnScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '반품 완료',
+            })}
+          />
+          <Stack.Screen
+            name="RequestReturnScreen"
+            component={RequestReturnScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '반품 완료',
             })}
           />
 

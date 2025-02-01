@@ -89,7 +89,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                 <TouchableOpacity
                       onPress={() => {
                         console.log('배송 중 클릭');
-                        // props.navigation.navigate('OrderStatusScreen');
+                        props.navigation.navigate('DuringDeliveryScreen');
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>배송 중</Text>
@@ -97,21 +97,24 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                 <TouchableOpacity
                       onPress={() => {
                         console.log('배송 완료 클릭');
-                        // props.navigation.navigate('OrderStatusScreen');
+                        props.navigation.navigate('CompleteDeliveryScreen');
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>배송 완료</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                       onPress={() => {
-                        console.log('배송 현황 클릭');
+                        console.log('반품 요청 클릭');
+                        props.navigation.navigate('RequestReturnScreen');
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>반품 요청</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                       onPress={() => {
-                        console.log('반품 현황 클릭');
+                        console.log('반품 완료 클릭');
+                        props.navigation.navigate('CompleteReturnScreen');
+
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>반품 완료</Text>
