@@ -73,7 +73,7 @@ const DeliveryModifyScreen: React.FC<DeliveryModifyScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('DeliveryModifyScreen : useFocusEffect');
       setLoading(true);
       startLoading();
 

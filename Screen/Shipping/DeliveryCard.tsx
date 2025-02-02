@@ -99,24 +99,6 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
     <View style={styles.cardContainer}>
       <View style={styles.cardHeader}>
         <Text style={styles.name}>{name}</Text>
-        {/* <CheckBox
-          value={chkValue}
-          onValueChange={(state: boolean) => {
-            console.log('DeliveryCard.tsx: Checkbox state = ', state);
-            onChangeMark(state);
-          }}
-          boxType={'square'}
-          style={[
-            Platform.OS === 'ios'
-              ? {
-                  height: RFPercentage(4),
-                  width: RFPercentage(4),
-                  //    marginRight: RFPercentage(0.5),
-                }
-              : GlobalStyles.androidCheckbox,
-          ]} // 크기 조정
-          tintColors={{true: '#007BFF', false: '#000'}}
-        /> */}
 
         <TouchableOpacity
           style={{
@@ -139,13 +121,6 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
           )}
         </TouchableOpacity>
 
-        {/* <CheckBox
-          value={chkValue}
-          onValueChange={state => {
-            console.log('DeliveryCard.tsx: Checkbox state = ' , state);
-            onChangeMark(state);
-          }}
-        /> */}
       </View>
       <View style={styles.addressContainer}>
         <Text style={styles.address}>

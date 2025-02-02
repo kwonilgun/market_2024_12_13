@@ -39,7 +39,7 @@ const RequestReturnScreen: React.FC<RequestReturnScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('RequestReturnScreen : useFocusEffect');
       checkOrderStatus();
       return () => {
         setLoading(true);
@@ -57,7 +57,7 @@ const RequestReturnScreen: React.FC<RequestReturnScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
     //2025-01-31 10:47:59, 접수된 주문 필터링
-      const filteredOrders = orders.filter(order => order.status === REQUEST_RETURN);
+      const filteredOrders = orders.filter(order => Number(order.status) === REQUEST_RETURN);
       console.log('filteredOrders = ', filteredOrders);
 
       if (filteredOrders.length) {

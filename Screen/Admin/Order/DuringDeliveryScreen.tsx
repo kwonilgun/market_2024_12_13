@@ -39,7 +39,7 @@ const DuringDeliveryScreen: React.FC<DuringDeliveryScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('DuringDeliveryScreen : useFocusEffect');
       checkOrderStatus();
       return () => {
         setLoading(true);
@@ -57,7 +57,7 @@ const DuringDeliveryScreen: React.FC<DuringDeliveryScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
     //2025-01-31 10:47:59, 접수된 주문 필터링
-      const filteredOrders = orders.filter(order => order.status === DURING_DELIVERY);
+      const filteredOrders = orders.filter(order => Number(order.status) === DURING_DELIVERY);
       console.log('filteredOrders = ', filteredOrders);
 
       if (filteredOrders.length) {
