@@ -133,7 +133,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
     console.log('finishOrder item  = ', item);
 
     const m_uid: string = generateOrderNumber();
-    const cartArray: CartItem[] = props.cart;
+    const cartArray: CartItem[] = [item];
     const param: ConfirmAlertParams = {
       title: '송금을 완료하셨습니까?',
       message: '주문이 접수됩니다.  온라인 계좌로 송금을 해 주세요',
@@ -178,7 +178,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
           // Show success message
           alertMsg(
             strings.SUCCESS,
-            '모든 주문이 성공적으로 접수되었습니다!',
+            '주문이 성공적으로 접수되었습니다!',
             // () => {
             //   props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
             // },

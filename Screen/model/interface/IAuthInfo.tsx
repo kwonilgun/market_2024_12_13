@@ -52,6 +52,7 @@ export interface IUserAtDB {
   id: string;
   isAdmin: boolean;
   isProducer: boolean;
+  isProducerNumber?: number;
   nickName: string;
   ozsId: string;
   phone: string;
