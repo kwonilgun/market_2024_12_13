@@ -144,6 +144,6 @@ function MyStack() {
       </Stack.Navigator>
     );
   }
-  export default function UserNavigator() {
+  export default function AdminOrderNavigator() {
     return <MyStack />;
   }

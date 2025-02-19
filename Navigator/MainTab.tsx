@@ -4,7 +4,6 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../context/store/Context.Manager';
 import HomeNavigator from './HomeNavigator';
 import UserNavigator from './UserNavigator';
-import AdminNavigator from './Admin/AdminOrderNavigator';
 import CartNavigator from './CartNavigator';
 import ShippingNavigator from './ShippingNavigator';
 import PaymentNavigator from './PaymentNavigator';
@@ -16,6 +15,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { AppState, AppStateStatus, Linking, Platform } from 'react-native';
 import notifee, {EventType} from '@notifee/react-native';
 import AdminOrderNavigator from './Admin/AdminOrderNavigator';
+import SalesNavigator from './Admin/SalesNavigator';
 
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -27,6 +27,9 @@ type RootTabParamList = {
   ShoppingCart: undefined;
   ShippingNavigator: undefined;
   PaymentNavigator: undefined;
+  EditManager:undefined;
+  AdminOrder: undefined;
+  Sales: undefined;
 };
 
 const getTabIconStyle = () => ({
@@ -46,7 +49,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const {state, badgeCountState, badgeCountDispatch} = useAuth();
   const [badgeCount, setBadgeCount] = useState<number>(0);
   const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
-  const [status, setStatus] = useState<string>("정상 상태");
+  // const [status, setStatus] = useState<string>("정상 상태");
 
   const isAuthenticated = state.isAuthenticated;
   const isAdmin = state.user?.isAdmin;
@@ -193,7 +196,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
     // 예: 백엔드와 통신하거나 상태를 확인하는 로직
     // setStatus("백그라운드에서 상태 변경을 감지했습니다!");
     const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-        
+
         // const count = badgeCountState.isBadgeCount;
         console.log('MainTab count = ', count);
         setBadgeCount(prevCount => prevCount + count);
@@ -204,15 +207,15 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const cancelNotifications = async () => {
   try {
     // 현재 표시 중인 알림 가져오기
-    
+
       // 표시 중인 알림이 있으면 취소
       await AsyncStorage.removeItem('badgeCount');
       await notifee.cancelAllNotifications(); // 모든 알림 취소
-      
+
       // 앱 아이콘 뱃지 초기화
       await notifee.setBadgeCount(0);
       console.log('All notifications canceled');
-    
+
   } catch (error) {
     console.error('Failed to cancel notifications:', error);
   }
@@ -287,8 +290,15 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
                   tabBarIcon: ({color}) => <TabIcon name="list" color={color} />,
                 }}
               />
+        <Tab.Screen
+                name="Sales"
+                component={SalesNavigator}
+                options={{
+                  tabBarIcon: ({color}) => <TabIcon name="line-chart" color={color} />,
+                }}
+              />
         </>
-              
+
       )}
 
       <Tab.Screen
@@ -307,7 +317,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         }}
       />
 
-      
+
     </Tab.Navigator>
   );
 };

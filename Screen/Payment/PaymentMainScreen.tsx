@@ -149,7 +149,8 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
               buyerName: buyer?.nickName,
               buyerPhone: buyer?.phone,
               status: PAYMENT_COMPLETE,
-              dateOrdered: moment().format(),
+              // dateOrdered: moment().format(),
+              dateOrdered: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('.')[0],
             };
 
             try {

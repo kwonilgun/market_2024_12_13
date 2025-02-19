@@ -12,7 +12,7 @@ import { RouteProp } from '@react-navigation/native';
 // import {RouteProp} from '@react-navigation/native';
 // import {IProduct} from '../interface/IProductInfo';
 
-export type AdminStackParamList = {
+export type EditStackParamList = {
   EditManager: {screen: 'EditMainScreen'};
   EditMainScreen: undefined;
   EditProductScreen: {item: IProduct}
@@ -20,14 +20,14 @@ export type AdminStackParamList = {
 };
 
 export type EditMainScreenProps = {
-  navigation: StackNavigationProp<AdminStackParamList, 'EditMainScreen'>;
+  navigation: StackNavigationProp<EditStackParamList, 'EditMainScreen'>;
 };
 
 export type EditProductScreenProps = {
-  route: RouteProp<AdminStackParamList, 'EditProductScreen'>;
-  navigation: StackNavigationProp<AdminStackParamList, 'EditProductScreen'>;
+  route: RouteProp<EditStackParamList, 'EditProductScreen'>;
+  navigation: StackNavigationProp<EditStackParamList, 'EditProductScreen'>;
 };
 
 export type AddProductScreenProps = {
-  navigation: StackNavigationProp<AdminStackParamList, 'AddProductScreen'>;
+  navigation: StackNavigationProp<EditStackParamList, 'AddProductScreen'>;
 };
