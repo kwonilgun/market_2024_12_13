@@ -1,19 +1,20 @@
 import React from 'react';
 
-import {createStackNavigator} from '@react-navigation/stack';
-import {EditStackParamList} from '../../Screen/model/types/TEditNavigator';
-import EditMainScreen from '../../Screen/Admin/EditMainScreen';
-import EditProductScreen from '../../Screen/Admin/EditProductScreen';
-import AddProductScreen from '../../Screen/Admin/AddProductScreen';
+import { createStackNavigator } from '@react-navigation/stack';
+import SalesMainScreen from '../../Screen/Admin/Sales/SalesMainScreen';
+import { SalesStackParamList } from '../../Screen/model/types/TSalesNavigator';
+import SalesChartScreen from '../../Screen/Admin/Sales/SalesChartScreen';
+import SalesMonthlyScreen from '../../Screen/Admin/Sales/SalesMonthlyScreen';
+import ProfitMonthlyScreen from '../../Screen/Admin/Sales/ProfitMonthlyScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
-const Stack = createStackNavigator<EditStackParamList>();
+const Stack = createStackNavigator<SalesStackParamList>();
 
 function MyStack() {
     // const {state} = useAuth();
     return (
       <Stack.Navigator
-        initialRouteName="EditMainScreen"
+        initialRouteName="SalesMainScreen"
         screenOptions={{
           headerStyle: {
             backgroundColor: '#e6efd0',
@@ -29,8 +30,8 @@ function MyStack() {
         {/* 2024-05-02 : 하단 탭 메뉴에서 로그인 탭을 눌러도 그대로 있도록 하기 위해서 로그인 상태를 체크해서, 로그인 상태이면 ProfileScreen을 유지 */}
 
           <Stack.Screen
-            name="EditMainScreen"
-            component={EditMainScreen}
+            name="SalesMainScreen"
+            component={SalesMainScreen}
             options={({navigation, route}) => ({
               headerShown: false,
               headerLeft: () => null,
@@ -38,27 +39,36 @@ function MyStack() {
             })}
           />
           <Stack.Screen
-            name="EditProductScreen"
-            component={EditProductScreen}
+            name="SalesChartScreen"
+            component={SalesChartScreen}
             options={({navigation, route}) => ({
               headerShown: false,
               headerLeft: () => null,
-              title: '상품편집',
+              title: '한달매출',
             })}
           />
-
           <Stack.Screen
-            name="AddProductScreen"
-            component={AddProductScreen}
+            name="SalesMonthlyScreen"
+            component={SalesMonthlyScreen}
             options={({navigation, route}) => ({
               headerShown: false,
               headerLeft: () => null,
-              title: '상품추가',
+              title: '월매출',
             })}
           />
+          <Stack.Screen
+            name="ProfitMonthlyScreen"
+            component={ProfitMonthlyScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '월수익',
+            })}
+          />
+          
       </Stack.Navigator>
     );
   }
-  export default function EditNavigator() {
+  export default function SalesNavigator() {
     return <MyStack />;
   }

@@ -44,8 +44,6 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
       />
 
             <View style={styles.VStack}>
-
-
                 <TouchableOpacity
                       onPress={() => {
                         console.log('주문 현황 클릭');

@@ -39,7 +39,7 @@ const PaymentCompleteScreen: React.FC<OrderRxScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('PaymentCompleteScreen : useFocusEffect');
       checkOrderStatus();
       return () => {
         setLoading(true);
@@ -57,7 +57,7 @@ const PaymentCompleteScreen: React.FC<OrderRxScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
     //2025-01-31 10:47:59, 접수된 주문 필터링
-      const filteredOrders = orders.filter(order => order.status === PAYMENT_COMPLETE);
+      const filteredOrders = orders.filter(order => Number(order.status) === PAYMENT_COMPLETE);
       console.log('filteredOrders = ', orders);
 
       if (filteredOrders.length) {

@@ -39,7 +39,7 @@ const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('OrderStatusScreen : useFocusEffect');
       checkOrderStatus();
       return () => {
         setLoading(true);

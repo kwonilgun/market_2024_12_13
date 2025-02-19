@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useRef, useState} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,37 +13,36 @@ import {
 } from 'react-native';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
-import {RFPercentage} from 'react-native-responsive-fontsize';
-import colors from '../../styles/colors';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import strings from '../../constants/lang';
-import {useFocusEffect} from '@react-navigation/native';
-import {useAuth} from '../../context/store/Context.Manager';
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../../context/store/Context.Manager';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
-import {connect} from 'react-redux';
-import {ShippingMainScreenProps} from '../model/types/TShippingNavigator';
-import {IDeliveryInfo} from '../model/interface/IDeliveryInfo';
+import { CartItem } from '../../Redux/Cart/Reducers/cartItems';
+import { connect } from 'react-redux';
+import { IDeliveryInfo } from '../model/interface/IDeliveryInfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import isEmpty from '../../utils/isEmpty';
-import {ScrollView} from 'react-native-gesture-handler';
-import {returnDashNumber} from '../../utils/insertDashNumber';
+import { ScrollView } from 'react-native-gesture-handler';
+import { returnDashNumber } from '../../utils/insertDashNumber';
 import deliveries from '../../assets/json/deliveries.json';
-import {width} from '../../styles/responsiveSize';
-import {getToken} from '../../utils/getSaveToken';
-import {jwtDecode} from 'jwt-decode';
-import {IUserAtDB, UserFormInput} from '../model/interface/IAuthInfo';
-import axios, {AxiosResponse} from 'axios';
-import {baseURL} from '../../assets/common/BaseUrl';
+import { width } from '../../styles/responsiveSize';
+import { getToken } from '../../utils/getSaveToken';
+import { jwtDecode } from 'jwt-decode';
+import { IUserAtDB, UserFormInput } from '../model/interface/IAuthInfo';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
 import TransferSheet from './TransferSheet';
-import {Modalize} from 'react-native-modalize';
+import { Modalize } from 'react-native-modalize';
 import * as actions from '../../Redux/Cart/Actions/cartActions';
 import moment from 'moment';
 import {
   confirmAlert,
   ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
-import {alertMsg} from '../../utils/alerts/alertMsg';
-import {PaymentMainScreenProps} from '../model/types/TPaymentNavigator';
+import { alertMsg } from '../../utils/alerts/alertMsg';
+import { PaymentMainScreenProps } from '../model/types/TPaymentNavigator';
+import { PAYMENT_COMPLETE } from '../../assets/common/BaseValue';
 
 const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -134,7 +133,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
     console.log('finishOrder item  = ', item);
 
     const m_uid: string = generateOrderNumber();
-    const cartArray: CartItem[] = props.cart;
+    const cartArray: CartItem[] = [item];
     const param: ConfirmAlertParams = {
       title: '송금을 완료하셨습니까?',
       message: '주문이 접수됩니다.  온라인 계좌로 송금을 해 주세요',
@@ -146,18 +145,27 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
               orderItems: cartArray,
               orderNumber: m_uid,
               isPaid: false,
-              user: state.user.userId,
+              user: state.user?.userId,
               buyerName: buyer?.nickName,
               buyerPhone: buyer?.phone,
-              status: '3',
-              dateOrdered: moment().format(),
+              status: PAYMENT_COMPLETE,
+              // dateOrdered: moment().format(),
+              dateOrdered: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('.')[0],
             };
 
-            const data: AxiosResponse = await axios.post(
-              `${baseURL}orders`,
-              order,
-            );
-            return data;
+            try {
+              const data: AxiosResponse = await axios.post(
+                `${baseURL}orders`,
+                order,
+              );
+              return data;
+
+            } catch (error) {
+              console.log('finishOrder error = ', error);
+              // errorAlert('에러', '주문 요청 에러 발생');
+              return null;
+            }
+
           }),
         );
 
@@ -165,21 +173,23 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
         console.log(' PaymentMainScreen response = ', response);
 
         // Check if all responses have status 200
-        const allSuccess = response.every(res => res.status === 200);
+        const allSuccess = response?.every(res => res?.status === 200);
 
         if (allSuccess) {
           // Show success message
           alertMsg(
             strings.SUCCESS,
-            '모든 주문이 성공적으로 접수되었습니다!',
-            () => {
-              props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
-            },
-            props,
+            '주문이 성공적으로 접수되었습니다!',
+            // () => {
+            //   props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
+            // },
+            // props,
           );
 
           // 2024-12-25 :주문이 성공적으로 진행이 되었기에 cart array를 삭제한다.
-          cartArray.map(item => props.removeFromCart(item));
+          // cartArray.map(item => props.removeFromCart(item));
+          // 2025-02-02 20:16:23 - 해당되는 item 만을 삭제하도록 수정
+          props.removeFromCart(item);
         } else {
           // Show error message
           alertMsg(

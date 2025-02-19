@@ -369,7 +369,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                         style={styles.orderButton}>
                         <Text style={styles.buttonText}>주문 리스트</Text>
                       </TouchableOpacity>
-                     
+
                     </View>
                   ) }
                    <TouchableOpacity

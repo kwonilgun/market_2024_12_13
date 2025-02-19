@@ -38,6 +38,10 @@ import { EditProductScreenProps } from '../model/types/TEditNavigator';
 import FastImage from 'react-native-fast-image';
 import { launchImageLibrary } from 'react-native-image-picker'; // 추가
 import mime from 'mime';
+import isEmpty from '../../utils/isEmpty';
+import { IAuthInfo, IUserAtDB } from '../model/interface/IAuthInfo';
+import { Picker } from '@react-native-picker/picker'; // Picker 추가
+
 
 
 
@@ -46,6 +50,10 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(false);
   const [product, setProduct] = useState<IProduct | null>(null);
   const [newImage, setNewImage] = useState<string | null>(null); // 이미지 상태 추가
+  const [producersList, setProducersList] = useState<IUserAtDB[]|null>(null);
+  const [selectedProducer, setSelectedProducer] = useState<string | null>(null); // 선택된 producer 상태
+  const [currentProducer, setCurrentProducer] = useState<IUserAtDB|null>(null);
+
 
 
 
@@ -67,6 +75,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
       price:props.route.params.item.price,
       discount: props.route.params.item.discount,
       countInStock: props.route.params.item.countInStock,
+      user: props.route.params.item.user,
     },
   });
 
@@ -77,6 +86,12 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
       );
 
       setProduct(props.route.params.item);
+      fetchProducersFromAWS();
+      if(props.route.params.item.user){
+        // user는 producerId 이다.
+        fetchProducerById(props.route.params.item.user);
+
+      }
 
       return () => {
         setLoading(true);
@@ -84,6 +99,54 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
     }, []),
   );
 
+  const fetchProducerById = async(id: string) =>{
+    const token = await getToken();
+    try {
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}users/${id}`,
+        {
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+      if(response.status === 200){
+        console.log('fetchProducerById producer = ', response.data);
+        setCurrentProducer(response.data as IUserAtDB);
+      }
+      else{
+        console.log('producer fetch error status', response.status);
+      }
+    }
+    catch(error){
+      console.log('producer error', error);
+    }
+    finally{
+      setLoading(false);
+    }
+
+  };
+
+  const fetchProducersFromAWS = async ()=>{
+    const token = await getToken();
+    try {
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}users/producers`,
+        {
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+      if(response.status === 200){
+        console.log('EditProductScreen producer = ', response.data);
+        setProducersList(response.data as IUserAtDB[]);
+      }
+      else{
+        console.log('producer fetch error status', response.status);
+      }
+    }
+    catch(error){
+      console.log('producer error', error);
+    }
+
+  };
 
   const isChanged = () => {
     const currentValues = getValues();
@@ -138,7 +201,11 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
         formData.append('dateCreated', Date.now());
 
         //2023-01-29 : 추가함
-        formData.append('user', in_data.user);
+        // formData.append('user', in_data.user);
+        // 선택된 producer 추가
+        if (selectedProducer) {
+          formData.append('user', selectedProducer);
+        }
 
         const config = {
           headers: {
@@ -187,9 +254,13 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
     confirmAlert(param);
   };
 
+  const isProducerChanged = ()=>{
+    return props.route.params.item.user !== selectedProducer;
+  };
+
   const uploadProductInfo = () => {
     console.log('채팅 사용자 정보 업로드');
-    if (isChanged()) {
+    if (isChanged() || isProducerChanged()) {
       console.log('데이타가 변경되었습니다. ');
       handleSubmit(confirmUpload)();
     } else {
@@ -272,7 +343,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={'채팅 등록'}
+        centerText={'상품 편집'}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
@@ -347,6 +418,30 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
                         name="camera"
                       />
                     </TouchableOpacity>
+                    {/* 생산자 선택 */}
+
+                    <Text style={[GlobalStyles.inputTitle]}>생산자 선택</Text>
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={selectedProducer}
+                        onValueChange={(itemValue) => {
+                          // itemValue는 producerId 이다. 
+                          console.log('itemValue =', itemValue);
+                          setSelectedProducer(itemValue);
+                        }
+                        }
+                        style={styles.picker}
+                      >
+                        <Picker.Item label="생산자를 선택하세요" value={null} />
+                        {producersList?.map((producer) => (
+                          <Picker.Item
+                            key={producer.id}
+                            label={producer.nickName}
+                            value={producer.id}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
                     {/* 이름 */}
                     <Text style={[GlobalStyles.inputTitle]}>
                       {strings.NAME}
@@ -492,6 +587,23 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  pickerContainer: {
+    width: '95%',
+    borderColor: 'black', // 테두리 색상
+    borderWidth: 1, // 테두리 두께
+    borderRadius: 10, // 테두리 둥글기
+    // marginBottom: 10, // 여백
+    // overflow: 'hidden', // 내부 요소가 테두리를 벗어나지 않도록
+  },
+  picker: {
+    height: RFPercentage(8),
+    // width: '80%',
+    // backgroundColor: colors.white,
+    // borderColor: 'black',
+    // borderWidth: 2,
+    // borderRadius: 10,
+    // marginBottom: 10,
+  },
   imageContainer: {
     alignItems: 'center', // 수평 가운데 정렬
     justifyContent: 'center', // 수직 가운데 정렬 (필요 시 추가)

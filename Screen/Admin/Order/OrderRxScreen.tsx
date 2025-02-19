@@ -41,7 +41,7 @@ const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingPostScreen : useFocusEffect');
+      console.log('OrderRxScreen : useFocusEffect');
       checkOrderStatus();
       return () => {
         setLoading(true);
@@ -59,7 +59,7 @@ const OrderRxScreen: React.FC<OrderRxScreenProps> = props => {
       const orders = response.data as IOrderInfo[];
 
     //2025-01-31 10:47:59, 접수된 주문 필터링
-      const filteredOrders = orders.filter(order => order.status === RECEIVE_ORDER);
+      const filteredOrders = orders.filter(order => Number(order.status) === RECEIVE_ORDER);
       console.log('filteredOrders = ', orders);
 
       if (filteredOrders.length) {
