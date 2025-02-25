@@ -9,10 +9,12 @@ import PaymentCompleteScreen from '../../Screen/Admin/Order/PaymentCompleteScree
 import OrderDetailScreen from '../../Screen/Orders/OrderDetailScreen';
 import PrepareDeliveryScreen from '../../Screen/Admin/Order/PrepareDeliveryScreen';
 import FindOrderNumberScreen from '../../Screen/Admin/Order/FindOrderNumberScreen';
+
 import DuringDeliveryScreen from '../../Screen/Admin/Order/DuringDeliveryScreen';
 import CompleteDeliveryScreen from '../../Screen/Admin/Order/CompleteDeliveryScreen';
 import CompleteReturnScreen from '../../Screen/Admin/Order/CompleteReturnScreen';
 import RequestReturnScreen from '../../Screen/Admin/Order/RequestReturnScreen';
+import OrderAIScreen from '../../Screen/Admin/Order/OrderAIScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<AdminOrderStackParamList>();
@@ -140,6 +142,16 @@ function MyStack() {
               title: '반품 완료',
             })}
           />
+          <Stack.Screen
+            name="OrderAIScreen"
+            component={OrderAIScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: 'AI 주문',
+            })}
+          />
+
 
       </Stack.Navigator>
     );

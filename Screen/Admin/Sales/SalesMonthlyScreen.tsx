@@ -32,8 +32,8 @@ import { styles } from './ProfitMonthlyScreen';
 
 // 판매 데이터의 타입을 정의합니다.
 interface SalesData {
-  label: string; // 날짜
-  value: number; // 총 판매액
+  month: string; // 날짜
+  total_sales: string; // 총 판매액
 }
 
 const SalesMonthlyScreen: React.FC<SalesMonthlyScreenProps> = props => {
@@ -113,8 +113,8 @@ const SalesMonthlyScreen: React.FC<SalesMonthlyScreenProps> = props => {
 
   const renderItem = ({ item }: { item: SalesData }) => (
       <View style={styles.listItem}>
-        <Text style={styles.monthText}>{moment(item.label).format('YYYY년 MM월')}</Text>
-        <Text style={styles.profitText}>매출: {item.value.toLocaleString()}원</Text>
+        <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월')}</Text>
+        <Text style={styles.profitText}>{item.total_sales}원</Text>
       </View>
     );
 
@@ -138,64 +138,44 @@ const SalesMonthlyScreen: React.FC<SalesMonthlyScreenProps> = props => {
           {/* react-native-svg-charts의 LineChart 컴포넌트를 사용하여 차트를 렌더링합니다. */}
           
           <BarChart
-                              data={salesData.map((item, index) => ({
-                                label: moment(item.label).format('MMM'),
-                                value: item.value,
-                                frontColor: index % 2 === 0 ? "green" : "blue", // 짝수 인덱스는 녹색, 홀수 인덱스는 파란색
-                                // topLabelComponent: () => (
-                                //   <Text style={{ fontSize: 10, color: "black" }}>
-                                //     {(item.netProfit / 1000).toFixed(1)}k
-                                //   </Text>
-                                // ),
-                              }))}
-                              width={Dimensions.get('window').width - RFPercentage(15)}
-                              barWidth={RFPercentage(2)}
-                              frontColor="green"
-                              spacing={10}
-                              noOfSections={5}
-                              yAxisThickness={0}
-                              xAxisLabelTextStyle={{ fontSize: 10, color: "black" }}
-                              // showValuesAsTopLabel={true}
-                              maxValue={10000}
-                              formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
-                              yAxisLabelWidth={30}
-                              yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
-          
-                          />
+              data={salesData.map((item, index) => ({
+                label: moment(item.month).format('MMM'),
+                value: Number(item.total_sales),
+                frontColor: index % 2 === 0 ? "green" : "blue", // 짝수 인덱스는 녹색, 홀수 인덱스는 파란색
+                // topLabelComponent: () => (
+                //   <Text style={{ fontSize: 10, color: "black" }}>
+                //     {(item.netProfit / 1000).toFixed(1)}k
+                //   </Text>
+                // ),
+              }))}
+              width={Dimensions.get('window').width - RFPercentage(15)}
+              barWidth={RFPercentage(2)}
+              frontColor="green"
+              spacing={10}
+              noOfSections={5}
+              yAxisThickness={0}
+              xAxisLabelTextStyle={{ fontSize: 10, color: "black" }}
+              // showValuesAsTopLabel={true}
+              maxValue={10000}
+              formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
+              yAxisLabelWidth={30}
+              yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
 
+          />
+          <View style={styles.subtitleHeader}>
+              <Text style={styles.titleDate}>날짜</Text>
+              <Text style={styles.titleRevenue}>매출</Text>
+          </View>
 
           <FlatList
-                            data={salesData}
-                            renderItem={renderItem}
-                            keyExtractor={(item) => item.label!}
-                            contentContainerStyle={styles.listContainer}
-                            ListEmptyComponent={
-                                          <Text style={styles.emptyMessage}> 리스트 없음.</Text>
-                                        }
-                        />
-          
-          {/* <LineChart
-                      data={chartData}
-                      width={Dimensions.get('window').width - RFPercentage(5)} // Adjust width as needed
-                      height={300} // Adjust height as needed
-                      maxValue={10000}
-                      // hideYAxisText={true}
-
-                      formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
-
-                      yAxisLabelWidth={30}
-                      yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
-
-                      xAxisLabelTextStyle={{
-                        fontSize: 12, // Adjust font size if needed
-                        color: 'blue', // Adjust color if needed
-                      }}
-                      dataPointsColor={'red'} // 데이터 포인트의 색상
-                      showDataPointLabelOnFocus={true}
-                      showYAxisIndices={true}
-                      showXAxisIndices={true}
-                      showValuesAsDataPointsText={true}
-                  /> */}
+              data={salesData}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.month!}
+              contentContainerStyle={styles.listContainer}
+              ListEmptyComponent={
+                            <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                          }
+          />
         </View>
       )}
     </WrapperContainer>

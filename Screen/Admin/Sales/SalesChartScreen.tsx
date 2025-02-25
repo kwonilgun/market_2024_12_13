@@ -105,9 +105,20 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
     );
   };
 
+
+  function formatDateToKorean(dateString: string): string {
+    const date = new Date(dateString);
+    const month = date.getUTCMonth() + 1; // getUTCMonth()는 0부터 시작하므로 1을 더함
+    const day = date.getUTCDate();
+
+    // 한국식 날짜 형식으로 변환 (예: 2월19일)
+    console.log('label = ', `${month}월${day}일`);
+    return `${month}월${day}일`;
+}
+
   const chartData: lineDataItem[] = salesData.map(item => ({
-    value: item.total_sales, // Use 'value' for y-axis
-    label: moment(item.date).format('M/D'), // Example: "Jan 01"
+    value: Number(item.total_sales), // Use 'value' for y-axis
+    label: formatDateToKorean(item.date), // Example: "Jan 01"
     // label: item.date.substring(5),      // Use 'label' for x-axis (or keep it as date if needed)
     // ... other lineDataItem properties as needed (e.g., color, etc.)
   }));
@@ -115,7 +126,7 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
   const renderItem = ({ item }: { item: SalesData }) => (
         <View style={styles.listItem}>
           <Text style={styles.monthText}>{moment(item.date).format('YYYY년 MM월 DD일')}</Text>
-          <Text style={styles.profitText}>매출: {item.total_sales.toLocaleString()}원</Text>
+          <Text style={styles.profitText}>{item.total_sales}원</Text>
         </View>
       );
   
@@ -142,7 +153,6 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
             data={chartData}
             width={Dimensions.get('window').width - RFPercentage(15)} // Adjust width as needed
             height={300} // Adjust height as needed
-        
             maxValue={10000}
                       // hideYAxisText={true}
 
@@ -161,6 +171,10 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
             showXAxisIndices={true}
             // showValuesAsDataPointsText={true}
         />
+        <View style={styles.subtitleHeader}>
+                    <Text style={styles.titleDate}>날짜</Text>
+                    <Text style={styles.titleRevenue}>매출</Text>
+        </View>
         <FlatList
                 data={salesData}
                 renderItem={renderItem}
@@ -177,17 +191,24 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
   );
 };
 
-// const styles = StyleSheet.create({
-//     listContainer: {
-//         margin: 8,
-//         padding: 16,
-//         borderWidth: 1,
-//         borderRadius: 10,
-//         backgroundColor: '#E0E0E0',
-//       },
-//       itemContainer: {
-//         marginBottom: 10,
-//       },
-// });
+const localStyles = StyleSheet.create({
+  subtitleHeader: {
+    flexDirection: 'row',
+    marginLeft: RFPercentage(2),
+    // justifyContent: 'center',
+    marginTop: RFPercentage(2),
+    borderBottomWidth: 1,
+    borderColor: 'black',
+  },
+  titleDate: {
+    fontSize: RFPercentage(2),
+    fontWeight: 'bold',
+  },
+  titleRevenue: {
+    marginLeft: RFPercentage(20),
+    fontWeight: 'bold',
+    fontSize: RFPercentage(2),
+  },
+});
 
 export default React.memo(SalesChartScreen);

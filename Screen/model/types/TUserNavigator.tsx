@@ -47,6 +47,7 @@ export type RootStackParamList = {
   PrivacyPolicyScreen: undefined;
   MembershipScreen: undefined;
   ProductMainScreen: undefined;
+  HomeAiScreen: undefined;
   ProductDetailScreen: undefined;
   CartMainScreen: undefined;
   OrderListScreen: {items: DataList};
@@ -140,6 +141,15 @@ export type OrderDetailScreenProps = {
 export type ProductMainScreenProps = {
   navigation: any;
   route: RouteProp<RootStackParamList, 'ProductMainScreen'>;
+};
+
+export type HomeAiScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'HomeAiScreen'>;
+  route: {
+    params: {
+      productNames: string[] | null;
+    }
+  };
 };
 
 export type ProductDetailScreenProps = {

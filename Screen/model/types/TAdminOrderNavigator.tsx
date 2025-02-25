@@ -18,6 +18,7 @@ export type AdminOrderStackParamList = {
   OrderDetailScreen: undefined;
   PrepareDeliveryScreen: undefined;
   FindOrderNumberScreen: undefined;
+  OrderAIScreen: undefined;
   DuringDeliveryScreen: undefined;
   CompleteDeliveryScreen: undefined;
   RequestReturnScreen: undefined;
@@ -50,6 +51,10 @@ export type PrepareDeliveryScreenProps = {
 
 export type FindOrderNumberScreenProps = {
   navigation: StackNavigationProp<AdminOrderStackParamList, 'FindOrderNumberScreen'>;
+};
+
+export type OrderAIScreenProps = {
+  navigation: StackNavigationProp<AdminOrderStackParamList, 'OrderAIScreen'>;
 };
 
 export type DuringDeliveryScreenProps = {

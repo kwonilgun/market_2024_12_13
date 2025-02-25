@@ -32,7 +32,6 @@ import { width } from '../../../styles/responsiveSize';
 
 // 판매 데이터의 타입을 정의합니다.
 interface ProfitData {
-  
   month: string
   totalRevenue: number,
   platformFee: number,
@@ -116,7 +115,7 @@ const ProfitMonthlyScreen: React.FC<ProfitMonthlyScreenProps> = props => {
   const renderItem = ({ item }: { item: ProfitData }) => (
     <View style={styles.listItem}>
       <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월')}</Text>
-      <Text style={styles.profitText}>순수익: {item.netProfit.toLocaleString()}원</Text>
+      <Text style={styles.profitText}>{item.netProfit.toLocaleString()}원</Text>
     </View>
   );
   
@@ -164,6 +163,10 @@ const ProfitMonthlyScreen: React.FC<ProfitMonthlyScreenProps> = props => {
                     yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
 
                 />
+                <View style={styles.subtitleHeader}>
+                    <Text style={styles.titleDate}>날짜</Text>
+                    <Text style={styles.titleRevenue}>순이익</Text>
+                </View>
                 <FlatList
                   data={profitData}
                   renderItem={renderItem}
@@ -188,15 +191,32 @@ export const styles = StyleSheet.create({
       padding:RFPercentage(2),
 
     },
-    listContainer: {
+    subtitleHeader: {
+      flexDirection: 'row',
+      marginLeft: RFPercentage(2),
+      // justifyContent: 'center',
       marginTop: RFPercentage(2),
+      borderBottomWidth: 1,
+      borderColor: 'black',
+    },
+    titleDate: {
+      fontSize: RFPercentage(2),
+      fontWeight: 'bold',
+    },
+    titleRevenue: {
+      marginLeft: RFPercentage(20),
+      fontWeight: 'bold',
+      fontSize: RFPercentage(2),
+    },
+    listContainer: {
+      marginTop: RFPercentage(0.1),
       paddingHorizontal: RFPercentage(2),
       paddingBottom: RFPercentage(5),
     },
     listItem: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      paddingVertical: RFPercentage(2),
+      paddingVertical: RFPercentage(1),
       borderBottomWidth: 1,
       borderBottomColor: 'grey',
     },

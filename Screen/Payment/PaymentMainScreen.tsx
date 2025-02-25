@@ -118,15 +118,17 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
   };
 
   const generateOrderNumber = (): string => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const randomNum = Math.floor(Math.random() * 1000000)
-      .toString()
-      .padStart(4, '0');
+    // const date = new Date();
+    // const year = date.getFullYear();
+    // const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    // const day = date.getDate().toString().padStart(2, '0');
+    const randomNum: string = Math.floor(Math.random() * 100000000)
+                              .toString()
+                              .padStart(8, '0');
 
-    return `${year}${month}${day}-${randomNum}`;
+    console.log('random number' , randomNum); // 8자리 숫자가 출력됨
+
+    return randomNum;
   };
 
   const finishOrder = async (item: CartItem) => {
