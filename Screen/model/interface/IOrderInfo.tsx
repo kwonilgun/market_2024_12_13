@@ -8,6 +8,9 @@ export interface IOrderInfo {
   buyerPhone: string;
   dateOrdered: string;
   deliveryMethod: number;
+  // 2025-03-02 10:42:33, deliverDate 추가
+  deliveryDate:Date;
+
   isPaid: boolean;
   orderItems: CartItem;
   orderNumber: string;

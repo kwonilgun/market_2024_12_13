@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   FlatList,
+  AppState,
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -38,6 +39,7 @@ import {
   height,
   MANAGER_ID,
   MANAGER_NICKNAME,
+  width,
 } from '../../assets/common/BaseValue';
 import RoundImage from '../../utils/basicForm/RoundImage';
 import {useRoute} from '@react-navigation/native';
@@ -63,26 +65,31 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
   const [chatUsers, setChatUsers] = useState<IChatUserInfo[] | null>(null);
   const [showChat, setShowChat] = useState<boolean>(false); // To toggle between user list and chat
   const [selectedUser, setSelectedUser] = useState<IChatUserInfo | null>(null);
+  const [badge, setBadge] = useState<number>(1);
+
+
 
   const pingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pongInterval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const route = useRoute();
   const chatRoomIdRef = useRef<string | null>(null);
 
+  const appState = useRef<string>(AppState.currentState);
+
   useFocusEffect(
     useCallback(() => {
-      setLoading(false);
+      if (AppState.currentState !== 'active') {
+        console.log('앱이 포그라운드 상태가 아님, useFocusEffect 실행 안 함');
+        return;
+      }
 
-      // console.log('useFocusEffect sockeId = ', socketState.socketId);
+      setLoading(false);
 
       if (isEmpty(socketState.socketId)) {
         console.log('현재 화면 이름:', route.name);
         console.log('useFocusEffect ... 소켓 비어있음');
         fetchChatUsers();
         activateSocket();
-        // initSetMessage();
-
-        // 2024-12-30 : 일단은 Manager를 producer로 설정하고 진행한다.
       } else {
         console.log('ChatMainScreen: 이미 소켓이 있음');
         return;
@@ -90,13 +97,33 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
       return () => {
         console.log('ChatMainScreen: useEffect : exit 한다.');
-
-        setLoading(true);
         setLoading(true);
       };
-    }, [socketState.socketId]),
-    //     }, []),
+    }, [socketState.socketId])
   );
+
+
+  // 2025-03-03 17:56:16: 앱 exit를 감지하고 
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (
+        appState.current.match(/active/) &&
+        nextAppState.match(/inactive|background/) &&
+        socketState.socketId
+      ) {
+        console.log('ChatMainScreen - 앱이 백그라운드로 이동하거나 종료됨');
+        stopPingSend(socketState.socketId);
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      console.log('ChatMainScreen remove ');
+      subscription.remove();
+    };
+  }, [socketState.socketId]);
 
   // 서버에서 메시지 불러오기
   const fetchChatUsers = async () => {
@@ -233,7 +260,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     });
 
     socketData.pingInterval = pingInterval.current = setInterval(() => {
-      console.log('activateSocket : ping을 보낸다.', state.user?.userId);
+      // console.log('activateSocket : ping을 보낸다.', state.user?.userId);
       socket.emit('ping', '핑을 보냅니다: from ' + state.user?.userId);
 
       socketData.pongInterval = pongInterval.current = setTimeout(() => {
@@ -246,7 +273,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
     // 2023-09-17 : pong을 받으면 세팅된 pongInterval.current에 해당되는 setTimeout을 해제한다. 10초 간의 모니터링을 통해서 연결이 살아있는 지 확인을 한다.
     socket.on('ping', res => {
-      console.log(' ping을 받음 = ', res);
+      // console.log(' ping을 받음 = ', res);
       if (!isEmpty(socketData.pingInterval)) {
         clearTimeout(socketData.pongInterval!);
         // socketData.pongInterval = null;
@@ -324,6 +351,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
             }} // Navigate to chat when a user is selected
           >
             <Text style={styles.userName}>{item.email.split('@')[0]}</Text>
+
           </TouchableOpacity>
         )}
         ListEmptyComponent={
@@ -353,17 +381,17 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     </ImageBackground>
   );
 
-  const stopPingSend = () => {
-    console.log('ChatMainScreen: stopPingSend....');
-    if (socketState.socketId) {
-      socketState.socketId.emit('chat-closed', {
+  const stopPingSend = (sockeId: any) => {
+    // console.log('ChatMainScreen: stopPingSend.... socketId', sockeId);
+    if (sockeId) {
+      sockeId.emit('chat-closed', {
         chatRoomId: chatRoomIdRef.current,
         userId: state.user?.userId,
       });
 
       // 소켓 연결 종료
       console.log('Socket disconnected.');
-      socketState.socketId.disconnect();
+      sockeId.disconnect();
 
       console.log('props.socket = ', props.socketItem);
     }
@@ -379,11 +407,10 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       clearTimeout(pongInterval.current);
     }
     setLoading(true);
-    setLoading(true);
   };
 
   const onPressLeft = () => {
-    stopPingSend();
+    stopPingSend(socketState.socketId);
     props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
   };
 
@@ -513,6 +540,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+  iconWrapper: {
+      position: 'relative',
+    },
+    badge: {
+      position: 'absolute',
+      top: -(height * 0.02),
+      right: -(width * 0.2),
+      backgroundColor: 'red',
+      borderRadius: 10,
+      width: 18,
+      height: 18,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    badgeText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: 'bold',
+    },
 });
 
 const mapDispatchToProps = (dispatch: any) => {

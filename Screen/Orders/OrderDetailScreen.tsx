@@ -11,6 +11,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Button,
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -23,7 +24,7 @@ import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import { OrderDetailScreenProps } from '../model/types/TUserNavigator';
 import { IOrderInfo } from '../model/interface/IOrderInfo';
 import GlobalStyles from '../../styles/GlobalStyles';
-import { dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
+import { dateToKoreaDate, dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
 import { getToken } from '../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../assets/common/BaseUrl';
@@ -38,9 +39,13 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import { errorAlert } from '../../utils/alerts/errorAlert';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { width } from '../../styles/responsiveSize';
+
 
 type IOrderStatus = {
   status: number|null,
+  deliveryDate?: Date | null;
 };
 
 const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
@@ -63,7 +68,9 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
     ]);
 
   const isAdmin = state.user?.isAdmin;
-  console.log('item = ', props.route.params?.item);
+  console.log('OrderDetailScreen item = ', props.route.params?.item);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
 
 
   const {
@@ -76,6 +83,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
     } = useForm<IOrderStatus>({
       defaultValues: {
        status: Number(props.route.params?.item.status),
+       deliveryDate: props.route.params?.item.deliveryDate,
       },
     });
 
@@ -174,7 +182,6 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
         const status: IOrderStatus = in_data;
 
         const token = await getToken();
-       
         const config = {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
@@ -204,6 +211,24 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     confirmAlert(param);
   };
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    setValue('deliveryDate', date);
+    console.log('OrderDetailScreen deliveryDate =', dateToKoreaDate(date) );
+    hideDatePicker();
+  };
+
+  const checkChangedValues  = () => {
+    return Number(props.route.params?.item.status) !== getValues('status') || props.route.params?.item.deliveryDate !== getValues('deliveryDate');
+  }
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -236,22 +261,21 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                     {isAdmin && (
                       <TouchableOpacity onPress={() => {
 
-                          if(Number(props.route.params?.item.status) !== getValues('status')){
-                            handleSubmit(confirmUpload)();
-                          }
-                          else{
-                            errorAlert('에러', '주문상태 변경 안됨');
+                            if( checkChangedValues() ){
+                              handleSubmit(confirmUpload)();
+                            }
+                            else{
+                              errorAlert('에러', '주문상태 변경 안됨');
+                            }
                           }
 
-                          }
-
-                          }>
-                          <View style={GlobalStyles.buttonSmall}>
-                          <Text style={GlobalStyles.buttonTextStyle}>
-                          업데이트
-                          </Text>
-                          </View>
-                          </TouchableOpacity>
+                      }>
+                        <View style={GlobalStyles.buttonSmall}>
+                        <Text style={GlobalStyles.buttonTextStyle}>
+                        업데이트
+                        </Text>
+                        </View>
+                      </TouchableOpacity>
                     )}
 
                   {props.route.params.actionFt === null ? null : (
@@ -333,7 +357,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                   </Text>
                 </View>
 
-{/* 2025-01-31 11:34:25: isAdmin 이면 상태 변경을 허용한다. */}
+              {/* 2025-01-31 11:34:25: isAdmin 이면 상태 변경을 허용한다. */}
               {isAdmin && (
                 <View style={{flex: 0.8}}>
                 <Text style={GlobalStyles.inputTitle}>주문 상태 변경</Text>
@@ -350,6 +374,9 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                     onChangeValue={value => {
                       console.log('act value', value);
                       setValue('status', value);
+                      // if (value === 3) {
+                      //   showDatePicker();
+                      // }
                       // setValue('deliveryMethod', Number(value));
                     }} // 값이 바뀔 때마다 실행
                     listItemContainerStyle={{
@@ -358,6 +385,40 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                     }}
                   />
                 </View>
+
+                <View style={styles.HCButton}>
+                     <Text style={styles.inputTitle}>배송 예정일 : </Text>
+                     <TouchableOpacity onPress={() => {
+                          showDatePicker();
+                        }}>
+                        <View style={styles.buttonSmall}>
+                            <Text style={styles.buttonTextStyle}>
+                              달력
+                            </Text>
+                        </View>
+                      </TouchableOpacity>
+
+                </View>
+
+                <View style={{marginLeft:RFPercentage(2),  marginTop: RFPercentage(1) }}>
+                <Text>
+          {getValues('deliveryDate')
+            ? dateToKoreaDate(new Date(getValues('deliveryDate')!)) // Date 객체로 변환하여 출력
+            : '배송일 지정되지 않음'}
+        </Text>
+                  {/* <Text>Date</Text> */}
+                </View>
+
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="date"
+                  date={getValues('deliveryDate') ? new Date(getValues('deliveryDate')!) : new Date()}
+                  // date={new Date()}
+                  onConfirm={handleConfirm}
+                  onCancel={hideDatePicker}
+                  locale="ko-KR" // 한국어 로케일 설정
+                />
+
               </View>
               )}
 
@@ -371,6 +432,44 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  buttonSmall: {
+      height: RFPercentage(4),
+      backgroundColor: colors.lightBlue,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignContent: 'center',
+      borderRadius: RFPercentage(0.3),
+
+  },
+  buttonTextStyle: {
+      width: 'auto',
+      // height: RFPercentage(4),
+      padding: RFPercentage(0.5),
+      color: 'white',
+      fontSize: RFPercentage(2),
+      fontWeight: 'bold',
+  },
+  HCButton: {
+    // flex: 0.8,
+    width: 'auto',
+    height: RFPercentage(4),
+    marginTop: RFPercentage(2),
+    // padding: 5,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignContent: 'center',
+    alignItems: 'center',
+    // borderColor: 'red',
+    // borderWidth: 1,
+    borderRadius: RFPercentage(0.5),
+  },
+
+  inputTitle:{
+    fontSize: RFPercentage(2),
+    fontWeight: 'bold',
+  },
+
+
   HCStack: {
       margin: RFPercentage(0.2),
       // padding: 5,
@@ -378,6 +477,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
+  
   actionContainer: {
      marginVertical: RFPercentage(1),
     // padding: 8,

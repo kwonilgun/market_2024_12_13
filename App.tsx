@@ -178,10 +178,10 @@ const App: React.FC = () => {
     const hasPermission = await PermissionsAndroid.check(
       PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
     );
-    console.log('알림 권한 상태:', hasPermission);
+    console.log('App.tsx - 알림 권한 상태:', hasPermission);
 
     if (Platform.OS === 'android' && Platform.Version >= 33) {
-      console.log('permission ');
+      console.log('App.tsx: android permission OK ');
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         {
@@ -193,13 +193,13 @@ const App: React.FC = () => {
       );
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Notification permission granted.');
+        console.log(' App.tsx - Notification permission granted.');
       } else {
-        console.log('Notification permission denied.');
+        console.log('App.tsx - Notification permission denied.');
       }
     } else {
       console.log(
-        'Notification permission is not required for this Android version.',
+        'App.tsx - Notification permission is not required for this Android version.',
       );
     }
   }

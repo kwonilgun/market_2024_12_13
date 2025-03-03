@@ -53,6 +53,8 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
 
   const initialState = useRef<IProduct[]>([]);
 
+  const isAdmin = state.user?.isAdmin;
+
   useFocusEffect(
     useCallback(() => {
       // console.log('1. ProductMainScreen : useFocusEffect... 진입');
@@ -145,7 +147,8 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
         centerText={strings.HOME}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
-        isRightView={true}
+        isRightView={isAdmin ? false : true}
+        isRight = {false}
         rightCustomView={RightCustomComponent}
       />
 

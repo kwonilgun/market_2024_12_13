@@ -69,7 +69,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
       console.log('MainTab ... 진입');
       // 알림 수신 시 뱃지 카운트 업데이트
       const subscription = notifee.onForegroundEvent(({type, detail}) => {
-        console.log('MainTab type = ', type, detail);
+        console.log('MainTab.tsx type = ', type, detail);
         if (type === EventType.DELIVERED) {
           console.log('MainTab, onForegroundEvent');
           setBadgeCount(1);
@@ -77,17 +77,16 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
       });
 
       const fetchBadgeCount = async () => {
-        console.log('badgeCount = ', badgeCountState.isBadgeCount);
+        console.log('MainTab.tsx - badgeCount = ', badgeCountState.isBadgeCount);
         const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
         setBadgeCount(count);
       };
 
       fetchBadgeCount();
 
-     
       // 초기 URL 처리
       if (initialUrl) {
-        console.log('Handling initial URL:', initialUrl);
+        console.log('MainTab.tsx - Handling initial URL:', initialUrl);
         if (initialUrl === 'myapp://UserMain') {
           // UserMain으로 이동
           console.log('Navigate to UserMain from initial URL');
@@ -127,10 +126,10 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
 
       const fetchBadgeCount = async () => {
         const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-        
+
         // const count = badgeCountState.isBadgeCount;
-        console.log('MainTab count = ', count);
-        setBadgeCount(prevCount => prevCount + count);
+        console.log('MainTab.tsx badgeCount = ', count);
+        // setBadgeCount(prevCount => prevCount + count);
         setBadgeCount(count);
       };
 

@@ -32,12 +32,15 @@ import groupBy from 'group-by';
 import {DataList, makeExpandableDataList} from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {width} from '../../assets/common/BaseValue';
+import {height, width} from '../../assets/common/BaseValue';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
 import {areJsonEqual} from '../../utils/etc/areJsonEqual';
 import {errorAlert} from '../../utils/alerts/errorAlert';
+
+// import { Badge } from 'react-native-elements';
+
 
 interface IUserInfo {
   nickName: string;
@@ -51,9 +54,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
   const [dataList, setDataList] = useState<DataList | null>(null);
+  const [badge, setBadge] = useState<number>(1);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
   const userOriginalInfo = useRef<IUserInfo | null>(null);
+  
 
   const {
     control,
@@ -387,7 +392,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                           props.navigation.navigate('ChatMainScreen');
                         }}
                         style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 문의</Text>
+                        <Text style={styles.buttonText}>채팅 방</Text>
+                        <View style={styles.iconWrapper}>
+                            {badge > 0 && (
+                              <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{badge}</Text>
+                              </View>
+                            )}
+                          </View>
                       </TouchableOpacity>
                 </View>
               </ScrollView>
@@ -471,6 +483,25 @@ const styles = StyleSheet.create({
     marginTop: RFPercentage(2),
     padding: RFPercentage(2),
     borderRadius: RFPercentage(1),
+  },
+  iconWrapper: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -(height * 0.02),
+    right: -(width * 0.2),
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

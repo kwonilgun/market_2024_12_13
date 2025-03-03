@@ -86,6 +86,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
       );
 
       setProduct(props.route.params.item);
+      setSelectedProducer(props.route.params.item.user!);
       fetchProducersFromAWS();
       if(props.route.params.item.user){
         // user는 producerId 이다.
@@ -96,7 +97,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
       return () => {
         setLoading(true);
       };
-    }, []),
+    }, [props]),
   );
 
   const fetchProducerById = async(id: string) =>{
@@ -205,6 +206,10 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
         // 선택된 producer 추가
         if (selectedProducer) {
           formData.append('user', selectedProducer);
+        }
+        else{
+          alertMsg('에러', '생산자를 먼저 선택을 해 주세요');
+          return;
         }
 
         const config = {

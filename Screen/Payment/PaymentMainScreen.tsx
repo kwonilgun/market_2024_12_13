@@ -153,6 +153,8 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
               status: PAYMENT_COMPLETE,
               // dateOrdered: moment().format(),
               dateOrdered: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('.')[0],
+              // 2025-03-02 10:24:49: deliveryDate 추가, deliveryDate 초기화는 '' empty string으로 초기화 한다.
+              deliveryDate: null,
             };
 
             try {

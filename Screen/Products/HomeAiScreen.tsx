@@ -231,6 +231,9 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
                     //   <Text>{item}</Text>
                     // </View>
                   )}
+                  ListEmptyComponent={
+                    <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                  }
                 />
                 <Button title="닫기" onPress={() => setModalVisible(false)} />
               </View>
@@ -261,6 +264,9 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
                     <Text>{item}</Text>
                   </TouchableOpacity>
                 )}
+                ListEmptyComponent={
+                  <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                }
               />
               <Button title="닫기" onPress={() => setProductModalVisible(false)} />
             </View>
@@ -284,6 +290,9 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
                       <Text>{item}</Text>
                     </View>
                   )}
+                  ListEmptyComponent={
+                    <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                  }
                 />
                 <Button title="닫기" onPress={() => setModalDetail(false)} />
               </View>
@@ -333,6 +342,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 
 });

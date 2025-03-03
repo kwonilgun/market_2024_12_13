@@ -1,12 +1,10 @@
 import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
-import {Platform} from 'react-native';
+import { Platform } from 'react-native';
 
-import notifee, {EventType, AndroidImportance} from '@notifee/react-native';
-import isEmpty from '../../../utils/isEmpty';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAuth } from '../../../context/store/Context.Manager';
 import { getFcmToken } from './services';
 
 export async function requestUserPermission() {
@@ -16,7 +14,7 @@ export async function requestUserPermission() {
     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
   if (enabled) {
-    console.log('Authorization status: getToken', authStatus);
+    console.log('Authorization status: authStatus', authStatus);
     getFcmToken();
   } else {
     console.error('getToken 진입 실패');
@@ -82,8 +80,7 @@ export async function onDisplayNotification(
 
 export async function notificationListeners() {
 
-  
-  
+
   messaging().onMessage(async remoteMessage => {
     console.log('A new FCM message arrived!', remoteMessage);
     if(Platform.OS === 'android'){
@@ -93,7 +90,6 @@ export async function notificationListeners() {
       console.log('ios notificationListeners....');
       onDisplayNotification(remoteMessage);
     }
-    
   });
 
 

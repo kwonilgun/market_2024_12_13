@@ -4,7 +4,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 
 import isEmpty from '../../utils/isEmpty';
-import {dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
+import {dateToKoreaDate, dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
 import {DataList, DataListItem} from './makeExpandable';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 
@@ -45,9 +45,7 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
     <View>
       <TouchableOpacity activeOpacity={0.8} onPress={onClickFunction}>
         <Text style={styles.title}>{item.title}</Text>
-        
-          
-        
+
       </TouchableOpacity>
       <View
         style={{
@@ -55,9 +53,10 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
           overflow: 'hidden',
         }}>
         <View style={styles.subtitleHeader}>
-            <Text style={styles.receiverName}>수신자</Text>
-            <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(5)}]}>주문번호</Text>
-          </View>
+           <Text style={styles.receiverName}>수신자</Text>
+           <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(5)}]}>주문날짜</Text>
+           <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(7)}]}>주문번호</Text>
+        </View>
         {!isEmpty(item.subtitle) ? (
           item.subtitle.map((data, key) => (
             // console.log('Expandable receiver name = ');
@@ -78,7 +77,10 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
                 <Text style={styles.receiverName}>{data.receiverName} :</Text>
                 <Text style={styles.dateOrdered}>
                   {' '}
-                  {dateToKoreaTime(new Date(data.dateOrdered))}
+                  {dateToKoreaDate(new Date(data.dateOrdered))}</Text>
+                <Text style={styles.orderNumber}>
+                  {' '}
+                  {data.orderNumber}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -115,6 +117,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dateOrdered: {
+    marginLeft: RFPercentage(2),
+    fontSize: 14,
+    color: '#555',
+  },
+  orderNumber: {
+    marginLeft: RFPercentage(2),
     fontSize: 14,
     color: '#555',
   },

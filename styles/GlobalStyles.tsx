@@ -47,6 +47,15 @@ const GlobalStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  HStack_Delivery: {
+    flex: 1,
+    marginTop: RFPercentage(1.0),
+    padding: 2,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  },
   logo: {
     width: RFPercentage(20),
     height: RFPercentage(20),
