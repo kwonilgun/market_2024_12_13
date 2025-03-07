@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useCallback, useState } from 'react';
@@ -63,7 +64,10 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
           if(response.status === 200){
             console.log('sales data from AWS', response.data);
             if (Array.isArray(response.data)) {
-              setSalesData(response.data);
+              const sortedData = response.data.sort(
+                (a: SalesData, b: SalesData) => new Date(b.date).getTime() - new Date(a.date).getTime()
+              );
+              setSalesData(sortedData);
             } else {
               console.error('Unexpected sales data format:', response.data);
               alertMsg(strings.ERROR, '서버에서 예상치 못한 응답을 받았습니다.');
@@ -107,21 +111,23 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
 
 
   function formatDateToKorean(dateString: string): string {
-    const date = new Date(dateString);
-    const month = date.getUTCMonth() + 1; // getUTCMonth()는 0부터 시작하므로 1을 더함
-    const day = date.getUTCDate();
+    const date = new Date(dateString); // 이미 한국 시간 기준
 
-    // 한국식 날짜 형식으로 변환 (예: 2월19일)
-    console.log('label = ', `${month}월${day}일`);
-    return `${month}월${day}일`;
-}
+    const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
+    const day = date.getDate();
 
-  const chartData: lineDataItem[] = salesData.map(item => ({
+    console.log('SalesChartScreen - label = ', `${month}월 ${day}일`);
+    return `${month}월 ${day}일`;
+  }
+
+  const chartData: lineDataItem[] = salesData
+  .map(item => ({
     value: Number(item.total_sales), // Use 'value' for y-axis
     label: formatDateToKorean(item.date), // Example: "Jan 01"
-    // label: item.date.substring(5),      // Use 'label' for x-axis (or keep it as date if needed)
-    // ... other lineDataItem properties as needed (e.g., color, etc.)
-  }));
+    date: new Date(item.date), // Sorting을 위해 Date 객체 추가
+  }))
+  .sort((a, b) => a.date.getTime() - b.date.getTime()) // 날짜 기준 정렬
+  .map(({ date, ...rest }) => rest); // date 필드 제거
 
   const renderItem = ({ item }: { item: SalesData }) => (
         <View style={styles.listItem}>
@@ -129,7 +135,6 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
           <Text style={styles.profitText}>{item.total_sales}원</Text>
         </View>
       );
-  
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>

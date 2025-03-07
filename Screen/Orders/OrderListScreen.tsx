@@ -84,7 +84,7 @@ const OrderListScreen: React.FC<OrderListScreenProps> = ({
               <View style={styles.listContainer}>
                 {/* <Text style={styles.title}>주문리스트</Text> */}
 
-                {orders ? (
+                {!isEmpty(orders) ? (
                   orders.map((item, index) => {
                     if (!isEmpty(item.subtitle)) {
                       return (

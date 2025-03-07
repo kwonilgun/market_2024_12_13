@@ -95,7 +95,7 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
 
       // product name 만 추출
       const productNames = productResponse.data.map((product: IProduct) => product.name);
-      console.log('Product Names:', productNames);
+      console.log('ProductMainScreen Product Names:', productNames);
       setProductNames(productNames);
 
       //3. 회사 정보를 가져온다.

@@ -71,13 +71,16 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
       const subscription = notifee.onForegroundEvent(({type, detail}) => {
         console.log('MainTab.tsx type = ', type, detail);
         if (type === EventType.DELIVERED) {
+          // 2025-03-05 08:57:23, foreground에서 알림창을 누르면 이곳으로 온다.
           console.log('MainTab, onForegroundEvent');
-          setBadgeCount(1);
+          // setBadgeCount(1);
+           // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
+          badgeCountDispatch({type: 'increment'});
         }
       });
 
       const fetchBadgeCount = async () => {
-        console.log('MainTab.tsx - badgeCount = ', badgeCountState.isBadgeCount);
+        console.log('MainTab.tsx - android - badgeCount = ', badgeCountState.isBadgeCount);
         const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
         setBadgeCount(count);
       };
@@ -120,7 +123,10 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
       const subscription = notifee.onForegroundEvent(({type, detail}) => {
         console.log('MainTab type = ', type, detail);
         if (type === EventType.DELIVERED) {
+          console.log('MainTab.tsx type = ', type, detail);
           setBadgeCount(1);
+           // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
+          badgeCountDispatch({type: 'increment'});
         }
       });
 
@@ -189,7 +195,19 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
     return () => {
       subscription.remove();
     };
-  }, [appState, badgeCountDispatch]);
+  }, [appState]);
+
+
+  useEffect(() => {
+
+    console.log('>>>>>>>>MainTab - badge count =', badgeCountState.isBadgeCount );
+    setBadgeCount(badgeCountState.isBadgeCount);
+
+    return () => {
+        console.log('MainTab - badge count exit');
+    };
+  }, [badgeCountState]);
+
 
   const checkBackgroundUpdate = async () => {
     // 예: 백엔드와 통신하거나 상태를 확인하는 로직
@@ -306,8 +324,8 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         listeners={{
           tabPress: () => {
             console.log('사용자 tab pressed');
-            setBadgeCount(0); // Chat 탭을 누르면 뱃지 초기화
-            cancelNotifications();
+            // setBadgeCount(0); // Chat 탭을 누르면 뱃지 초기화
+            // cancelNotifications();
           },
         }}
         options={{

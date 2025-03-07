@@ -21,33 +21,32 @@ export async function requestUserPermission() {
   }
 }
 
-// const getFcmToken = async () => {
-//   try {
-//     const fcmToken = await messaging().getToken();
-//     console.log('fcm token:', fcmToken);
-//     if (fcmToken && !isEmpty(fcmToken)) {
-//       // Save the token
-//       await AsyncStorage.setItem('fcmToken', fcmToken);
-//     } else {
-//       console.log('services: getFcmToken : firebase token이 없다.');
-//     }
-//   } catch (error) {
-//     console.error('services : getFcmToken :  error =', error);
-//   }
-// };
 
 export async function onDisplayNotification(
   item: FirebaseMessagingTypes.RemoteMessage,
 ) {
-  // Request permissions (required for iOS)
 
-  console.log('onDisplayNotification data ', item);
+  // console.log('onDisplayNotification data ', item);
 
-  // if (Platform.OS == 'ios') {
-  //   await notifee.requestPermission();
-  // }
+  if(item?.data?.body){
+    const bodyString = item.data.body;
+    console.log('notificationServices - messageData', bodyString);
 
-  // Create a channel (required for Android)
+    let messageData;
+
+    if (typeof bodyString === 'string') {
+        // bodyString이 문자열이면 JSON 파싱
+        messageData = JSON.parse(bodyString);
+    } else {
+        // bodyString이 이미 객체면 그대로 사용
+        messageData = bodyString;
+    }
+
+    // 2025-03-04 13:45:51, messageData = {name:'kwonilgun', text:'hello'}로 구성이 되어 있다.
+    console.log('notificationServives - name', messageData.name);
+    await AsyncStorage.setItem('chatFromWho', messageData.name);
+
+    // Create a channel (required for Android)
   const channelId = await notifee.createChannel({
     id: '1',
     name: '패키지',
@@ -55,31 +54,22 @@ export async function onDisplayNotification(
     importance: AndroidImportance.HIGH,
   });
 
-  // Display a notification
-  // if (item.notification) {
-  //   await notifee.displayNotification({
-  //     title: item.notification?.title!.toString(),
-  //     body: item.notification?.body!.toString(),
-  //     android: {
-  //       channelId,
-  //       color: 'red',
-  //     },
-  //   });
-  // }
   if (item.data) {
     await notifee.displayNotification({
       title: item.data?.title.toString(),
-      body: item.data?.body.toString(),
+      body: messageData.text,
       android: {
         channelId,
         color: 'red',
       },
     });
   }
+
+
+  }
 }
 
 export async function notificationListeners() {
-
 
   messaging().onMessage(async remoteMessage => {
     console.log('A new FCM message arrived!', remoteMessage);
@@ -95,6 +85,7 @@ export async function notificationListeners() {
 
   messaging().onNotificationOpenedApp(async remoteMessage => {
 
+    console.log('messaging().onNotification....>>>>');
     if (remoteMessage) {
       console.log(
         'onNotificationOpenedApp',

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {ProfileScreenProps} from '../model/types/TUserNavigator';
 import {
@@ -38,6 +38,8 @@ import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
 import {areJsonEqual} from '../../utils/etc/areJsonEqual';
 import {errorAlert} from '../../utils/alerts/errorAlert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // import { Badge } from 'react-native-elements';
 
@@ -49,12 +51,12 @@ interface IUserInfo {
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = props => {
-  const {state, dispatch} = useAuth();
+  const {state, badgeCountState} = useAuth();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
   const [dataList, setDataList] = useState<DataList | null>(null);
-  const [badge, setBadge] = useState<number>(1);
+  const [badge, setBadgeCount] = useState<number>(0);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
   const userOriginalInfo = useRef<IUserInfo | null>(null);
@@ -82,15 +84,48 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         state.isAuthenticated,
       );
 
+      fetchBadgeCount();
       setIsLogin(true);
       getUserProfile();
-      checkOrderList();
+      // checkOrderList();
 
       return () => {
         setUserProfile(null);
       };
     }, []),
   );
+
+  useEffect(() => {
+
+      console.log('>>>>>>>>ProfileScreen - badge count =', badgeCountState.isBadgeCount );
+
+      setBadgeCount(badgeCountState.isBadgeCount);
+      // const saveBadgeCount = async ()=> {
+      //   console.log('ProfileScreen saveBadgeCount ', badgeCountState.isBadgeCount );
+      //   await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
+      // };
+
+      // saveBadgeCount();
+
+      // 2025-03-06 14:25:28: 
+
+      return () => {
+          console.log('ProfileScreen-badge count exit');
+      };
+    }, [badgeCountState]);
+
+  const fetchBadgeCount = async () => {
+    // console.log('fetchBadgeCount');
+    try {
+
+      const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+      console.log('ProfileScreen.tsx fetchBadgeCount = ', count);
+      setBadgeCount(count);
+    } catch (error) {
+      console.log('fetchBadgeCount error', error);
+    }
+
+  };
 
   const getUserProfile = async () => {
     const token = await getToken();
@@ -116,6 +151,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         reset(userData);
         userOriginalInfo.current = userData;
         setUserProfile(response.data);
+
+        // getUserProfile이 완료된 후에 checkOrderList 호출
+        await checkOrderList();
+
       } else {
         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
       }
@@ -126,6 +165,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   };
 
   const checkOrderList = async () => {
+    console.log('ProfileScreen - checkOrderList');
     try {
       const response: AxiosResponse = await axios.get(
         `${baseURL}orders/${userIdRef.current}`,
@@ -162,6 +202,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         makeExpandableDataList(orders, setDataList);
 
         // setLoading(false);
+      }
+      else{
+        console.log('ProfileScreen - 주문 리스트가 없다.');
+        setDataList([]);
       }
     } catch (error) {
       console.log('ProfileScreen CheckOrderList error', error);

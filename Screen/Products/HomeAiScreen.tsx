@@ -27,6 +27,11 @@ import { height, width } from '../../styles/responsiveSize';
 import { dateToKoreaDate, dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
 import { IOrderInfo } from '../model/interface/IOrderInfo';
 
+interface IAiOrderList {
+  orderNumber: string;
+  dateOrdered: string;
+}
+
 const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
   const [showDetail, setShowDetail] = useState<string[] | null>(null);
@@ -34,7 +39,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   const [modalDetail, setModalDetail] = useState<boolean>(false);
   const [productModalVisible, setProductModalVisible] = useState<boolean>(false);
   const [productNames, setProductNames] = useState<string[] | null>(props.route.params.productNames);
-  const [orderList, setOrderList] = useState<string[] | null>(props.route.params.productNames);
+  const [orderList, setOrderList] = useState<IAiOrderList[] | null>(props.route.params.productNames);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
 
@@ -56,7 +61,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   );
 
   // 주문 정보 조회
-  const fetchOrderDetails = async (orderNumber: string): Promise<void> => {
+  const fetchOrderDetails = async (item: IAiOrderList): Promise<void> => {
 
     setLoading(true);
 
@@ -72,12 +77,13 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
 
     try {
       const response: AxiosResponse =  await axios.get(
-        `${baseURL}gemini/order/${orderNumber}`,
+        `${baseURL}gemini/order/${item.orderNumber}`,
         config,
       );
 
       console.log('fetchOrderDetail =', response.data);
       if(response.status === 200){
+        console.log('HomeAiScreen - response.data', response.data);
         setShowDetail(response.data);
         setModalDetail(true);
       }
@@ -112,8 +118,18 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
         config,
       ); 
       const orders = response.data as IOrderInfo[];
-      const list = orders.map((order:IOrderInfo) => order.orderNumber);
-      console.log('HomeAiScreen orders = ', list);
+      // console.log('HomeAiScreen orders = ', orders);
+      const list: IAiOrderList[] = orders
+            .map((order: IOrderInfo) => ({
+                orderNumber: order.orderNumber,
+                dateOrdered: new Date(order.dateOrdered).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                }),
+            }))
+            .sort((a, b) => new Date(b.dateOrdered).getTime() - new Date(a.dateOrdered).getTime());
+
 
       if(response.status === 200){
         setOrderList(list);
@@ -224,7 +240,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
                           fetchOrderDetails(item);
                         }}
                       >
-                        <Text>주문번호 - {item}</Text>
+                        <Text>날짜-주문번호 : {item.dateOrdered} - {item.orderNumber}</Text>
                       </TouchableOpacity>
 
                     // <View style={styles.listItem}>
