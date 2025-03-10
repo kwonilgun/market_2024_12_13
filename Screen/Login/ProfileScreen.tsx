@@ -84,7 +84,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         state.isAuthenticated,
       );
 
-      fetchBadgeCount();
+      // fetchBadgeCount(badgeCountState.isBadgeCount);
       setIsLogin(true);
       getUserProfile();
       // checkOrderList();
@@ -95,37 +95,21 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
     }, []),
   );
 
-  useEffect(() => {
 
-      console.log('>>>>>>>>ProfileScreen - badge count =', badgeCountState.isBadgeCount );
+  useFocusEffect(
+    useCallback(() => {
+      console.log('ProfileScreen - badge count =', badgeCountState.isBadgeCount );
 
       setBadgeCount(badgeCountState.isBadgeCount);
-      // const saveBadgeCount = async ()=> {
-      //   console.log('ProfileScreen saveBadgeCount ', badgeCountState.isBadgeCount );
-      //   await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
-      // };
-
-      // saveBadgeCount();
-
-      // 2025-03-06 14:25:28: 
 
       return () => {
           console.log('ProfileScreen-badge count exit');
       };
-    }, [badgeCountState]);
+    }, [badgeCountState]),
+  );
 
-  const fetchBadgeCount = async () => {
-    // console.log('fetchBadgeCount');
-    try {
 
-      const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-      console.log('ProfileScreen.tsx fetchBadgeCount = ', count);
-      setBadgeCount(count);
-    } catch (error) {
-      console.log('fetchBadgeCount error', error);
-    }
 
-  };
 
   const getUserProfile = async () => {
     const token = await getToken();

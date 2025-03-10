@@ -69,6 +69,48 @@ export async function onDisplayNotification(
   }
 }
 
+
+
+
+export async function onIosDisplayNotification(
+  item: FirebaseMessagingTypes.RemoteMessage,
+) {
+
+  console.log('onIosDisplayNotification data ', item);
+
+  if(item.data){
+    const dataString = item.data;
+    console.log('onIosDisplayNotification - messageData', dataString);
+
+    let messageData;
+
+    if (typeof dataString === 'string') {
+        // bodyString이 문자열이면 JSON 파싱
+        messageData = JSON.parse(dataString);
+    } else {
+        // bodyString이 이미 객체면 그대로 사용
+        messageData = dataString;
+    }
+
+    // 2025-03-04 13:45:51, messageData = {name:'kwonilgun', text:'hello'}로 구성이 되어 있다.
+    console.log('onIosDisplayNotification - name', messageData.name);
+    await AsyncStorage.setItem('chatFromWho', messageData.name);
+
+
+    const title = item.notification?.title;
+    const contents = item.notification?.body;
+    console.log('notificationServices - ios - title ', title);
+
+    await notifee.displayNotification({
+        title: title,
+        body: contents,
+      });
+
+
+  }
+}
+
+
 export async function notificationListeners() {
 
   messaging().onMessage(async remoteMessage => {
@@ -78,47 +120,47 @@ export async function notificationListeners() {
       onDisplayNotification(remoteMessage);
     } else {
       console.log('ios notificationListeners....');
-      onDisplayNotification(remoteMessage);
+      onIosDisplayNotification(remoteMessage);
     }
   });
 
 
-  messaging().onNotificationOpenedApp(async remoteMessage => {
+  // messaging().onNotificationOpenedApp(async remoteMessage => {
 
-    console.log('messaging().onNotification....>>>>');
-    if (remoteMessage) {
-      console.log(
-        'onNotificationOpenedApp',
-        remoteMessage.notification,
-      );
+  //   console.log('messaging().onNotification....>>>>');
+  //   if (remoteMessage) {
+  //     console.log(
+  //       'onNotificationOpenedApp',
+  //       remoteMessage.notification,
+  //     );
 
-      let badgeCount;
-      badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-      badgeCount = badgeCount + 1;
-      await AsyncStorage.setItem('badgeCount', badgeCount.toString());
+  //     let badgeCount;
+  //     badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+  //     badgeCount = badgeCount + 1;
+  //     await AsyncStorage.setItem('badgeCount', badgeCount.toString());
 
-    }
+  //   }
 
-  });
+  // });
 
   // Check whether an initial notification is available
-  messaging()
-    .getInitialNotification()
-    .then(async remoteMessage => {
-      if (remoteMessage) {
-        console.log(
-          'getInitialNotification from quit state:',
-          remoteMessage.notification,
-        );
+  // messaging()
+  //   .getInitialNotification()
+  //   .then(async remoteMessage => {
+  //     if (remoteMessage) {
+  //       console.log(
+  //         'getInitialNotification from quit state:',
+  //         remoteMessage.notification,
+  //       );
 
-        let badgeCount;
+  //       let badgeCount;
 
-          badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-          badgeCount = badgeCount + 1;
-          await AsyncStorage.setItem('badgeCount', badgeCount.toString());
-          //  badgeCountDispatch({type: 'increment'});
-      }
-    });
+  //         badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+  //         badgeCount = badgeCount + 1;
+  //         await AsyncStorage.setItem('badgeCount', badgeCount.toString());
+  //         //  badgeCountDispatch({type: 'increment'});
+  //     }
+  //   });
 
   // return unsubscribe;
 }

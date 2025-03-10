@@ -9,41 +9,28 @@
  * ddd
  */
 
-import React, {useContext, useEffect, useState} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {Provider} from 'react-redux';
-import {AuthProvider, useAuth} from './context/store/Context.Manager';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { AuthProvider } from './context/store/Context.Manager';
 import MainTab from './Navigator/MainTab';
 import store from './Redux/Cart/Store/store';
 import {
-  Alert,
-  AppState,
-  AppStateStatus,
   Linking,
   LogBox,
   PermissionsAndroid,
-  Platform,
+  Platform
 } from 'react-native';
 
 import messaging from '@react-native-firebase/messaging';
-
-// import StartNotify from './Screen/Notification/StartNotify';
-// import SplashScreen from 'react-native-splash-screen';
-// import PushNotificationIOS from '@react-native-community/push-notification-ios';
-// import Badge from 'react-native-app-badge';
 import strings from './constants/lang';
 import {
-  LanguageContext,
-  LanguageProvider,
+  LanguageProvider
 } from './context/store/LanguageContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StartNotify from './StartNotify';
-import {
-  displayNotification,
-  initializeNotificationChannel,
-} from './Screen/Chat/notification/displayNotification';
 
-import {getFcmToken} from './Screen/Chat/notification/services';
+import { getFcmToken } from './Screen/Chat/notification/services';
 import {
   notificationListeners,
   requestUserPermission,
@@ -51,28 +38,8 @@ import {
 
 import notifee from '@notifee/react-native';
 
-
-
-// import {GoogleSignin} from '@react-native-google-signin/google-signin';
-
-// 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
-// const Stack = createStackNavigator<RootStackParamList>();
-
-// 2024-11-11 : 구글 sing in configuration
-
-// GoogleSignin.configure({
-//   webClientId:
-//     '858777442491-14jgv82c6dgo732p6qjv5lhlndotdn4h.apps.googleusercontent.com',
-//   forceCodeForRefreshToken: true,
-//   offlineAccess: true,
-//   iosClientId:
-//     '858777442491-od1pqhd3ekeubrpv5a87d7d8g33f7k8a.apps.googleusercontent.com',
-// });
-
 const App: React.FC = () => {
   // const {changeLanguage} = useContext(LanguageContext);
-  
-
   const [initialUrl, setInitialUrl] = useState<string | null>(null);
   const linking = {
     prefixes: ['myapp://'],
@@ -121,14 +88,6 @@ const App: React.FC = () => {
     fetchInitialUrl();
 
     setLanguage();
-    // if (Platform.OS === 'android') {
-    //   // 앱 실행 시 뱃지 카운트 초기화
-    //   const notifee = require('@notifee/react-native').default;
-    //   const resetBadgeCount = async () => {
-    //     await notifee.setBadgeCount(0);
-    //   };
-    //   resetBadgeCount();
-    // }
 
     return () => {};
   }, []);
@@ -149,7 +108,7 @@ const App: React.FC = () => {
       const notifications = await notifee.getDisplayedNotifications();
       console.log('App.tsx: 현재 표시된 알림:', notifications);
       if(notifications.length > 0){
-          
+
           let count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
            count = count + 1;
           await AsyncStorage.setItem('badgeCount', count.toString());
@@ -214,8 +173,7 @@ const App: React.FC = () => {
       <LanguageProvider>
         <Provider store={store}>
           <NavigationContainer linking={linking}>
-            {/* <StartNotify /> */}
-
+            <StartNotify /> 
             <MainTab initialUrl={initialUrl} />
           </NavigationContainer>
         </Provider>

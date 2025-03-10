@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View, TouchableOpacity,
   StyleSheet,
@@ -38,7 +38,7 @@ import {
   height, width
 } from '../../assets/common/BaseValue';
 import RoundImage from '../../utils/basicForm/RoundImage';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 
 // import {IMessage} from '../model/interface/IMessage';
 // import {GiftedChat, IMessage} from 'react-native-gifted-chat';
@@ -74,7 +74,6 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
   const pingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const pongInterval = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
   const chatRoomIdRef = useRef<string | null>(null);
 
   const appState = useRef<string>(AppState.currentState);
@@ -90,7 +89,6 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         return;
       }
 
-      setLoading(false);
 
       if (isEmpty(socketState.socketId)) {
         console.log('현재 화면 이름:', route.name);
@@ -100,7 +98,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
         activateSocket();
       } else {
         console.log('ChatMainScreen: 이미 소켓이 있음');
-        return;
+       
       }
 
       return () => {
@@ -110,61 +108,68 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     }, [socketState.socketId])
   );
 
-  // 2025-03-06 20:25:02, 다른 화면으로 변경이 된 경우 badge count를 보여준다.
-  useFocusEffect(
-    useCallback(() => {
-      const currentRouteName = route.name;
+  // // 2025-03-06 20:25:02, 다른 화면으로 변경이 된 경우 badge count를 보여준다.
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const currentRouteName = route.name;
 
-      console.log('Screen is focused:', currentRouteName);
-      isScreenFocused.current = true;
+  //     console.log('Screen is focused:', currentRouteName);
+  //     isScreenFocused.current = true;
 
-      if(badgeCountState.isBadgeCount !== 0) {
-        badgeCountDispatch({type: 'reset'});
-      }
+  //     if(badgeCountState.isBadgeCount !== 0) {
+  //       badgeCountDispatch({type: 'reset'});
+  //     }
 
-      
-
-      return () => {
-        isScreenFocused.current = false;
-        console.log('Screen is unfocused:', currentRouteName);
-        
-        
-      };
-    }, [route.name, badgeCountState])
-  );
+  //     return () => {
+  //       isScreenFocused.current = false;
+  //       console.log('Screen is unfocused:', currentRouteName);
+  //     };
+  //   }, [route.name])
+  // );
 
 
 
   // 2025-03-03 17:56:16: 앱 exit를 감지하고 
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState: string) => {
-      if (
-        appState.current.match(/active/) &&
-        nextAppState.match(/inactive|background/) &&
-        socketState.socketId
-      ) {
-        console.log('ChatMainScreen - 앱이 백그라운드로 이동하거나 종료됨');
-        stopPingSend(socketState.socketId);
-      }
-      appState.current = nextAppState;
-    };
+  // useEffect(() => {
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+  //   const handleAppStateChange = (nextAppState: string) => {
 
-    return () => {
-      console.log('ChatMainScreen remove ');
-      subscription.remove();
-    };
-  }, [socketState.socketId]);
+  //     if (
+  //       appState.current.match(/active/) &&
+  //       nextAppState.match(/inactive|background/) &&
+  //       socketState.socketId
+  //     ) {
+  //       console.log('handleAppStateChange socketState.sockedId', socketState.socketId);
+
+  //       if(isEmpty(socketState.socketId)){
+  //         console.log('handleAppStateChange sockeId가 비어있음');
+  //         return;
+  //       }
+  //       else{
+  //         console.log('ChatMainScreen - 앱이 백그라운드로 이동하거나 종료됨');
+  //         stopPingSend(socketState.socketId);
+  //       }
+  //     }
+  //     appState.current = nextAppState;
+  //   };
+
+  //   const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+  //   return () => {
+  //     console.log('ChatMainScreen handleAppStateChange remove ');
+  //     subscription.remove();
+  //   };
+  // }, []);
 
   const fetchDataFromNotifee = async () => {
     console.log('ChatMainScreen - fetchDataFromNotifee');
     try {
 
-      const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+      const count = badgeCountState.isBadgeCount;
       const name = await AsyncStorage.getItem('chatFromWho');
-      console.log('ChatMainScreen.tsx badgeCount = ', count);
-      console.log('ChatMain.tsx name = ', name);
+      console.log('ChatMainScreen.tsx fetchDataFromNotifee badgeCount = ', count);
+      console.log('ChatMain.tsx fetchDataFromNotifee name = ', name);
+
 
       setBadgeCount(count);
       setSentName(name!);
@@ -176,22 +181,22 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
   };
 
-  useEffect(() => {
+  // useEffect(() => {
 
-      console.log('>>>>>>>>MainTab - badge count =', badgeCountState.isBadgeCount );
-      setBadgeCount(badgeCountState.isBadgeCount);
+  //     console.log('>>>>>>>>ChatMainScreen - badge count =', badgeCountState.isBadgeCount );
+  //     setBadgeCount(badgeCountState.isBadgeCount);
 
-      const saveBadgeCountIntoLocal = async ()  =>{
-        console.log('ChatMainScreen - saveBadgeCountIntoLocal');
-        await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
-      }
+  //     // const saveBadgeCountIntoLocal = async ()  =>{
+  //     //   console.log('ChatMainScreen - saveBadgeCountIntoLocal');
+  //     //   await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
+  //     // };
 
-      saveBadgeCountIntoLocal();
+  //     // saveBadgeCountIntoLocal();
 
-      return () => {
-          console.log('MainTab - badge count exit');
-      };
-    }, [badgeCountState]);
+  //     return () => {
+  //         console.log('ChatMainScreen - badge count exit');
+  //     };
+  //   }, [badgeCountState]);
 
   // 서버에서 메시지 불러오기
   const fetchChatUsers = async () => {
@@ -219,8 +224,10 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
           else{
             return item.email !== state.user?.nickName && item.email.includes('Manager');
           }
-          
+
         });
+
+        console.log('ChatMainScreen-fetchChatUsers : chatUser', chatUser);
         setChatUsers(chatUser);
 
         setLoading(false);
@@ -264,6 +271,10 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       }
     } catch (error) {
       console.error('Error fetching messages:', error);
+    } finally{
+
+      // !!!!!!2025-03-10, 나머지 처리를 완료하고 마지막에 채팅창을 열도록 수정함.
+      showChat.current = true;
     }
   };
 
@@ -290,7 +301,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
             };
           });
 
-          console.log('onSend newMessage = ', newMessage[0]);
+          // console.log('onSend newMessage = ', newMessage[0]);
 
           await axios.post(
             `${baseURL}messages`,
@@ -310,7 +321,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     [socketState.socketId],
   );
 
- 
+
   async function activateSocket() {
     console.log('activateSocket...');
 
@@ -326,7 +337,7 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
       pongInterval: null, // 예: 5초
     };
 
-    props.addToSocket({socket: socketData});
+    // props.addToSocket({socket: socketData});
 
     // 서버와의 연결 이벤트 처리
     socket.on('connect', () => {
@@ -395,23 +406,28 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
     socket.on('disconnect', () => {
       console.log('Disconnected from server');
     });
-  }
+}
 
-  let retryCount = 0; // 재시도 횟수
+let retryCount = 0; // 재시도 횟수
 
 function handleSocketTimeout(socketData: ISocket) {
   console.log('ChatMainScreen - 소켓 타임아웃 발생, 재연결 시도...');
-  retryCount++;
+  // retryCount++;
 
-  if (retryCount <= 3) { // 최대 3번 재시도
-    console.log(`ChatMainScreen - 재시도 ${retryCount}번째...`);
-    socketData.socketId.disconnect(); // 기존 소켓 연결 종료
-    setTimeout(activateSocket, 2000 * retryCount); // 지수 백오프 적용
-  } else {
-    console.log('ChatMainScreen - 재시도 실패, 사용자에게 알림');
-    // 사용자에게 네트워크 문제 알림 또는 로그아웃 처리
-    retryCount = 0; // 재시도 횟수 초기화
-  }
+  // if (retryCount <= 1) { // 최대 3번 재시도
+  //   console.log(`ChatMainScreen - 재시도 ${retryCount}번째...`);
+  //   stopPingSend(socketData.socketId);
+  //   alertMsg('에러', '채팅 연결 실패, 다시 시도 해주세요');
+  //   // socketData.socketId.disconnect(); // 기존 소켓 연결 종료
+
+  //   // setTimeout(activateSocket, 2000 * retryCount); // 지수 백오프 적용
+  // } else {
+  //   console.log('ChatMainScreen - 재시도 실패, 사용자에게 알림');
+  //   alertMsg('에러', '채팅 연결 시도 실패');
+  //   stopPingSend(socketData.socketId);
+  //   // 사용자에게 네트워크 문제 알림 또는 로그아웃 처리
+  //   // retryCount = 0; // 재시도 횟수 초기화ㅁ
+  // }
 }
 
 
@@ -438,8 +454,7 @@ function handleSocketTimeout(socketData: ISocket) {
       //2025-01-10 : 서버에서 저장된 메세지를 가져온다.
       fetchMessages(roomId);
 
-      // setShowChat(true);
-      showChat.current = true;
+      
     } else {
       console.log('socketState.socketId is empty');
     }
@@ -479,6 +494,7 @@ function handleSocketTimeout(socketData: ISocket) {
                   setBadgeCount(0);
                   cancelNotifications();
                 }
+                // activateSocket();
                 startChat(item);
 
               }} // Navigate to chat when a user is selected
@@ -526,6 +542,7 @@ function handleSocketTimeout(socketData: ISocket) {
   const stopPingSend = (sockeId: any) => {
     // console.log('ChatMainScreen: stopPingSend.... socketId', sockeId);
     if (sockeId) {
+      console.log('stopPingSend sockId 가 존재')
       sockeId.emit('chat-closed', {
         chatRoomId: chatRoomIdRef.current,
         userId: state.user?.userId,
@@ -536,9 +553,11 @@ function handleSocketTimeout(socketData: ISocket) {
       sockeId.disconnect();
 
       console.log('props.socket = ', props.socketItem);
+      socketDispatch({type: 'RESET'});
+      // props.clearSocket();
+      // showChat.current = false;
     }
-    socketDispatch({type: 'RESET'});
-    props.clearSocket();
+
     //pingInterval 및 pongInterval 정리
     if (pingInterval.current) {
       console.log('pingInterval 을 중단한다.');
@@ -548,7 +567,7 @@ function handleSocketTimeout(socketData: ISocket) {
       console.log('pongInterval 을 중단한다.');
       clearTimeout(pongInterval.current);
     }
-    setLoading(true);
+
   };
 
   const onPressLeft = () => {

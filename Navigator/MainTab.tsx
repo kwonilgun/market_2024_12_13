@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useAuth} from '../context/store/Context.Manager';
 import HomeNavigator from './HomeNavigator';
@@ -16,6 +16,8 @@ import { AppState, AppStateStatus, Linking, Platform } from 'react-native';
 import notifee, {EventType} from '@notifee/react-native';
 import AdminOrderNavigator from './Admin/AdminOrderNavigator';
 import SalesNavigator from './Admin/SalesNavigator';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -56,7 +58,6 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
 
   console.log('MainTab, state =', state);
   console.log('MainTab: isAdmin = ', isAdmin);
-  // const isProducer = state.user?.isProducer;
 
 
 
@@ -72,7 +73,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         console.log('MainTab.tsx type = ', type, detail);
         if (type === EventType.DELIVERED) {
           // 2025-03-05 08:57:23, foreground에서 알림창을 누르면 이곳으로 온다.
-          console.log('MainTab, onForegroundEvent');
+          console.log('MainTab-android, onForegroundEvent');
           // setBadgeCount(1);
            // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
           badgeCountDispatch({type: 'increment'});
@@ -118,125 +119,69 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
     // const {EventType} = require('@notifee/react-native');
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      // 알림 수신 시 뱃지 카운트 업데이트
-      const subscription = notifee.onForegroundEvent(({type, detail}) => {
-        console.log('MainTab type = ', type, detail);
-        if (type === EventType.DELIVERED) {
-          console.log('MainTab.tsx type = ', type, detail);
-          setBadgeCount(1);
-           // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
-          badgeCountDispatch({type: 'increment'});
-        }
-      });
+    // useEffect(() => {
+    //   // 알림 수신 시 뱃지 카운트 업데이트
+    //   const subscription = notifee.onForegroundEvent(({type, detail}) => {
+    //     console.log('MainTab-ios type = ', type, detail);
+    //     if (type === EventType.DELIVERED) {
+    //       console.log('MainTab.tsx ios type = ', type, detail);
+    //       // setBadgeCount(badgeCountState.isBadgeCount);
+    //        // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
+    //       badgeCountDispatch({type: 'increment'});
+    //     }
+    //   });
 
-      const fetchBadgeCount = async () => {
-        const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
 
-        // const count = badgeCountState.isBadgeCount;
-        console.log('MainTab.tsx badgeCount = ', count);
-        // setBadgeCount(prevCount => prevCount + count);
-        setBadgeCount(count);
-      };
+    //   return () => {
+    //     subscription();
+    //     setBadgeCount(0);
 
-      fetchBadgeCount();
-
-      return () => {
-        subscription();
-        setBadgeCount(0);
-
-      };
-    }, []);
+    //   };
+    // }, []);
   }
 
 
-  useEffect(() => {
 
-    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {
-        console.log('앱이 백그라운드에서 포그라운드로 전환되었습니다.');
-
-        // badgeCountDispatch({type: 'increment'});
-        // 업데이트 로직 실행
-        // setBadgeCount(1);
-        if(Platform.OS === 'android'){
-          checkBackgroundUpdate();
-        }
-        if(Platform.OS === 'ios'){
-            // 푸시 알림 권한 확인
-            // const settings = await notifee.getNotificationSettings();
-            // if (settings.authorizationStatus === AuthorizationStatus.AUTHORIZED) {
-            //   console.log('알림 권한이 활성화되었습니다.');
-
-              // 표시된 알림 가져오기
-              const notifications = await notifee.getDisplayedNotifications();
-              console.log('현재 표시된 알림:', notifications);
-
-              if (notifications.length > 0) {
-                setBadgeCount(1);
-                // 알림이 있는 경우 상태 업데이트
-                // checkBackgroundUpdate();
-              }
-              else{
-                checkBackgroundUpdate();
-              }
-            // } else {
-            //   console.log('알림 권한이 비활성화되었습니다.');
-            // }
-
-        }
-
-      }
-      setAppState(nextAppState);
-    };
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-
-    return () => {
-      subscription.remove();
-    };
-  }, [appState]);
-
-
-  useEffect(() => {
-
-    console.log('>>>>>>>>MainTab - badge count =', badgeCountState.isBadgeCount );
+  useFocusEffect(
+      useCallback(() => {
+    console.log('MainTab-useEffect - badge count =', badgeCountState.isBadgeCount );
     setBadgeCount(badgeCountState.isBadgeCount);
 
     return () => {
-        console.log('MainTab - badge count exit');
-    };
-  }, [badgeCountState]);
+        console.log('MainTab- useEffect - badge count exit');
+      };
+    }, [badgeCountState]),
+  );
 
+  // useEffect(() => {
 
-  const checkBackgroundUpdate = async () => {
-    // 예: 백엔드와 통신하거나 상태를 확인하는 로직
-    // setStatus("백그라운드에서 상태 변경을 감지했습니다!");
-    const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+  //   console.log('MainTab-useEffect - badge count =', badgeCountState.isBadgeCount );
+  //   setBadgeCount(badgeCountState.isBadgeCount);
 
-        // const count = badgeCountState.isBadgeCount;
-        console.log('MainTab count = ', count);
-        setBadgeCount(prevCount => prevCount + count);
-        setBadgeCount(count);
-  };
+  //   return () => {
+  //       console.log('MainTab- useEffect - badge count exit');
+  //   };
+  // }, [badgeCountState]);
+
 
   // 알림 취소 함수
   const cancelNotifications = async () => {
-  try {
-    // 현재 표시 중인 알림 가져오기
+    try {
+      // 현재 표시 중인 알림 가져오기
 
-      // 표시 중인 알림이 있으면 취소
-      await AsyncStorage.removeItem('badgeCount');
-      await notifee.cancelAllNotifications(); // 모든 알림 취소
+        // 표시 중인 알림이 있으면 취소
+        await AsyncStorage.removeItem('badgeCount');
+        await notifee.cancelAllNotifications(); // 모든 알림 취소
 
-      // 앱 아이콘 뱃지 초기화
-      await notifee.setBadgeCount(0);
-      console.log('All notifications canceled');
+        // 앱 아이콘 뱃지 초기화
+        await notifee.setBadgeCount(0);
+        console.log('All notifications canceled');
 
-  } catch (error) {
-    console.error('Failed to cancel notifications:', error);
-  }
+    } catch (error) {
+      console.error('Failed to cancel notifications:', error);
+    }
   };
+
   return (
     <Tab.Navigator
       screenOptions={{
