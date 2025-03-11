@@ -20,34 +20,53 @@ const StartNotify: React.FC = () => {
         console.log('StartNotify - ----');
 
         const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-          if (appState.match(/inactive|background/) && nextAppState === 'active') {
-            console.log('StartNotify 앱이 백그라운드에서 포그라운드로 전환되었습니다.');
-            if(Platform.OS === 'android'){
-              checkBackgroundUpdate();
-            }
-            if(Platform.OS === 'ios'){
-              // ✅ iOS는 FCM의 데이터 메시지를 활용하여 배지 카운트 증가
-              messaging()
-              .getInitialNotification()
-              .then(remoteMessage => {
-                if (remoteMessage) {
-                  console.log('StartNotify handleAppStateChange-ios, remoteMessage', remoteMessage);
-                  badgeCountDispatch({ type: 'increment' });
-                } else {
-                  console.log('StartNotify handleAppStateChange-ios, remoteMessage 없음');
-                  // checkBackgroundUpdate();
+              if (appState.match(/inactive|background/) && nextAppState === 'active') {
+                console.log('StartNotify 앱이 백그라운드에서 포그라운드로 전환되었습니다.');
+                if(Platform.OS === 'android'){
+                  checkBackgroundUpdate();
                 }
-              });
-            }
-          }
-          setAppState(nextAppState);
-        };
+                if(Platform.OS === 'ios'){
+                  // ✅ iOS는 FCM의 데이터 메시지를 활용하여 배지 카운트 증가
+                  messaging()
+                  .getInitialNotification()
+                  .then(remoteMessage => {
+                    if (remoteMessage) {
+                      console.log('StartNotify handleAppStateChange-ios, remoteMessage', remoteMessage);
+                      badgeCountDispatch({ type: 'increment' });
+                    } else {
+                      console.log('StartNotify handleAppStateChange-ios, remoteMessage 없음');
+                      // checkBackgroundUpdate();
+                    }
+                  });
+
+
+                }
+              }
+              setAppState(nextAppState);
+          };
+
+         fetchNotifeeOnAppOpen();
+
+
         const subscription = AppState.addEventListener('change', handleAppStateChange);
         return () => {
           subscription.remove();
         //   unsubscribe();
         };
     }, []);
+
+
+    // 2025-03-10  ios에서 앱에 알림 뱃지가 있는 경우 앱을 click 한 경우 처리
+    const fetchNotifeeOnAppOpen = async ()=>{
+     
+        // 표시된 알림 가져오기, ios 앱을 click 한 경우 
+        const notifications = await notifee.getDisplayedNotifications();
+        console.log('StartNotify - getDisplayedNotification:', notifications);
+        if(notifications.length > 0){
+          badgeCountDispatch({ type: 'increment' });
+        }
+      
+    };
 
     useEffect(() => {
 
@@ -71,13 +90,15 @@ const StartNotify: React.FC = () => {
 
         // 2025-03-10 11:38:54
         const subscription = notifee.onForegroundEvent(({type, detail}) => {
-          console.log('MainTab-ios type = ', type, detail);
+          console.log('MainTab  type = ', type, detail);
           if (type === EventType.DELIVERED) {
-            // console.log('MainTab.tsx ios type = ', type, detail);
-            // setBadgeCount(badgeCountState.isBadgeCount);
-             // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
             badgeCountDispatch({type: 'increment'});
           }
+        });
+
+
+        messaging().setBackgroundMessageHandler(async remoteMessage => {
+          console.log('Message handled in the background!', remoteMessage);
         });
 
         return () => {

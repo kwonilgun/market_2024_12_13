@@ -69,16 +69,16 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
     useEffect(() => {
       console.log('MainTab ... 진입');
       // 알림 수신 시 뱃지 카운트 업데이트
-      const subscription = notifee.onForegroundEvent(({type, detail}) => {
-        console.log('MainTab.tsx type = ', type, detail);
-        if (type === EventType.DELIVERED) {
-          // 2025-03-05 08:57:23, foreground에서 알림창을 누르면 이곳으로 온다.
-          console.log('MainTab-android, onForegroundEvent');
-          // setBadgeCount(1);
-           // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
-          badgeCountDispatch({type: 'increment'});
-        }
-      });
+      // const subscription = notifee.onForegroundEvent(({type, detail}) => {
+      //   console.log('MainTab.tsx type = ', type, detail);
+      //   if (type === EventType.DELIVERED) {
+      //     // 2025-03-05 08:57:23, foreground에서 알림창을 누르면 이곳으로 온다.
+      //     console.log('MainTab-android, onForegroundEvent');
+      //     // setBadgeCount(1);
+      //      // 2025-03-05 10:54:33: badge increment를 전달하기 위해서 추가 함.
+      //     badgeCountDispatch({type: 'increment'});
+      //   }
+      // });
 
       const fetchBadgeCount = async () => {
         console.log('MainTab.tsx - android - badgeCount = ', badgeCountState.isBadgeCount);
@@ -109,7 +109,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
       Linking.addEventListener('url', handleLink);
 
       return () => {
-        subscription();
+        // subscription();
         Linking.removeAllListeners('myapp://UserMain');
       };
     }, []);

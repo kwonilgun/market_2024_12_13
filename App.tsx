@@ -76,14 +76,16 @@ const App: React.FC = () => {
     if (Platform.OS === 'android') {
       notificationPermission();
       requestUserPermission();
-      notificationListeners();
+      // notificationListeners();
     }
 
     if(Platform.OS === 'ios'){
       console.log('ios user permission');
       requestIosUserPermission();
-      notificationListeners();
+      // notificationListeners();
     }
+
+    notificationListeners();
 
     fetchInitialUrl();
 
@@ -104,15 +106,7 @@ const App: React.FC = () => {
       console.log('IOS Authorization enabled: ', enabled);
     if (enabled) {
 
-      // 표시된 알림 가져오기
-      const notifications = await notifee.getDisplayedNotifications();
-      console.log('App.tsx: 현재 표시된 알림:', notifications);
-      if(notifications.length > 0){
-
-          let count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-           count = count + 1;
-          await AsyncStorage.setItem('badgeCount', count.toString());
-      }
+      
 
       getFcmToken();
     }

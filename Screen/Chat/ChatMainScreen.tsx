@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View, TouchableOpacity,
   StyleSheet,
@@ -103,6 +103,8 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
       return () => {
         console.log('ChatMainScreen: useEffect : exit 한다.');
+        // 2025-03-10 화면을 빠져 나가면 바로 해제를 한다. 
+        stopPingSend(socketState.socketId);
         setLoading(true);
       };
     }, [socketState.socketId])
@@ -181,22 +183,24 @@ const ChatMainScreen: React.FC<ChatMainScreenProps> = props => {
 
   };
 
-  // useEffect(() => {
+  useFocusEffect(
+        useCallback(() => {
 
-  //     console.log('>>>>>>>>ChatMainScreen - badge count =', badgeCountState.isBadgeCount );
-  //     setBadgeCount(badgeCountState.isBadgeCount);
+      console.log('ChatMainScreen - BadgeCountState count =', badgeCountState.isBadgeCount );
+      setBadgeCount(badgeCountState.isBadgeCount);
 
-  //     // const saveBadgeCountIntoLocal = async ()  =>{
-  //     //   console.log('ChatMainScreen - saveBadgeCountIntoLocal');
-  //     //   await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
-  //     // };
+      // const saveBadgeCountIntoLocal = async ()  =>{
+      //   console.log('ChatMainScreen - saveBadgeCountIntoLocal');
+      //   await AsyncStorage.setItem('badgeCount', String(badgeCountState.isBadgeCount));
+      // };
 
-  //     // saveBadgeCountIntoLocal();
+      // saveBadgeCountIntoLocal();
 
-  //     return () => {
-  //         console.log('ChatMainScreen - badge count exit');
-  //     };
-  //   }, [badgeCountState]);
+      return () => {
+          console.log('ChatMainScreen - badge count exit');
+      };
+    }, [badgeCountState]),
+  );
 
   // 서버에서 메시지 불러오기
   const fetchChatUsers = async () => {

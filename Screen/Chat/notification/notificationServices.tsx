@@ -22,14 +22,14 @@ export async function requestUserPermission() {
 }
 
 
-export async function onDisplayNotification(
+export async function onDisplayAndroidNotification(
   item: FirebaseMessagingTypes.RemoteMessage,
 ) {
 
-  // console.log('onDisplayNotification data ', item);
+  console.log('onDisplayAndroidNotification data ', item);
 
-  if(item?.data?.body){
-    const bodyString = item.data.body;
+  if(item?.data){
+    const bodyString = item.data;
     console.log('notificationServices - messageData', bodyString);
 
     let messageData;
@@ -47,23 +47,23 @@ export async function onDisplayNotification(
     await AsyncStorage.setItem('chatFromWho', messageData.name);
 
     // Create a channel (required for Android)
-  const channelId = await notifee.createChannel({
-    id: '1',
-    name: '패키지',
-    sound: 'default',
-    importance: AndroidImportance.HIGH,
-  });
-
-  if (item.data) {
-    await notifee.displayNotification({
-      title: item.data?.title.toString(),
-      body: messageData.text,
-      android: {
-        channelId,
-        color: 'red',
-      },
+    const channelId = await notifee.createChannel({
+      id: '1',
+      name: '패키지',
+      sound: 'default',
+      importance: AndroidImportance.HIGH,
     });
-  }
+
+    if (item.notification) {
+      await notifee.displayNotification({
+        title: item.notification?.title!.toString(),
+        body: item.notification?.body!,
+        android: {
+          channelId,
+          color: 'red',
+        },
+      });
+    }
 
 
   }
@@ -117,7 +117,7 @@ export async function notificationListeners() {
     console.log('A new FCM message arrived!', remoteMessage);
     if(Platform.OS === 'android'){
       console.log('android notificationListeners....');
-      onDisplayNotification(remoteMessage);
+      onDisplayAndroidNotification(remoteMessage);
     } else {
       console.log('ios notificationListeners....');
       onIosDisplayNotification(remoteMessage);
