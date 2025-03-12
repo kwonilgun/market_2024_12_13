@@ -124,43 +124,4 @@ export async function notificationListeners() {
     }
   });
 
-
-  // messaging().onNotificationOpenedApp(async remoteMessage => {
-
-  //   console.log('messaging().onNotification....>>>>');
-  //   if (remoteMessage) {
-  //     console.log(
-  //       'onNotificationOpenedApp',
-  //       remoteMessage.notification,
-  //     );
-
-  //     let badgeCount;
-  //     badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-  //     badgeCount = badgeCount + 1;
-  //     await AsyncStorage.setItem('badgeCount', badgeCount.toString());
-
-  //   }
-
-  // });
-
-  // Check whether an initial notification is available
-  // messaging()
-  //   .getInitialNotification()
-  //   .then(async remoteMessage => {
-  //     if (remoteMessage) {
-  //       console.log(
-  //         'getInitialNotification from quit state:',
-  //         remoteMessage.notification,
-  //       );
-
-  //       let badgeCount;
-
-  //         badgeCount = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
-  //         badgeCount = badgeCount + 1;
-  //         await AsyncStorage.setItem('badgeCount', badgeCount.toString());
-  //         //  badgeCountDispatch({type: 'increment'});
-  //     }
-  //   });
-
-  // return unsubscribe;
 }

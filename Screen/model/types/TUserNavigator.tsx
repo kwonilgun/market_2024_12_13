@@ -46,6 +46,7 @@ export type RootStackParamList = {
   MembershipPrivacyPolicyScreen: undefined;
   PrivacyPolicyScreen: undefined;
   MembershipScreen: undefined;
+  NaverLoginScreen: undefined;
   ProductMainScreen: undefined;
   HomeAiScreen: undefined;
   ProductDetailScreen: undefined;
@@ -120,6 +121,10 @@ export type AuthorizeScreenProps = {
 
 export type MembershipScreenProps = {
   route: RouteProp<RootStackParamList, 'MembershipScreen'>;
+};
+
+export type NaverLoginScreenProps = {
+  route: RouteProp<RootStackParamList, 'NaverLoginScreen'>;
 };
 
 export type ProfileScreenProps = {

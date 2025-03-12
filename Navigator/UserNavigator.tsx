@@ -17,6 +17,7 @@ import OrderListScreen from '../Screen/Orders/OrderListScreen';
 import OrderDetailScreen from '../Screen/Orders/OrderDetailScreen';
 import ChatMainScreen from '../Screen/Chat/ChatMainScreen';
 import ChatRegisterScreen from '../Screen/Chat/ChatRegisterScreen';
+import NaverLoginScreen from '../Screen/Login/NaverLoginScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -88,6 +89,21 @@ function MyStack() {
         <Stack.Screen
           name="MembershipScreen"
           component={MembershipScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '회원 가입',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="NaverLoginScreen"
+          component={NaverLoginScreen}
           options={({navigation, route}) => ({
             headerShown: false,
             headerLeft: () => null,

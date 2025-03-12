@@ -603,7 +603,28 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     {strings.MEMBERSHIP}
                   </Text>
                 </TouchableOpacity>
+
+                
               </View>
+              <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('NaverLoginScreen');
+                    console.log('네이버 로그인 click');
+                    // displayNotificationNoParams();
+                  }}>
+                  <Text
+                    style={{
+                      height: RFPercentage(8),
+                      width: RFPercentage(15),
+                      color: 'black',
+                      textDecorationLine: 'underline',
+                      fontSize: RFPercentage(2.5),
+                      fontWeight: 'bold',
+                      marginLeft: RFPercentage(10),
+                    }}>
+                    네이버 로그인
+                  </Text>
+                </TouchableOpacity>
             </View>
           </ScrollView>
         )}
