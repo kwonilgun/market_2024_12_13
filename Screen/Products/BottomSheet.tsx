@@ -40,7 +40,7 @@ const BottomSheet: React.FC<Props> = props => {
     number: number,
     item: Props['item'],
   ) => {
-    console.log('putInShoppingCart number, item', number, item);
+    // console.log('putInShoppingCart number, item', number, item);
     props.addItemToCart(number, item);
     //     dProps.navigation.goBack();
     dProps.navigation.navigate('ShoppingCart', {screen: 'CartMainMenu'});

@@ -122,8 +122,8 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
         //   setPrice(res.data.product.price);
         //   setDiscount(res.data.product.discount);
         setTotal(
-          Number(response.data.product.price) *
-            (100 - Number(response.data.product.discount)) *
+          Number(response.data.product.price ?? 0) *
+            (100 - Number(response.data.product.discount ?? 0)) *
             0.01 *
             response.data.quantity,
         );

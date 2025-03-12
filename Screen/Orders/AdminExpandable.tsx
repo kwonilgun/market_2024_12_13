@@ -1,3 +1,4 @@
+/* eslint-disable no-sequences */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useCallback} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
@@ -27,7 +28,7 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
 
   useFocusEffect(
     useCallback(() => {
-      console.log('>>>>Expandable: useFocusEffect : 진입을 한다. .<<<<<');
+      console.log('AdminExpandable: useFocusEffect : 진입을 한다. .<<<<<');
       if (item.isExpanded) {
         setLayoutHeight(null);
       } else {
@@ -53,9 +54,9 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
           overflow: 'hidden',
         }}>
         <View style={styles.subtitleHeader}>
-           <Text style={styles.receiverName}>수신자</Text>
-           <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(5)}]}>주문날짜</Text>
-           <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(7)}]}>주문번호</Text>
+           <Text style={[styles.receiverName, {marginRight:RFPercentage(6)}]}>수신자</Text>
+           <Text style={[{marginRight:RFPercentage(7)}]}>주문날짜</Text>
+           <Text style={[{marginRight:RFPercentage(6)}]}>주문번호</Text>
         </View>
         {!isEmpty(item.subtitle) ? (
           item.subtitle.map((data, key) => (
@@ -74,11 +75,11 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
                 });
               }}>
               <View style={styles.subtitleContainer}>
-                <Text style={styles.receiverName}>{data.receiverName} :</Text>
-                <Text style={styles.dateOrdered}>
+                <Text style={[styles.receiverName, styles.flexItem]}>{data.receiverName} :</Text>
+                <Text style={[styles.dateOrdered, styles.flexItem]}>
                   {' '}
                   {dateToKoreaDate(new Date(data.dateOrdered))}</Text>
-                <Text style={styles.orderNumber}>
+                <Text style={[styles.orderNumber, styles.flexItem]}>
                   {' '}
                   {data.orderNumber}
                 </Text>
@@ -109,22 +110,32 @@ const styles = StyleSheet.create({
   },
   subtitleContainer: {
     flexDirection: 'row',
-    marginLeft: RFPercentage(3),
+    // marginLeft: RFPercentage(3),
     marginVertical: 4,
+  },
+  flexItem: {
+    flex: 1, // 각 항목이 동일한 너비를 가지도록 설정
+    // textAlign: 'center', // 가운데 정렬
   },
   receiverName: {
     fontSize: 14,
     fontWeight: '600',
+    flex: 1, // 동일한 너비 유지
+    textAlign: 'center',
   },
   dateOrdered: {
-    marginLeft: RFPercentage(2),
+    // marginLeft: RFPercentage(2),
     fontSize: 14,
     color: '#555',
+    flex: 1,
+    textAlign: 'center', // 중앙 정렬
   },
   orderNumber: {
-    marginLeft: RFPercentage(2),
+    // marginLeft: RFPercentage(2),
     fontSize: 14,
     color: '#555',
+    flex: 1,
+    textAlign: 'left', // 오른쪽 정렬
   },
   noDataText: {
     fontSize: 14,

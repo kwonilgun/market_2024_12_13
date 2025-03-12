@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/self-closing-comp */
 /*
  * File: CartMainScreen.tsx
@@ -53,28 +54,32 @@ const CartMainScreen: React.FC<CartMainScreenProps> = props => {
     useCallback(() => {
       console.log('CartMainScreen useFocusEffect');
       if (state.isAuthenticated) {
-        setIsLogin(true);
-      } else {
-        alertMsg('에러', '로그인 필요합니다.');
-        return;
-      }
 
-      // cartItems가 배열이 아니거나 undefined일 경우 기본값 설정
-      console.log('props.cart = ', props.cart);
+        // cartItems가 배열이 아니거나 undefined일 경우 기본값 설정
+          // console.log('props.cart = ', props.cart);
 
-      if (Array.isArray(props.cart)) {
-        // 2023-02-23: 주문 갯수를 곱해서 총금액 계산
-        let sum = 0;
-        props.cart?.forEach((item: CartItem) => {
-          sum +=
-            parseInt(item.product.price!, 10) *
-            (100 - (parseInt(item.product.discount!, 10) ?? 0)) *
-            0.01 *
-            item.quantity;
-        });
-        setTotal(sum);
+          if (Array.isArray(props.cart)) {
+            // 2023-02-23: 주문 갯수를 곱해서 총금액 계산
+            let sum = 0;
+            props.cart?.forEach((item: CartItem) => {
+              const price = item.product.price ? item.product.price : '0';
+              const discount = item.product.discount ? item.product.discount : '0';
+
+              console.log('CartMainScreen - price discount', price, discount);
+
+              sum +=
+                parseInt(price, 10) * (100 - (parseInt(discount, 10) ?? 0)) *
+                0.01 *
+                item.quantity;
+            });
+            console.log('CartMainScreen - sum =', sum);
+            setTotal(sum);
+            setIsLogin(true);
+          } else {
+            console.log('array 가 아님');
+          }
       } else {
-        console.log('array 가 아님');
+          alertMsg('에러', '로그인 필요합니다.');
       }
 
       return () => {

@@ -47,7 +47,7 @@ const ProfitMonthlyScreen: React.FC<ProfitMonthlyScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('SalesMonthlyScreen : useFocusEffect');
+      console.log('ProfitMonthlyScreen : useFocusEffect');
       fetchSalesData();
     }, []),
   );
@@ -124,7 +124,7 @@ const ProfitMonthlyScreen: React.FC<ProfitMonthlyScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="수익 차트"
+        centerText="월별 순매출"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
@@ -165,7 +165,7 @@ const ProfitMonthlyScreen: React.FC<ProfitMonthlyScreenProps> = props => {
                 />
                 <View style={styles.subtitleHeader}>
                     <Text style={styles.titleDate}>날짜</Text>
-                    <Text style={styles.titleRevenue}>순이익</Text>
+                    <Text style={styles.titleRevenue}>순매출</Text>
                 </View>
                 <FlatList
                   data={profitData}

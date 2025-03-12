@@ -39,7 +39,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   const [modalDetail, setModalDetail] = useState<boolean>(false);
   const [productModalVisible, setProductModalVisible] = useState<boolean>(false);
   const [productNames, setProductNames] = useState<string[] | null>(props.route.params.productNames);
-  const [orderList, setOrderList] = useState<IAiOrderList[] | null>(props.route.params.productNames);
+  const [orderList, setOrderList] = useState<IAiOrderList[] | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
 
@@ -116,24 +116,26 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
       const response: AxiosResponse =  await axios.get(
         `${baseURL}orders/${userId}`,
         config,
-      ); 
-      const orders = response.data as IOrderInfo[];
-      // console.log('HomeAiScreen orders = ', orders);
-      const list: IAiOrderList[] = orders
-            .map((order: IOrderInfo) => ({
-                orderNumber: order.orderNumber,
-                dateOrdered: new Date(order.dateOrdered).toLocaleDateString('ko-KR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                }),
-            }))
-            .sort((a, b) => new Date(b.dateOrdered).getTime() - new Date(a.dateOrdered).getTime());
+      );
 
 
       if(response.status === 200){
-        setOrderList(list);
-        setModalVisible(true);
+            const orders = response.data as IOrderInfo[];
+            // console.log('HomeAiScreen orders = ', orders);
+          // 날짜 정렬을 먼저 수행한 후 변환
+            const list: IAiOrderList[] = orders
+            .sort((a, b) => new Date(b.dateOrdered).getTime() - new Date(a.dateOrdered).getTime()) // 먼저 날짜 정렬
+            .map((order: IOrderInfo) => ({
+              orderNumber: order.orderNumber,
+              dateOrdered: new Date(order.dateOrdered).toLocaleDateString('ko-KR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              }),
+            }));
+
+            setOrderList(list);
+            setModalVisible(true);
       }
 
     } catch (error) {
