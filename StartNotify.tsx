@@ -1,99 +1,125 @@
-// import {useEffect} from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
 
-// import {getFcmToken} from './Screen/Chat/notification/services';
-// // import {
-// //   // displayNotification,
-// //   initializeNotificationChannel,
-// // } from './Screen/Chat/notification/displayNotification';
 
-// import {firebase} from '@react-native-firebase/app';
-// import messaging from '@react-native-firebase/messaging';
-// import {Alert, Platform} from 'react-native';
-// import {
-//   displayNotification,
-//   // initializeNotificationChannel,
-// } from './Screen/Chat/notification/displayNotification';
+import {useEffect, useState} from 'react';
+import { AppState, AppStateStatus, Platform } from 'react-native';
+import messaging from '@react-native-firebase/messaging';
+import { useAuth } from './context/store/Context.Manager';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import notifee, {EventType} from '@notifee/react-native';
 
-// import notifee, {EventType} from '@notifee/react-native';
 
-// const StartNotify: React.FC = () => {
-//   useEffect(() => {
-//     let unsubscribeForegroundMessage: () => void;
-//     let unsubscribeBackgroundMessage: void | (() => void);
 
-//     const setupMessaging = async () => {
-//       // Request user permission for notifications
-//       // try {
-//       //   await messaging().requestPermission();
-//       // } catch (error) {
-//       //   console.error('Error requesting notification permission:', error);
-//       //   return; // Important: Exit if permission is denied
-//       // }
+const StartNotify: React.FC = () => {
+    const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
+    const { badgeCountDispatch} = useAuth();
 
-//       // Get the FCM token
-//       if (Platform.OS === 'android') {
-//         await getFcmToken(); // Make sure this is awaited
-//       }
+    useEffect(() => {
 
-//       notifee.onForegroundEvent(({type, detail}) => {
-//         console.log('Notifee Foreground Event:', type, detail);
+        // 백그라운드에서 메시지를 받을 때 저장
+        console.log('StartNotify - ----');
 
-//         if (type === EventType.PRESS) {
-//           console.log('Notification pressed:', detail.notification);
-//         }
+        const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+              if (appState.match(/inactive|background/) && nextAppState === 'active') {
+                console.log('StartNotify 앱이 백그라운드에서 포그라운드로 전환되었습니다.');
+                if(Platform.OS === 'android'){
+                  checkBackgroundUpdate();
+                }
+                if(Platform.OS === 'ios'){
+                  // ✅ iOS는 FCM의 데이터 메시지를 활용하여 배지 카운트 증가
+                  messaging()
+                  .getInitialNotification()
+                  .then(remoteMessage => {
+                    if (remoteMessage) {
+                      console.log('StartNotify handleAppStateChange-ios, remoteMessage', remoteMessage);
+                      badgeCountDispatch({ type: 'increment' });
+                    } else {
+                      console.log('StartNotify handleAppStateChange-ios, remoteMessage 없음');
+                      // checkBackgroundUpdate();
+                    }
+                  });
 
-//         if (type === EventType.ACTION_PRESS) {
-//           console.log('Notification action pressed:', detail.pressAction);
-//         }
-//       });
 
-//       // initializeNotificationChannel();
+                }
+              }
+              setAppState(nextAppState);
+          };
 
-//       // Handle foreground messageså
-//       unsubscribeForegroundMessage = messaging().onMessage(
-//         async remoteMessage => {
-//           console.log('Foreground FCM Message:', remoteMessage);
-//           // Handle the notification in the foreground
-//           await displayNotification(remoteMessage);
-//         },
-//       );
+         fetchNotifeeOnAppOpen();
 
-//       // // Set the background message handler
-//       // unsubscribeBackgroundMessage = messaging().setBackgroundMessageHandler(
-//       //   async remoteMessage => {
-//       //     console.log('Message handled in the background!', remoteMessage);
-//       //     // IMPORTANT: Process the notification. Do NOT leave this empty.
-//       //     // If you don't do anything here, it may lead to crashes.
-//       //     await displayNotification(remoteMessage);
-//       //     return;
-//       //   },
-//       // );
-//     };
 
-//     // setupMessaging();
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+        return () => {
+          subscription.remove();
+        //   unsubscribe();
+        };
+    }, []);
 
-//     const initializeMessage = async () => {
-//       await setupMessaging(); // setupMessaging() 작업 완료
-//       console.log('initializeMessage');
-//     };
 
-//     initializeMessage();
+    // 2025-03-10  ios에서 앱에 알림 뱃지가 있는 경우 앱을 click 한 경우 처리
+    const fetchNotifeeOnAppOpen = async ()=>{
+     
+        // 표시된 알림 가져오기, ios 앱을 click 한 경우 
+        const notifications = await notifee.getDisplayedNotifications();
+        console.log('StartNotify - getDisplayedNotification:', notifications);
+        if(notifications.length > 0){
+          badgeCountDispatch({ type: 'increment' });
+        }
+      
+    };
 
-//     return () => {
-//       // Correctly unsubscribe from listeners
-//       if (unsubscribeForegroundMessage) {
-//         console.error('unsubscribe foreground');
-//         unsubscribeForegroundMessage();
-//       }
-//       if (unsubscribeBackgroundMessage) {
-//         unsubscribeBackgroundMessage();
-//       }
+    useEffect(() => {
 
-//       console.log('Cleaning up FCM handlers');
-//     };
-//   }, []);
+      // 앱이 종료된 상태에서 푸시 알림을 통해 열렸을 경우 처리
+        messaging()
+        .getInitialNotification()
+        .then(remoteMessage => {
+            if (remoteMessage) {
+                console.log('앱이 종료된 상태에서 getInitialNotification:', remoteMessage);
+                badgeCountDispatch({ type: 'increment' });
+            }
+        });
 
-//   return null;
-// };
+        // 앱이 백그라운드 상태에서 푸시 알림을 통해 열렸을 경우 처리
+        const unsubscribe = messaging().onNotificationOpenedApp(remoteMessage => {
+          if (remoteMessage) {
+            console.log('앱이 백그라운드에서 onNotificatioOpenedApp.', remoteMessage);
+            badgeCountDispatch({ type: 'increment' });
+          }
+        });
 
-// export default StartNotify;
+        // 2025-03-10 11:38:54
+        const subscription = notifee.onForegroundEvent(({type, detail}) => {
+          console.log('MainTab  type = ', type, detail);
+          if (type === EventType.DELIVERED) {
+            badgeCountDispatch({type: 'increment'});
+          }
+        });
+
+
+        messaging().setBackgroundMessageHandler(async remoteMessage => {
+          console.log('Message handled in the background!', remoteMessage);
+        });
+
+        return () => {
+          unsubscribe();
+          subscription();
+        } 
+      }, []);
+
+
+  const checkBackgroundUpdate = async () => {
+    // 예: 백엔드와 통신하거나 상태를 확인하는 로직
+    // setStatus("백그라운드에서 상태 변경을 감지했습니다!");
+    const count = parseInt(await AsyncStorage.getItem('badgeCount') || '0', 10);
+
+    console.log('StartNotify count = ', count);
+    badgeCountDispatch({'type':'increment'});
+    // setBadgeCount(prevCount => prevCount + count);
+  };
+
+
+  return null;
+};
+
+export default StartNotify;

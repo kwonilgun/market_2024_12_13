@@ -9,6 +9,8 @@ export type AuthAction =
 
 // 상태 타입 정의
 export interface AuthState {
+  routes: any;
+  index: any;
   isAuthenticated: boolean;
   user: UserFormInput | null;
 }

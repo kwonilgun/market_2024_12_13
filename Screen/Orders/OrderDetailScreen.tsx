@@ -11,6 +11,7 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Button,
 } from 'react-native';
 
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -23,7 +24,7 @@ import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import { OrderDetailScreenProps } from '../model/types/TUserNavigator';
 import { IOrderInfo } from '../model/interface/IOrderInfo';
 import GlobalStyles from '../../styles/GlobalStyles';
-import { dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
+import { dateToKoreaDate, dateToKoreaTime } from '../../utils/time/dateToKoreaTime';
 import { getToken } from '../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../assets/common/BaseUrl';
@@ -38,9 +39,13 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import { errorAlert } from '../../utils/alerts/errorAlert';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { width } from '../../styles/responsiveSize';
+
 
 type IOrderStatus = {
   status: number|null,
+  deliveryDate?: Date | null;
 };
 
 const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
@@ -50,34 +55,37 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
   const [orderItem, setOrderItem] = useState<IOrderItem | null>(null);
   const [total, setTotal] = useState<Number>(0);
 
-  const [openMethod, setOpenMethod] = useState<boolean>(false);
-  const [valueMethod, setValueMethod] = useState<number>(Number(props.route.params?.item.status));
-  const [itemsMethod, setItemsMethod] = useState([
-      {label: '주문 접수', value: 1},
-      {label: '결재 완료', value: 2},
-      {label: '배송 준비', value: 3},
-      {label: '배송중', value: 4},
-      {label: '배송 완료', value: 5},
-      {label: '반품 요청', value: 6},
-      {label: '반품 완료', value: 7},
-    ]);
+  // const [openMethod, setOpenMethod] = useState<boolean>(false);
+  // const [valueMethod, setValueMethod] = useState<number>(Number(props.route.params?.item.status));
+  // const [itemsMethod, setItemsMethod] = useState([
+  //     {label: '주문 접수', value: 1},
+  //     {label: '결재 완료', value: 2},
+  //     {label: '배송 준비', value: 3},
+  //     {label: '배송중', value: 4},
+  //     {label: '배송 완료', value: 5},
+  //     {label: '반품 요청', value: 6},
+  //     {label: '반품 완료', value: 7},
+  //   ]);
 
-  const isAdmin = state.user?.isAdmin;
-  console.log('item = ', props.route.params?.item);
+  // const isAdmin = state.user?.isAdmin;
+  console.log('OrderDetailScreen item = ', props.route.params?.item);
+  // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 
-  const {
-      control,
-      setValue,
-      getValues,
-      handleSubmit,
-      formState: {errors},
-      reset,
-    } = useForm<IOrderStatus>({
-      defaultValues: {
-       status: Number(props.route.params?.item.status),
-      },
-    });
+
+  // const {
+  //     control,
+  //     setValue,
+  //     getValues,
+  //     handleSubmit,
+  //     formState: {errors},
+  //     reset,
+  //   } = useForm<IOrderStatus>({
+  //     defaultValues: {
+  //      status: Number(props.route.params?.item.status),
+  //      deliveryDate: props.route.params?.item.deliveryDate,
+  //     },
+  //   });
 
   useEffect(() => {
     if (!isEmpty(props.route.params.item)) {
@@ -86,7 +94,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
       setLoading(false);
     }
     return () => {
-      console.log('OrderLists: useEffect : exit 한다.');
+      console.log('OrderDetailScreen: useEffect : exit 한다.');
       setLoading(true);
     };
   }, [props.route.params.item]);
@@ -114,8 +122,8 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
         //   setPrice(res.data.product.price);
         //   setDiscount(res.data.product.discount);
         setTotal(
-          Number(response.data.product.price) *
-            (100 - Number(response.data.product.discount)) *
+          Number(response.data.product.price ?? 0) *
+            (100 - Number(response.data.product.discount ?? 0)) *
             0.01 *
             response.data.quantity,
         );
@@ -162,48 +170,65 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     confirmAlert(param);
   };
-  
-  const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
-    console.log('업로드 order status = ', data);
 
-    const param: ConfirmAlertParams = {
-      title: strings.CONFIRMATION,
-      message: '주문상태 변경',
-      func: async (in_data: IOrderStatus) => {
-        console.log('주문상태 업로드 data = ', in_data);
-        const status: IOrderStatus = in_data;
+  // const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
+  //   console.log('업로드 order status = ', data);
 
-        const token = await getToken();
-       
-        const config = {
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        try {
-          const response: AxiosResponse = await axios.put(
-            `${baseURL}orders/status/${item.id}`,
-            JSON.stringify(status),
-            config,
-          );
-          if (response.status === 200 || response.status === 201) {
-            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
-          } else if (response.status === 202) {
-            alertMsg('에러', '주문상태 202');
-          } else if (response.status === 203) {
-            alertMsg('에러', '주문 ');
-          }
-        } catch (error) {
-          console.log('confirmUpload error, error = ', error);
-          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-        }
-      },
-      params: [data],
-    };
+  //   const param: ConfirmAlertParams = {
+  //     title: strings.CONFIRMATION,
+  //     message: '주문상태 변경',
+  //     func: async (in_data: IOrderStatus) => {
+  //       console.log('주문상태 업로드 data = ', in_data);
+  //       const status: IOrderStatus = in_data;
 
-    confirmAlert(param);
-  };
+  //       const token = await getToken();
+  //       const config = {
+  //         headers: {
+  //           'Content-Type': 'application/json; charset=utf-8',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       };
+  //       try {
+  //         const response: AxiosResponse = await axios.put(
+  //           `${baseURL}orders/status/${item.id}`,
+  //           JSON.stringify(status),
+  //           config,
+  //         );
+  //         if (response.status === 200 || response.status === 201) {
+  //           alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+  //         } else if (response.status === 202) {
+  //           alertMsg('에러', '주문상태 202');
+  //         } else if (response.status === 203) {
+  //           alertMsg('에러', '주문 ');
+  //         }
+  //       } catch (error) {
+  //         console.log('confirmUpload error, error = ', error);
+  //         alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+  //       }
+  //     },
+  //     params: [data],
+  //   };
+
+  //   confirmAlert(param);
+  // };
+
+  // const showDatePicker = () => {
+  //   setDatePickerVisibility(true);
+  // };
+
+  // const hideDatePicker = () => {
+  //   setDatePickerVisibility(false);
+  // };
+
+  // const handleConfirm = (date: Date) => {
+  //   setValue('deliveryDate', date);
+  //   console.log('OrderDetailScreen deliveryDate =', dateToKoreaDate(date) );
+  //   hideDatePicker();
+  // };
+
+  // const checkChangedValues  = () => {
+  //   return Number(props.route.params?.item.status) !== getValues('status') || props.route.params?.item.deliveryDate !== getValues('deliveryDate');
+  // }
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -226,50 +251,9 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
               style={GlobalStyles.scrollView}
               keyboardShouldPersistTaps="handled">
               <View style={GlobalStyles.VStack}>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    margin: RFPercentage(0.2),
-                    alignContent: 'center',
-                    alignItems: 'center',
-                  }} >
-                    {isAdmin && (
-                      <TouchableOpacity onPress={() => {
-
-                          if(Number(props.route.params?.item.status) !== getValues('status')){
-                            handleSubmit(confirmUpload)();
-                          }
-                          else{
-                            errorAlert('에러', '주문상태 변경 안됨');
-                          }
-
-                          }
-
-                          }>
-                          <View style={GlobalStyles.buttonSmall}>
-                          <Text style={GlobalStyles.buttonTextStyle}>
-                          업데이트
-                          </Text>
-                          </View>
-                          </TouchableOpacity>
-                    )}
-
-                  {props.route.params.actionFt === null ? null : (
-                    <View style={styles.actionContainer}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          deleteOrderItem();
-                        }}>
-                        <View style={GlobalStyles.buttonSmall}>
-                          <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                )}
-                </View>
 
 
-                <View style={styles.orderContainer}>
+                <View style={[styles.orderContainer, {marginTop: RFPercentage(5)}]}>
                   <Text style={styles.heading}>주문 정보</Text>
 
                   {/* <View style={styles.row}>
@@ -333,33 +317,18 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                   </Text>
                 </View>
 
-{/* 2025-01-31 11:34:25: isAdmin 이면 상태 변경을 허용한다. */}
-              {isAdmin && (
-                <View style={{flex: 0.8}}>
-                <Text style={GlobalStyles.inputTitle}>주문 상태 변경</Text>
-                <View style={styles.HCStack}>
-                  <DropDownPicker
-                    style={{backgroundColor: 'gainsboro'}}
-                    listMode="MODAL"
-                    open={openMethod}
-                    value={valueMethod}
-                    items={itemsMethod}
-                    setOpen={setOpenMethod}
-                    setValue={setValueMethod}
-                    setItems={setItemsMethod}
-                    onChangeValue={value => {
-                      console.log('act value', value);
-                      setValue('status', value);
-                      // setValue('deliveryMethod', Number(value));
-                    }} // 값이 바뀔 때마다 실행
-                    listItemContainerStyle={{
-                      margin: RFPercentage(2),
-                      backgroundColor: 'gainsboro',
-                    }}
-                  />
-                </View>
-              </View>
-              )}
+                {props.route.params.actionFt === null ? null : (
+
+                      <TouchableOpacity
+                        onPress={() => {
+                          deleteOrderItem();
+                        }}>
+                        <View style={[GlobalStyles.buttonSmall, {marginTop:RFPercentage(5)}]}>
+                          <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
+                        </View>
+                      </TouchableOpacity>
+
+                )}
 
               </View>
             </ScrollView>
@@ -371,6 +340,44 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  buttonSmall: {
+      height: RFPercentage(4),
+      backgroundColor: colors.lightBlue,
+      justifyContent: 'center',
+      alignItems: 'center',
+      alignContent: 'center',
+      borderRadius: RFPercentage(0.3),
+
+  },
+  buttonTextStyle: {
+      width: 'auto',
+      // height: RFPercentage(4),
+      padding: RFPercentage(0.5),
+      color: 'white',
+      fontSize: RFPercentage(2),
+      fontWeight: 'bold',
+  },
+  HCButton: {
+    // flex: 0.8,
+    width: 'auto',
+    height: RFPercentage(4),
+    marginTop: RFPercentage(2),
+    // padding: 5,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignContent: 'center',
+    alignItems: 'center',
+    // borderColor: 'red',
+    // borderWidth: 1,
+    borderRadius: RFPercentage(0.5),
+  },
+
+  inputTitle:{
+    fontSize: RFPercentage(2),
+    fontWeight: 'bold',
+  },
+
+
   HCStack: {
       margin: RFPercentage(0.2),
       // padding: 5,
@@ -378,6 +385,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
+  
   actionContainer: {
      marginVertical: RFPercentage(1),
     // padding: 8,

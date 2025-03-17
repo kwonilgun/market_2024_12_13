@@ -79,7 +79,7 @@ const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
           'producerPhone',
         );
 
-        console.log('checkOrderList result', result);
+        // console.log('checkOrderList result', result);
 
         // setProducerGroup(result);
         makeExpandableDataList(orders, setDataList);

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useRef, useState} from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,29 +14,24 @@ import {
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import colors from '../../styles/colors';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import {RFPercentage} from 'react-native-responsive-fontsize';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import strings from '../../constants/lang';
-import {useAuth} from '../../context/store/Context.Manager';
-import {useFocusEffect} from '@react-navigation/native';
-import {IAuth, IUserAtDB, UserFormInput} from '../model/interface/IAuthInfo';
-import {getToken} from '../../utils/getSaveToken';
-import {jwtDecode} from 'jwt-decode';
-import axios, {AxiosResponse} from 'axios';
-import {baseURL} from '../../assets/common/BaseUrl';
-import {alertMsg} from '../../utils/alerts/alertMsg';
-import {IOrderInfo} from '../model/interface/IOrderInfo';
-import groupBy from 'group-by';
+import { useAuth } from '../../context/store/Context.Manager';
+import { useFocusEffect } from '@react-navigation/native';
+import { IUserAtDB } from '../model/interface/IAuthInfo';
+import { getToken } from '../../utils/getSaveToken';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
+import { alertMsg } from '../../utils/alerts/alertMsg';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {width} from '../../assets/common/BaseValue';
-import {SubmitHandler, useForm} from 'react-hook-form';
+import { width } from '../../assets/common/BaseValue';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
-import {areJsonEqual} from '../../utils/etc/areJsonEqual';
-import {errorAlert} from '../../utils/alerts/errorAlert';
+import { errorAlert } from '../../utils/alerts/errorAlert';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {ChatRegisterScreenProps} from '../model/types/TUserNavigator';
+import { ChatRegisterScreenProps } from '../model/types/TUserNavigator';
 import {
   confirmAlert,
   ConfirmAlertParams,
@@ -60,9 +55,7 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
   const [chatUser, setChatUser] = useState<IChatUserInfo | null>(null);
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
 
-  // const [producersGroup, setProducerGroup] = useState({});
-  //   const userIdRef = useRef<string>('');
-  //   const userOriginalInfo = useRef<IUserInfo | null>(null);
+
 
   const {
     control,
@@ -128,38 +121,6 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
     }
   };
 
-  //   const makeChatUserInfo = async () => {
-  //     const token = await getToken();
-  //     const decoded = jwtDecode(token!) as UserFormInput;
-  //     const userId = decoded.userId;
-  //     console.log('userProfile userId= ', userId);
-
-  //     try {
-  //       const response: AxiosResponse = await axios.get(
-  //         `${baseURL}users/${userId}`,
-  //         {
-  //           headers: {Authorization: `Bearer ${token}`},
-  //         },
-  //       );
-  //       if (response.status === 200) {
-  //         // console.log('ProfileScreen 사용자 데이터 = ', response.data);
-  //         const userData: IChatUserInfo = {
-  //           phone: response.data.phone,
-  //           nickName: response.data.nickName,
-  //           email: response.data.email,
-  //           isManager: false,
-  //         };
-  //         reset(userData);
-  //         //    userOriginalInfo.current = userData;
-  //         setUserProfile(response.data);
-  //       } else {
-  //         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
-  //       }
-  //     } catch (error) {
-  //       console.log('ProfileScreen get user error = ', error);
-  //       alertMsg(strings.ERROR, '사용자 정보 가져오지 못함...');
-  //     }
-  //   };
 
   const isVacancy = () => {
     const currentValues = getValues();

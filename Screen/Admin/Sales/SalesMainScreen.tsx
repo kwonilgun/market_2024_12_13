@@ -91,7 +91,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
                     props.navigation.navigate('ProfitMonthlyScreen');
                   }}
                   style={styles.saveButton}>
-                  <Text style={styles.buttonText}>월별 수익</Text>
+                  <Text style={styles.buttonText}>월별 순매출</Text>
             </TouchableOpacity>
 
       </View>

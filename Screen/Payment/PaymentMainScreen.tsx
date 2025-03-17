@@ -118,15 +118,17 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
   };
 
   const generateOrderNumber = (): string => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const randomNum = Math.floor(Math.random() * 1000000)
-      .toString()
-      .padStart(4, '0');
+    // const date = new Date();
+    // const year = date.getFullYear();
+    // const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    // const day = date.getDate().toString().padStart(2, '0');
+    const randomNum: string = Math.floor(Math.random() * 100000000)
+                              .toString()
+                              .padStart(8, '0');
 
-    return `${year}${month}${day}-${randomNum}`;
+    console.log('random number' , randomNum); // 8자리 숫자가 출력됨
+
+    return randomNum;
   };
 
   const finishOrder = async (item: CartItem) => {
@@ -151,11 +153,13 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
               status: PAYMENT_COMPLETE,
               // dateOrdered: moment().format(),
               dateOrdered: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString().split('.')[0],
+              // 2025-03-02 10:24:49: deliveryDate 추가, deliveryDate 초기화는 '' empty string으로 초기화 한다.
+              deliveryDate: null,
             };
 
             try {
               const data: AxiosResponse = await axios.post(
-                `${baseURL}orders`,
+                `${baseURL}orders/sql`,
                 order,
               );
               return data;
@@ -330,7 +334,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                           }}>
                           <View style={GlobalStyles.buttonSmall}>
                             <Text style={GlobalStyles.buttonTextStyle}>
-                              생산자 계좌
+                              송금할 계좌
                             </Text>
                           </View>
                         </TouchableOpacity>

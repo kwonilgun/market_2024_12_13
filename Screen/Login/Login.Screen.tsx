@@ -57,6 +57,10 @@ import {
   displayNotification,
   displayNotificationNoParams,
 } from '../Chat/notification/displayNotification';
+import { getPromiseFcmToken } from '../Chat/notification/services';
+import { getToken } from '../../utils/getSaveToken';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   // const [username, setUsername] = useState('');
@@ -99,9 +103,49 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       initializeSocket();
 
       *****************************************/
+      updateFcmTokenOnChatUser();
+
       loginLocalSaveAndGoToProduct();
     }
   }, [state.isAuthenticated]);
+
+  const updateFcmTokenOnChatUser = async () => {
+    const userId = state.user?.userId;
+
+    try {
+      const token = await getToken();
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const fcm = await getPromiseFcmToken();
+      console.log('Login.Screen - userId , fcm ', userId, fcm);
+      const params = {
+        userId: userId,
+        fcmToken: fcm,
+      };
+
+      const response: AxiosResponse = await axios.post(
+        `${baseURL}messages/fcm-update`,
+        JSON.stringify(params),
+        config,
+      );
+      console.log('Login.Screen - updateFcmTokenOnChatUser: ', response.data, response.status);
+      if(response.status === 200){
+        console.log('fcm update 성공 ');
+      }
+      else if(response.status === 201){
+        console.log('fcm 유지 성공 ');
+      }
+
+
+    } catch (error) {
+      console.log('updateFcmTokenOnChatUser error', error);
+    }
+
+  };
 
   // 2024-05-26 :Fetch the phone number from AsyncStorage and attempt login
   useFocusEffect(
@@ -194,7 +238,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       // console.log('login/loginLocalSaveGoToProduct phoneNumber = ', state.user);
       await AsyncStorage.setItem('phoneNumber', state.user!.phoneNumber);
 
-      // navigation.navigate('ProfileScreen', {userInfo: state.user!});
+
 
       // 2024-06-14 : 로그인 후에 home 메뉴로 간다.
 
@@ -559,7 +603,28 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                     {strings.MEMBERSHIP}
                   </Text>
                 </TouchableOpacity>
+
+                
               </View>
+              <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('NaverLoginScreen');
+                    console.log('네이버 로그인 click');
+                    // displayNotificationNoParams();
+                  }}>
+                  <Text
+                    style={{
+                      height: RFPercentage(8),
+                      width: RFPercentage(15),
+                      color: 'black',
+                      textDecorationLine: 'underline',
+                      fontSize: RFPercentage(2.5),
+                      fontWeight: 'bold',
+                      marginLeft: RFPercentage(10),
+                    }}>
+                    네이버 로그인
+                  </Text>
+                </TouchableOpacity>
             </View>
           </ScrollView>
         )}

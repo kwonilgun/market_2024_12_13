@@ -16,12 +16,12 @@ import isEmpty from '../../utils/isEmpty';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
-import {OrderListScreenProps} from '../model/types/TUserNavigator';
+import {OrderHistoryScreenProps, OrderListScreenProps} from '../model/types/TUserNavigator';
 import {DataList, updateLayout} from './makeExpandable';
 import {Expandable} from './Expandable';
 import deleteOrder from './deleteOrder';
 
-const OrderListScreen: React.FC<OrderListScreenProps> = ({
+const OrderHistoryScreen: React.FC<OrderHistoryScreenProps> = ({
   route,
   navigation,
 }) => {
@@ -136,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderListScreen;
+export default OrderHistoryScreen;

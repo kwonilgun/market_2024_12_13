@@ -1373,6 +1373,7 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - naveridlogin-sdk-ios (4.2.3)
   - PromisesObjC (2.4.0)
   - RCT-Folly (2024.01.01.00):
     - boost
@@ -3038,6 +3039,27 @@ PODS:
     - Yoga
   - RNCPushNotificationIOS (1.11.0):
     - React-Core
+  - RNDateTimePicker (8.3.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - RNDeviceInfo (14.0.4):
     - React-Core
   - RNFastImage (8.6.3):
@@ -3063,6 +3085,28 @@ PODS:
     - React-debug
     - React-Fabric
     - React-FabricComponents
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNNaverLogin (4.0.4):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - naveridlogin-sdk-ios (= 4.2.3)
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
     - React-featureflags
     - React-graphics
     - React-ImageManager
@@ -3363,11 +3407,13 @@ DEPENDENCIES:
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
+  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - "RNNaverLogin (from `../node_modules/@react-native-seoul/naver-login`)"
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -3400,6 +3446,7 @@ SPEC REPOS:
     - leveldb-library
     - libwebp
     - nanopb
+    - naveridlogin-sdk-ios
     - PromisesObjC
     - RecaptchaInterop
     - SDWebImage
@@ -3554,6 +3601,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-picker/picker"
   RNCPushNotificationIOS:
     :path: "../node_modules/@react-native-community/push-notification-ios"
+  RNDateTimePicker:
+    :path: "../node_modules/@react-native-community/datetimepicker"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
   RNFastImage:
@@ -3564,6 +3613,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/messaging"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNNaverLogin:
+    :path: "../node_modules/@react-native-seoul/naver-login"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
   RNReanimated:
@@ -3608,6 +3659,7 @@ SPEC CHECKSUMS:
   leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  naveridlogin-sdk-ios: d9d46d02119d303023d7000cd5963864d5bb89e5
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: bf5c0376ffe4dd2cf438dcf86db385df9fdce648
   RCTDeprecation: fb7d408617e25d7f537940000d766d60149c5fea
@@ -3676,11 +3728,13 @@ SPEC CHECKSUMS:
   RNCCheckbox: a3ca9978cb0846b981d28da4e9914bd437403d77
   RNCPicker: 75babab4811fe873ac726209d384e2c4522aeafc
   RNCPushNotificationIOS: 64218f3c776c03d7408284a819b2abfda1834bc8
+  RNDateTimePicker: dfea58203474b4a5b5d0550e2e9ed35026e7859f
   RNDeviceInfo: feea80a690d2bde1fe51461cf548039258bd03f2
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: 958554cdc25d8405f4818f16f9474754d610a305
   RNFBMessaging: 9e362929182d7d5dbc1b0f882a602bc2313264e2
   RNGestureHandler: f81b6b9710750770867f97c15ad941ac2542d089
+  RNNaverLogin: 392c1b6d1b8851a722607d6e24c3db3085757212
   RNNotifee: 4a6ee5c7deaf00e005050052d73ee6315dff7ec9
   RNReanimated: ddc60075b382b872662cadaf9972b07d52a8fce7
   RNScreens: 3d9895696d5716e9a780237a9c2589c7aa3d199f

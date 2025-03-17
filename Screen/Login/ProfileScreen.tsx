@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {ProfileScreenProps} from '../model/types/TUserNavigator';
 import {
@@ -32,12 +32,17 @@ import groupBy from 'group-by';
 import {DataList, makeExpandableDataList} from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {width} from '../../assets/common/BaseValue';
+import {height, width} from '../../assets/common/BaseValue';
 import {SubmitHandler, useForm} from 'react-hook-form';
 import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
 import {areJsonEqual} from '../../utils/etc/areJsonEqual';
 import {errorAlert} from '../../utils/alerts/errorAlert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+// import { Badge } from 'react-native-elements';
+
 
 interface IUserInfo {
   nickName: string;
@@ -46,14 +51,16 @@ interface IUserInfo {
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = props => {
-  const {state, dispatch} = useAuth();
+  const {state, badgeCountState} = useAuth();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
   const [dataList, setDataList] = useState<DataList | null>(null);
+  const [badge, setBadgeCount] = useState<number>(0);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
   const userOriginalInfo = useRef<IUserInfo | null>(null);
+  
 
   const {
     control,
@@ -77,15 +84,32 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         state.isAuthenticated,
       );
 
+      // fetchBadgeCount(badgeCountState.isBadgeCount);
       setIsLogin(true);
       getUserProfile();
-      checkOrderList();
+      // checkOrderList();
 
       return () => {
         setUserProfile(null);
       };
     }, []),
   );
+
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log('ProfileScreen - badge count =', badgeCountState.isBadgeCount );
+
+      setBadgeCount(badgeCountState.isBadgeCount);
+
+      return () => {
+          console.log('ProfileScreen-badge count exit');
+      };
+    }, [badgeCountState]),
+  );
+
+
+
 
   const getUserProfile = async () => {
     const token = await getToken();
@@ -111,6 +135,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         reset(userData);
         userOriginalInfo.current = userData;
         setUserProfile(response.data);
+
+        // getUserProfile이 완료된 후에 checkOrderList 호출
+        await checkOrderList();
+
       } else {
         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
       }
@@ -121,6 +149,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   };
 
   const checkOrderList = async () => {
+    console.log('ProfileScreen - checkOrderList');
     try {
       const response: AxiosResponse = await axios.get(
         `${baseURL}orders/${userIdRef.current}`,
@@ -157,6 +186,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         makeExpandableDataList(orders, setDataList);
 
         // setLoading(false);
+      }
+      else{
+        console.log('ProfileScreen - 주문 리스트가 없다.');
+        setDataList([]);
       }
     } catch (error) {
       console.log('ProfileScreen CheckOrderList error', error);
@@ -372,6 +405,25 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 
                     </View>
                   ) }
+
+                  {!userProfile?.isAdmin && (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          console.log('구매 내역 click');
+                          props.navigation.navigate('OrderHistoryScreen', {
+                            items: dataList!,
+                          });
+                        }}
+                        style={styles.orderButton}>
+                        <Text style={styles.buttonText}>구매 내역</Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  ) }
+
+
+
                    <TouchableOpacity
                         onPress={() => {
                           console.log('채팅 등록 ....');
@@ -387,7 +439,14 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                           props.navigation.navigate('ChatMainScreen');
                         }}
                         style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 문의</Text>
+                        <Text style={styles.buttonText}>채팅 방</Text>
+                        <View style={styles.iconWrapper}>
+                            {badge > 0 && (
+                              <View style={styles.badge}>
+                                <Text style={styles.badgeText}>{badge}</Text>
+                              </View>
+                            )}
+                          </View>
                       </TouchableOpacity>
                 </View>
               </ScrollView>
@@ -471,6 +530,25 @@ const styles = StyleSheet.create({
     marginTop: RFPercentage(2),
     padding: RFPercentage(2),
     borderRadius: RFPercentage(1),
+  },
+  iconWrapper: {
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: -(height * 0.02),
+    right: -(width * 0.2),
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

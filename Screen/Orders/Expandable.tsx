@@ -4,8 +4,9 @@ import {useFocusEffect} from '@react-navigation/native';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 
 import isEmpty from '../../utils/isEmpty';
-import {dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
+import {dateToKoreaDate, dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
 import {DataList, DataListItem} from './makeExpandable';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 
 interface ExpandableProps {
   navigation: any;
@@ -35,6 +36,9 @@ export const Expandable: React.FC<ExpandableProps> = ({
     }, [item.isExpanded]),
   );
 
+   // 첫 번째 수신자와 주문번호를 가져옵니다.
+  //  const firstSubtitle = !isEmpty(item.subtitle) ? item.subtitle[0] : null;
+
   return (
     <View>
       <TouchableOpacity activeOpacity={0.8} onPress={onClickFunction}>
@@ -45,6 +49,11 @@ export const Expandable: React.FC<ExpandableProps> = ({
           height: layoutHeight,
           overflow: 'hidden',
         }}>
+          <View style={styles.subtitleHeader}>
+            <Text style={styles.receiverName}>수신자</Text>
+            <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(5)}]}>주문날짜</Text>
+            <Text style={[styles.dateOrdered, {marginLeft:RFPercentage(7)}]}>주문번호</Text>
+          </View>
         {!isEmpty(item.subtitle) ? (
           item.subtitle.map((data, key) => (
             // console.log('Expandable receiver name = ');
@@ -65,7 +74,12 @@ export const Expandable: React.FC<ExpandableProps> = ({
                 <Text style={styles.receiverName}>{data.receiverName} :</Text>
                 <Text style={styles.dateOrdered}>
                   {' '}
-                  {dateToKoreaTime(new Date(data.dateOrdered))}
+                  {dateToKoreaDate(new Date(data.dateOrdered))}
+
+                </Text>
+                <Text style={styles.orderNumber}>
+                  {' '}
+                  {data.orderNumber}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -84,9 +98,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 8,
   },
+  subtitleHeader: {
+    flexDirection: 'row',
+    marginLeft: RFPercentage(3),
+    // justifyContent: 'center',
+    marginVertical: 4,
+    borderBottomWidth: 1,
+    borderColor: 'black',
+  },
   subtitleContainer: {
     flexDirection: 'row',
-    marginLeft: 16,
+    marginLeft: RFPercentage(3),
     marginVertical: 4,
   },
   receiverName: {
@@ -94,6 +116,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dateOrdered: {
+    marginLeft: RFPercentage(2),
+    fontSize: 14,
+    color: '#555',
+  },
+  orderNumber: {
+    marginLeft: RFPercentage(2),
     fontSize: 14,
     color: '#555',
   },

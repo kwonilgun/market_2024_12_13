@@ -9,10 +9,13 @@ import PaymentCompleteScreen from '../../Screen/Admin/Order/PaymentCompleteScree
 import OrderDetailScreen from '../../Screen/Orders/OrderDetailScreen';
 import PrepareDeliveryScreen from '../../Screen/Admin/Order/PrepareDeliveryScreen';
 import FindOrderNumberScreen from '../../Screen/Admin/Order/FindOrderNumberScreen';
+
 import DuringDeliveryScreen from '../../Screen/Admin/Order/DuringDeliveryScreen';
 import CompleteDeliveryScreen from '../../Screen/Admin/Order/CompleteDeliveryScreen';
 import CompleteReturnScreen from '../../Screen/Admin/Order/CompleteReturnScreen';
 import RequestReturnScreen from '../../Screen/Admin/Order/RequestReturnScreen';
+import OrderAIScreen from '../../Screen/Admin/Order/OrderAIScreen';
+import OrderChangeScreen from '../../Screen/Orders/OrderChangeScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<AdminOrderStackParamList>();
@@ -86,6 +89,19 @@ function MyStack() {
           />
 
           <Stack.Screen
+            name="OrderChangeScreen"
+            component={OrderChangeScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '개인정보',
+              // headerTitle: props => (
+              //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+              // ),
+            })}
+          />
+
+          <Stack.Screen
             name="PrepareDeliveryScreen"
             component={PrepareDeliveryScreen}
             options={({navigation, route}) => ({
@@ -140,6 +156,16 @@ function MyStack() {
               title: '반품 완료',
             })}
           />
+          <Stack.Screen
+            name="OrderAIScreen"
+            component={OrderAIScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: 'AI 주문',
+            })}
+          />
+
 
       </Stack.Navigator>
     );

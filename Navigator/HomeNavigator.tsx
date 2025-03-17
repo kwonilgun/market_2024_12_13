@@ -17,6 +17,7 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {RootStackParamList} from '../Screen/model/types/TUserNavigator';
 import ProductMainScreen from '../Screen/Products/ProductMainScreen';
 import ProductDetailScreen from '../Screen/Products/ProductDetailScreen';
+import HomeAiScreen from '../Screen/Products/HomeAiScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -58,6 +59,18 @@ function MyStack() {
           headerShown: false,
           headerLeft: () => null,
           title: '제품 상세',
+          // headerTitle: props => (
+          //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+          // ),
+        })}
+      />
+      <Stack.Screen
+        name="HomeAiScreen"
+        component={HomeAiScreen}
+        options={({navigation, route}) => ({
+          headerShown: false,
+          headerLeft: () => null,
+          title: 'Ai',
           // headerTitle: props => (
           //   <LogoTitle title="루트원 마켓" navigation={navigation} />
           // ),

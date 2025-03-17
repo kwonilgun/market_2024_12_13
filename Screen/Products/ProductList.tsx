@@ -9,10 +9,12 @@ interface ProductListProps {
   item: IProduct; // Replace 'any' with a specific type for 'item' if available
   companyInform: ICompany; // Replace 'any' with a specific type for 'companyInform' if available
   navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
+  onLoadingChange: (isLoading: boolean) => void; // 타입 명시
+
 }
 
 const ProductList: React.FC<ProductListProps> = props => {
-  const {item, companyInform, navigation} = props;
+  const {item, companyInform, navigation, onLoadingChange} = props;
 
   return (
     <TouchableOpacity
@@ -23,7 +25,7 @@ const ProductList: React.FC<ProductListProps> = props => {
           companyInform: companyInform,
         });
       }}>
-      <ProductCard navigation={navigation} items={item} {...item} />
+      <ProductCard navigation={navigation} items={item} {...item} onLoadingChange = {onLoadingChange} />
     </TouchableOpacity>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 /*
  * File: ProductCard.tsx
  * Project: my-app
@@ -14,22 +15,25 @@
  * 2024-12-20 : package market로 변경
  */
 
-import React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
-import {connect} from 'react-redux';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Button, Modal } from 'react-native';
+import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 // import {baseURL} from '../../assets/common/baseUrl';
-import {baseURL} from '../../assets/common/BaseUrl';
+import { baseURL } from '../../assets/common/BaseUrl';
 import isEmpty from '../../utils/isEmpty';
 import * as actions from '../../Redux/Cart/Actions/cartActions';
-import {IProduct} from '../model/interface/IProductInfo';
-import {height, width} from '../../assets/common/BaseValue';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RFPercentage} from 'react-native-responsive-fontsize';
-import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
+import { IProduct } from '../model/interface/IProductInfo';
+import { width } from '../../assets/common/BaseValue';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RFPercentage } from 'react-native-responsive-fontsize';
+import { CartItem } from '../../Redux/Cart/Reducers/cartItems';
+import { getToken } from '../../utils/getSaveToken';
+import axios, { AxiosResponse } from 'axios';
 
 type ProductCardProps = {
   items: IProduct;
+  onLoadingChange : (isLoading: boolean) => void;
   navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
   addItemToCart: (cart: CartItem) => void;
 };
@@ -37,28 +41,109 @@ type ProductCardProps = {
 const ProductCard: React.FC<ProductCardProps> = props => {
   //   const {name, price, image, discount} = props;
 
+  const [showDetail, setShowDetail] = useState<string[] | null>(null);
+  const [modalDetail, setModalDetail] = useState<boolean>(false);
+
   const imageName = props.items.image!.split('/').pop() || '';
 
-  return (
-    <View style={styles.cardContainer}>
-      <FastImage
-        style={styles.image}
-        source={{
-          uri: imageName
-            ? `${baseURL}products/downloadimage/${imageName}`
-            : undefined,
-          priority: FastImage.priority.normal,
-        }}
-        resizeMode={FastImage.resizeMode.cover}
-      />
+  const fetchProductDetails = async (productName: string, detail: boolean): Promise<void> => {
+    props.onLoadingChange(true);
+    const token = await getToken();
+    const config = {
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-      {showPriceInform(
-        5,
-        props.items.name,
-        Number(props.items.discount),
-        Number(props.items.price),
-      )}
-    </View>
+    let response: AxiosResponse;
+
+    try {
+      if(detail){
+        response = await axios.get(
+          `${baseURL}gemini/productDetails/${productName}`,
+          config
+        );
+      }
+      else {
+        response = await axios.get(
+          `${baseURL}gemini/productSummary/${productName}`,
+          config
+        );
+      }
+      if (response.status === 200 && response.data.length > 0) {
+        setShowDetail(response.data);
+      } else {
+        console.log("데이터 없음");
+      }
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+    } finally {
+     props.onLoadingChange(false);
+     setModalDetail(true); // 데이터가 있을 때만 모달 열기
+    }
+  };
+
+  React.useEffect(() => {
+    console.log("Modal 상태 변경:", modalDetail);
+  }, [modalDetail]);
+
+  return (
+    <>
+      <View style={styles.cardContainer}>
+        <FastImage
+          style={styles.image}
+          source={{
+            uri: imageName
+              ? `${baseURL}products/downloadimage/${imageName}`
+              : undefined,
+            priority: FastImage.priority.normal,
+          }}
+          resizeMode={FastImage.resizeMode.cover}
+        />
+
+        <View style={{ flexDirection: 'row' }}>
+          {showPriceInform(5, props.items.name, Number(props.items.discount), Number(props.items.price))}
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => {
+              console.log('요약 보기');
+              fetchProductDetails(props.items.name, false);
+              }}>
+              <Text style={{ color: 'blue', marginHorizontal: 10 }}>요약</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => fetchProductDetails(props.items.name, true)}>
+              <Text style={{ color: 'blue', marginHorizontal: 10 }}>상세</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalDetail}
+        onRequestClose={() => setModalDetail(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={showDetail}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.listItem}>
+                  <Text>{item || '데이터 없음'}</Text>
+                </View>
+              )}
+              ListEmptyComponent={
+                <Text style={styles.emptyMessage}>리스트 없음.</Text>
+              }
+            />
+            <Button title="닫기" onPress={() => setModalDetail(false)} />
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
@@ -158,5 +243,34 @@ const styles = StyleSheet.create({
   },
   freeShippingText: {
     fontSize: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    // width: width * 0.9,
+    // height: height * 0.9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '90%',
+    height: 'auto',
+    backgroundColor: 'white',
+    marginVertical: RFPercentage(10),
+    padding: RFPercentage(1),
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  listItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
