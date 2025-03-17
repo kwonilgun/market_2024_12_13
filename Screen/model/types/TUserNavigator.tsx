@@ -52,7 +52,13 @@ export type RootStackParamList = {
   ProductDetailScreen: undefined;
   CartMainScreen: undefined;
   OrderListScreen: {items: DataList};
+  OrderHistoryScreen: {items: DataList};
   OrderDetailScreen: {
+    item: IOrderInfo;
+    actionFt: (id: string, props: any) => void;
+    orders: DataList;
+  };
+  OrderChangeScreen: {
     item: IOrderInfo;
     actionFt: (id: string, props: any) => void;
     orders: DataList;
@@ -138,11 +144,25 @@ export type OrderListScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'OrderListScreen'>;
 };
 
+export type OrderHistoryScreenProps = {
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderHistoryScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderHistoryScreen'>;
+};
+
 export type OrderDetailScreenProps = {
   // items: DataList | null;
   route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
   navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
 };
+
+export type OrderChangeScreenProps = {
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderChangeScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderChangeScreen'>;
+};
+
+
 export type ProductMainScreenProps = {
   navigation: any;
   route: RouteProp<RootStackParamList, 'ProductMainScreen'>;

@@ -213,17 +213,11 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
       ) : (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={GlobalStyles.containerKey}>
+          style={[GlobalStyles.containerKey, {justifyContent: 'center', alignItems:'center'}]}>
 
 
         {/* <Button title="우리동네 날씨" onPress={fetchMyWeather} /> */}
-        <View style = {{flex:1, justifyContent:'center', alignItems:'center'}}>
-
-          <Button title="주문 정보 조회" onPress={fetchOrderList} />
-        </View>
-        
-
-        {/* <Button title="상품 목록 보기" onPress={() => setProductModalVisible(true)} /> */}
+        <Button title="주문 정보 조회" onPress={fetchOrderList} />
 
         <Modal
             animationType="slide"
@@ -264,31 +258,6 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
                   }
                 />
                 <Button title="닫기" onPress={() => setModalVisible(false)} />
-              </View>
-            </View>
-        </Modal>
-
-
-
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalDetail}
-            onRequestClose={() => setModalDetail(false)}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                {/* <Text style={styles.modalTitle}>주문 정보</Text> */}
-                <FlatList
-                  data={showDetail}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                      <Text>{item}</Text>
-                  )}
-                  ListEmptyComponent={
-                    <Text style={styles.emptyMessage}> 리스트 없음.</Text>
-                  }
-                />
-                <Button title="닫기" onPress={() => setModalDetail(false)} />
               </View>
             </View>
         </Modal>
@@ -355,7 +324,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  listItem: {
 
+    fontSize: RFPercentage(2),
+    color: 'black',
+    // fontWeight: 'bold',
+    textAlign: 'center',
+
+    // padding: 10,
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#ccc',
+  },
   emptyMessage: {
     fontSize: 16,
     color: '#888',
@@ -364,4 +343,5 @@ const styles = StyleSheet.create({
   },
 
 });
+
 export default HomeAiScreen;

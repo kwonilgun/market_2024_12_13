@@ -47,6 +47,9 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
   const [products, setProducts] = useState<IProduct[] | []>([]);
   const [productsCtg, setProductsCtg] = useState<IProduct[] | []>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [aiLoading, setAiLoading] = useState<boolean>(false);
+  // const [productListLoading, setProductListLoading] = useState<boolean>(false); // ProductList 로딩 상태 추가
+
   const [companyInform, setCompanyInform] = useState<ICompany | null>(null);
   const [productNames, setProductNames] = useState<string[] | null>(null);
 
@@ -120,6 +123,10 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
     props.navigation.navigate('HomeAiScreen', {productNames: productNames});
   };
 
+  const handleProductListLoadingChange = (isLoading: boolean) => {
+    setAiLoading(isLoading);
+  };
+
   const RightCustomComponent = () => {
     return (
       <TouchableOpacity onPress={onPressRight}>
@@ -155,15 +162,18 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={GlobalStyles.containerKey}>
-        {loading ? (
+        {loading  ? (
           <>
             <LoadingWheel />
           </>
         ) : (
+          <>
           <ScrollView
             showsHorizontalScrollIndicator={false}
             style={styles.background}>
+
               <View>
+                {loading && <LoadingWheel/>}
 
                 {productsCtg.length > 0 ? (
                   <View style={styles.productsContainer}>
@@ -173,6 +183,8 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
                         key={item.name}
                         item={item}
                         companyInform={companyInform!}
+                        onLoadingChange={handleProductListLoadingChange} // 콜백 함수 전달
+
                       />
                     ))}
                   </View>
@@ -191,7 +203,17 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
               </View>
 
           </ScrollView>
-        )}
+       
+          {/* 최상위 Layer에서 LoadingWheel 표시 */}
+          {aiLoading && (
+            <View style={styles.loadingOverlay}>
+              <LoadingWheel />
+            </View>
+          )}
+          
+          </>
+          
+       )}
       </KeyboardAvoidingView>
     </WrapperContainer>
   );
@@ -265,6 +287,17 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontSize: 14,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)', // 반투명 배경
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // 가장 위에 표시
   },
 });
 

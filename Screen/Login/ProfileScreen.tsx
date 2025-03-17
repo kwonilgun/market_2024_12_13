@@ -405,6 +405,25 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 
                     </View>
                   ) }
+
+                  {!userProfile?.isAdmin && (
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          console.log('구매 내역 click');
+                          props.navigation.navigate('OrderHistoryScreen', {
+                            items: dataList!,
+                          });
+                        }}
+                        style={styles.orderButton}>
+                        <Text style={styles.buttonText}>구매 내역</Text>
+                      </TouchableOpacity>
+
+                    </View>
+                  ) }
+
+
+
                    <TouchableOpacity
                         onPress={() => {
                           console.log('채팅 등록 ....');

@@ -159,7 +159,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
 
             try {
               const data: AxiosResponse = await axios.post(
-                `${baseURL}orders`,
+                `${baseURL}orders/sql`,
                 order,
               );
               return data;
@@ -334,7 +334,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                           }}>
                           <View style={GlobalStyles.buttonSmall}>
                             <Text style={GlobalStyles.buttonTextStyle}>
-                              생산자 계좌
+                              송금할 계좌
                             </Text>
                           </View>
                         </TouchableOpacity>

@@ -55,37 +55,37 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
   const [orderItem, setOrderItem] = useState<IOrderItem | null>(null);
   const [total, setTotal] = useState<Number>(0);
 
-  const [openMethod, setOpenMethod] = useState<boolean>(false);
-  const [valueMethod, setValueMethod] = useState<number>(Number(props.route.params?.item.status));
-  const [itemsMethod, setItemsMethod] = useState([
-      {label: '주문 접수', value: 1},
-      {label: '결재 완료', value: 2},
-      {label: '배송 준비', value: 3},
-      {label: '배송중', value: 4},
-      {label: '배송 완료', value: 5},
-      {label: '반품 요청', value: 6},
-      {label: '반품 완료', value: 7},
-    ]);
+  // const [openMethod, setOpenMethod] = useState<boolean>(false);
+  // const [valueMethod, setValueMethod] = useState<number>(Number(props.route.params?.item.status));
+  // const [itemsMethod, setItemsMethod] = useState([
+  //     {label: '주문 접수', value: 1},
+  //     {label: '결재 완료', value: 2},
+  //     {label: '배송 준비', value: 3},
+  //     {label: '배송중', value: 4},
+  //     {label: '배송 완료', value: 5},
+  //     {label: '반품 요청', value: 6},
+  //     {label: '반품 완료', value: 7},
+  //   ]);
 
-  const isAdmin = state.user?.isAdmin;
+  // const isAdmin = state.user?.isAdmin;
   console.log('OrderDetailScreen item = ', props.route.params?.item);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 
 
-  const {
-      control,
-      setValue,
-      getValues,
-      handleSubmit,
-      formState: {errors},
-      reset,
-    } = useForm<IOrderStatus>({
-      defaultValues: {
-       status: Number(props.route.params?.item.status),
-       deliveryDate: props.route.params?.item.deliveryDate,
-      },
-    });
+  // const {
+  //     control,
+  //     setValue,
+  //     getValues,
+  //     handleSubmit,
+  //     formState: {errors},
+  //     reset,
+  //   } = useForm<IOrderStatus>({
+  //     defaultValues: {
+  //      status: Number(props.route.params?.item.status),
+  //      deliveryDate: props.route.params?.item.deliveryDate,
+  //     },
+  //   });
 
   useEffect(() => {
     if (!isEmpty(props.route.params.item)) {
@@ -94,7 +94,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
       setLoading(false);
     }
     return () => {
-      console.log('OrderLists: useEffect : exit 한다.');
+      console.log('OrderDetailScreen: useEffect : exit 한다.');
       setLoading(true);
     };
   }, [props.route.params.item]);
@@ -170,65 +170,65 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     confirmAlert(param);
   };
-  
-  const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
-    console.log('업로드 order status = ', data);
 
-    const param: ConfirmAlertParams = {
-      title: strings.CONFIRMATION,
-      message: '주문상태 변경',
-      func: async (in_data: IOrderStatus) => {
-        console.log('주문상태 업로드 data = ', in_data);
-        const status: IOrderStatus = in_data;
+  // const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
+  //   console.log('업로드 order status = ', data);
 
-        const token = await getToken();
-        const config = {
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        try {
-          const response: AxiosResponse = await axios.put(
-            `${baseURL}orders/status/${item.id}`,
-            JSON.stringify(status),
-            config,
-          );
-          if (response.status === 200 || response.status === 201) {
-            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
-          } else if (response.status === 202) {
-            alertMsg('에러', '주문상태 202');
-          } else if (response.status === 203) {
-            alertMsg('에러', '주문 ');
-          }
-        } catch (error) {
-          console.log('confirmUpload error, error = ', error);
-          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-        }
-      },
-      params: [data],
-    };
+  //   const param: ConfirmAlertParams = {
+  //     title: strings.CONFIRMATION,
+  //     message: '주문상태 변경',
+  //     func: async (in_data: IOrderStatus) => {
+  //       console.log('주문상태 업로드 data = ', in_data);
+  //       const status: IOrderStatus = in_data;
 
-    confirmAlert(param);
-  };
+  //       const token = await getToken();
+  //       const config = {
+  //         headers: {
+  //           'Content-Type': 'application/json; charset=utf-8',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       };
+  //       try {
+  //         const response: AxiosResponse = await axios.put(
+  //           `${baseURL}orders/status/${item.id}`,
+  //           JSON.stringify(status),
+  //           config,
+  //         );
+  //         if (response.status === 200 || response.status === 201) {
+  //           alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
+  //         } else if (response.status === 202) {
+  //           alertMsg('에러', '주문상태 202');
+  //         } else if (response.status === 203) {
+  //           alertMsg('에러', '주문 ');
+  //         }
+  //       } catch (error) {
+  //         console.log('confirmUpload error, error = ', error);
+  //         alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+  //       }
+  //     },
+  //     params: [data],
+  //   };
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
+  //   confirmAlert(param);
+  // };
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
+  // const showDatePicker = () => {
+  //   setDatePickerVisibility(true);
+  // };
 
-  const handleConfirm = (date: Date) => {
-    setValue('deliveryDate', date);
-    console.log('OrderDetailScreen deliveryDate =', dateToKoreaDate(date) );
-    hideDatePicker();
-  };
+  // const hideDatePicker = () => {
+  //   setDatePickerVisibility(false);
+  // };
 
-  const checkChangedValues  = () => {
-    return Number(props.route.params?.item.status) !== getValues('status') || props.route.params?.item.deliveryDate !== getValues('deliveryDate');
-  }
+  // const handleConfirm = (date: Date) => {
+  //   setValue('deliveryDate', date);
+  //   console.log('OrderDetailScreen deliveryDate =', dateToKoreaDate(date) );
+  //   hideDatePicker();
+  // };
+
+  // const checkChangedValues  = () => {
+  //   return Number(props.route.params?.item.status) !== getValues('status') || props.route.params?.item.deliveryDate !== getValues('deliveryDate');
+  // }
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -251,49 +251,9 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
               style={GlobalStyles.scrollView}
               keyboardShouldPersistTaps="handled">
               <View style={GlobalStyles.VStack}>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    margin: RFPercentage(0.2),
-                    alignContent: 'center',
-                    alignItems: 'center',
-                  }} >
-                    {isAdmin && (
-                      <TouchableOpacity onPress={() => {
-
-                            if( checkChangedValues() ){
-                              handleSubmit(confirmUpload)();
-                            }
-                            else{
-                              errorAlert('에러', '주문상태 변경 안됨');
-                            }
-                          }
-
-                      }>
-                        <View style={GlobalStyles.buttonSmall}>
-                        <Text style={GlobalStyles.buttonTextStyle}>
-                        업데이트
-                        </Text>
-                        </View>
-                      </TouchableOpacity>
-                    )}
-
-                  {props.route.params.actionFt === null ? null : (
-                    <View style={styles.actionContainer}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          deleteOrderItem();
-                        }}>
-                        <View style={GlobalStyles.buttonSmall}>
-                          <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                )}
-                </View>
 
 
-                <View style={styles.orderContainer}>
+                <View style={[styles.orderContainer, {marginTop: RFPercentage(5)}]}>
                   <Text style={styles.heading}>주문 정보</Text>
 
                   {/* <View style={styles.row}>
@@ -357,70 +317,18 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
                   </Text>
                 </View>
 
-              {/* 2025-01-31 11:34:25: isAdmin 이면 상태 변경을 허용한다. */}
-              {isAdmin && (
-                <View style={{flex: 0.8}}>
-                <Text style={GlobalStyles.inputTitle}>주문 상태 변경</Text>
-                <View style={styles.HCStack}>
-                  <DropDownPicker
-                    style={{backgroundColor: 'gainsboro'}}
-                    listMode="MODAL"
-                    open={openMethod}
-                    value={valueMethod}
-                    items={itemsMethod}
-                    setOpen={setOpenMethod}
-                    setValue={setValueMethod}
-                    setItems={setItemsMethod}
-                    onChangeValue={value => {
-                      console.log('act value', value);
-                      setValue('status', value);
-                      // if (value === 3) {
-                      //   showDatePicker();
-                      // }
-                      // setValue('deliveryMethod', Number(value));
-                    }} // 값이 바뀔 때마다 실행
-                    listItemContainerStyle={{
-                      margin: RFPercentage(2),
-                      backgroundColor: 'gainsboro',
-                    }}
-                  />
-                </View>
+                {props.route.params.actionFt === null ? null : (
 
-                <View style={styles.HCButton}>
-                     <Text style={styles.inputTitle}>배송 예정일 : </Text>
-                     <TouchableOpacity onPress={() => {
-                          showDatePicker();
+                      <TouchableOpacity
+                        onPress={() => {
+                          deleteOrderItem();
                         }}>
-                        <View style={styles.buttonSmall}>
-                            <Text style={styles.buttonTextStyle}>
-                              달력
-                            </Text>
+                        <View style={[GlobalStyles.buttonSmall, {marginTop:RFPercentage(5)}]}>
+                          <Text style={GlobalStyles.buttonTextStyle}>삭제</Text>
                         </View>
                       </TouchableOpacity>
 
-                </View>
-
-                <View style={{marginLeft:RFPercentage(2),  marginTop: RFPercentage(1) }}>
-                <Text>
-          {getValues('deliveryDate')
-            ? dateToKoreaDate(new Date(getValues('deliveryDate')!)) // Date 객체로 변환하여 출력
-            : '배송일 지정되지 않음'}
-        </Text>
-                  {/* <Text>Date</Text> */}
-                </View>
-
-                <DateTimePickerModal
-                  isVisible={isDatePickerVisible}
-                  mode="date"
-                  date={getValues('deliveryDate') ? new Date(getValues('deliveryDate')!) : new Date()}
-                  // date={new Date()}
-                  onConfirm={handleConfirm}
-                  onCancel={hideDatePicker}
-                  locale="ko-KR" // 한국어 로케일 설정
-                />
-
-              </View>
-              )}
+                )}
 
               </View>
             </ScrollView>

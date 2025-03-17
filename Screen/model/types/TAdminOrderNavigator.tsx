@@ -7,6 +7,10 @@
  */
 
 import {StackNavigationProp} from '@react-navigation/stack';
+import { IOrderInfo } from '../interface/IOrderInfo';
+import { DataList } from '../../Orders/makeExpandable';
+import { RootStackParamList } from './TUserNavigator';
+import { RouteProp } from '@react-navigation/native';
 
 export type AdminOrderStackParamList = {
   // EditManager: {screen: 'EditMainScreen'};
@@ -15,7 +19,16 @@ export type AdminOrderStackParamList = {
   OrderStatusScreen: undefined;
   OrderRxScreen: undefined;
   PaymentCompleteScreen: undefined;
-  OrderDetailScreen: undefined;
+  OrderDetailScreen: {
+      item: IOrderInfo;
+      actionFt: (id: string, props: any) => void;
+      orders: DataList;
+    };
+  OrderChangeScreen: {
+      item: IOrderInfo;
+      actionFt: (id: string, props: any) => void;
+      orders: DataList;
+    };
   PrepareDeliveryScreen: undefined;
   FindOrderNumberScreen: undefined;
   OrderAIScreen: undefined;
@@ -42,7 +55,15 @@ export type PaymentCompleteScreenProps = {
 };
 
 export type OrderDetailScreenProps = {
-  navigation: StackNavigationProp<AdminOrderStackParamList, 'OrderDetailScreen'>;
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderDetailScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderDetailScreen'>;
+};
+
+export type OrderChangeScreenProps = {
+  // items: DataList | null;
+  route: RouteProp<RootStackParamList, 'OrderChangeScreen'>;
+  navigation: StackNavigationProp<RootStackParamList, 'OrderChangeScreen'>;
 };
 
 export type PrepareDeliveryScreenProps = {
