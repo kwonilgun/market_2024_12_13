@@ -141,7 +141,7 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
         }}
       >
         <Text style={{ fontSize: RFPercentage(2), color: 'white', fontWeight: 'bold' }}>
-          AI
+          Q/A
         </Text>
       </View>
     </TouchableOpacity>

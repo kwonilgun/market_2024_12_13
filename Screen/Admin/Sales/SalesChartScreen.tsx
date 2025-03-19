@@ -110,15 +110,7 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
   };
 
 
-  function formatDateToKorean(dateString: string): string {
-    const date = new Date(dateString); // 이미 한국 시간 기준
-
-    const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
-    const day = date.getDate();
-
-    console.log('SalesChartScreen - label = ', `${month}월 ${day}일`);
-    return `${month}월 ${day}일`;
-  }
+  
 
   const chartData: lineDataItem[] = salesData
   .map(item => ({
@@ -199,6 +191,9 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
     </WrapperContainer>
   );
 };
+
+
+
 
 const localStyles = StyleSheet.create({
   subtitleHeader: {
