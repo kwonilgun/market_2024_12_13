@@ -69,7 +69,7 @@ const OrderHistoryScreen: React.FC<OrderHistoryScreenProps> = ({
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="주문리스트"
+        centerText="구매 내역"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}

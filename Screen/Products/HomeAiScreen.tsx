@@ -114,7 +114,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
 
     try {
       const response: AxiosResponse =  await axios.get(
-        `${baseURL}orders/${userId}`,
+        `${baseURL}orderSql/${userId}`,
         config,
       );
 
@@ -146,31 +146,31 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   };
 
 
-  const fetchProductDetails = async (productName: string): Promise<void> => {
-    setLoading(true);
-    const token = await getToken();
-    const config = {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        Authorization: `Bearer ${token}`,
-      },
-    };
+  // const fetchProductDetails = async (productName: string): Promise<void> => {
+  //   setLoading(true);
+  //   const token = await getToken();
+  //   const config = {
+  //     headers: {
+  //       'Content-Type': 'application/json; charset=utf-8',
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   };
 
-    try {
-      const response: AxiosResponse = await axios.get(
-        `${baseURL}gemini/productDetails/${productName}`,
-        config
-      );
-      if (response.status === 200) {
-        setShowDetail(response.data);
-        setModalDetail(true);
-      }
-    } catch (error) {
-      console.error('Error fetching product details:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  //   try {
+  //     const response: AxiosResponse = await axios.get(
+  //       `${baseURL}gemini/productDetails/${productName}`,
+  //       config
+  //     );
+  //     if (response.status === 200) {
+  //       setShowDetail(response.data);
+  //       setModalDetail(true);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching product details:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   const onPressLeft = () => {
     props.navigation.goBack();
@@ -199,7 +199,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="인공지능"
+        centerText="Q/A"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}

@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
-import {ProfileScreenProps} from '../model/types/TUserNavigator';
+import { ProfileScreenProps } from '../model/types/TUserNavigator';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,28 +17,27 @@ import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
 import colors from '../../styles/colors';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {RFPercentage} from 'react-native-responsive-fontsize';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import strings from '../../constants/lang';
-import {useAuth} from '../../context/store/Context.Manager';
-import {useFocusEffect} from '@react-navigation/native';
-import {IAuth, IUserAtDB, UserFormInput} from '../model/interface/IAuthInfo';
-import {getToken} from '../../utils/getSaveToken';
-import {jwtDecode} from 'jwt-decode';
-import axios, {AxiosResponse} from 'axios';
-import {baseURL} from '../../assets/common/BaseUrl';
-import {alertMsg} from '../../utils/alerts/alertMsg';
-import {IOrderInfo} from '../model/interface/IOrderInfo';
+import { useAuth } from '../../context/store/Context.Manager';
+import { useFocusEffect } from '@react-navigation/native';
+import { IUserAtDB, UserFormInput } from '../model/interface/IAuthInfo';
+import { getToken } from '../../utils/getSaveToken';
+import { jwtDecode } from 'jwt-decode';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
+import { alertMsg } from '../../utils/alerts/alertMsg';
+import { IOrderInfo } from '../model/interface/IOrderInfo';
 import groupBy from 'group-by';
-import {DataList, makeExpandableDataList} from '../Orders/makeExpandable';
+import { DataList, makeExpandableDataList } from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
-import {height, width} from '../../assets/common/BaseValue';
-import {SubmitHandler, useForm} from 'react-hook-form';
+import { height, width } from '../../assets/common/BaseValue';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
-import {areJsonEqual} from '../../utils/etc/areJsonEqual';
-import {errorAlert} from '../../utils/alerts/errorAlert';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { areJsonEqual } from '../../utils/etc/areJsonEqual';
+import { errorAlert } from '../../utils/alerts/errorAlert';
 
 
 // import { Badge } from 'react-native-elements';
@@ -54,8 +53,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const {state, badgeCountState} = useAuth();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
   const [dataList, setDataList] = useState<DataList | null>(null);
+  const [completeList, setCompleteList] = useState<DataList | null>(null);
   const [badge, setBadgeCount] = useState<number>(0);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
@@ -91,6 +92,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 
       return () => {
         setUserProfile(null);
+
       };
     }, []),
   );
@@ -138,6 +140,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 
         // getUserProfile이 완료된 후에 checkOrderList 호출
         await checkOrderList();
+        await fetchDeliveryCompleteList();
 
       } else {
         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
@@ -151,8 +154,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const checkOrderList = async () => {
     console.log('ProfileScreen - checkOrderList');
     try {
+
+      const token = await getToken();
+          //헤드 정보를 만든다.
+      const config = {
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                Authorization: `Bearer ${token}`,
+              },
+          };
+
       const response: AxiosResponse = await axios.get(
-        `${baseURL}orders/${userIdRef.current}`,
+        `${baseURL}orderSql/${userIdRef.current}`,
+        config,
       );
 
       const orders = response.data as IOrderInfo[];
@@ -175,17 +189,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
             ValueType: 각 키에 해당하는 값의 타입.
             Record를 사용하면 특정 키-값 쌍을 효율적으로 정의하고 타입 안전성을 유지할 수 있습니다.
         ****/
-        const result: Record<string, IOrderInfo[]> = groupBy(
-          orders,
-          'producerPhone',
-        );
+        // const result: Record<string, IOrderInfo[]> = groupBy(
+        //   orders,
+        //   'producerPhone',
+        // );
 
-        // console.log('checkOrderList result', result);
+         console.log('checkOrderList result', orders);
 
         // setProducerGroup(result);
         makeExpandableDataList(orders, setDataList);
 
-        // setLoading(false);
       }
       else{
         console.log('ProfileScreen - 주문 리스트가 없다.');
@@ -195,6 +208,51 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
       console.log('ProfileScreen CheckOrderList error', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeliveryCompleteList = async () => {
+    console.log('ProfileScreen - fetchDeliveryCompleteList');
+    try {
+
+      const token = await getToken();
+          //헤드 정보를 만든다.
+      const config = {
+              headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                Authorization: `Bearer ${token}`,
+              },
+          };
+
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}orderSql/DeliveryComplete/${userIdRef.current}`,
+        config,
+      );
+
+      const orders = response.data as IOrderInfo[];
+
+      if (orders.length) {
+        // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
+        orders.sort(
+          (a, b) =>
+            new Date(b.dateOrdered).getTime() -
+            new Date(a.dateOrdered).getTime(),
+        );
+
+         console.log('fetchDeliveryCompleteList', orders);
+
+        // setProducerGroup(result);
+        makeExpandableDataList(orders, setCompleteList);
+
+      }
+      else{
+        console.log('ProfileScreen fetchDeliveryCompleteList- 주문 리스트가 없다.');
+        setDataList([]);
+      }
+    } catch (error) {
+      console.log('ProfileScreen fetchDeliveryCompleteList error', error);
+    } finally {
+      // setDeliveryComplete(true);
     }
   };
 
@@ -411,9 +469,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                       <TouchableOpacity
                         onPress={() => {
                           console.log('구매 내역 click');
+                          fetchDeliveryCompleteList();
                           props.navigation.navigate('OrderHistoryScreen', {
-                            items: dataList!,
-                          });
+                              items: completeList!,
+                            });
                         }}
                         style={styles.orderButton}>
                         <Text style={styles.buttonText}>구매 내역</Text>

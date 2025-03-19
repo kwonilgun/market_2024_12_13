@@ -39,7 +39,7 @@ import FastImage from 'react-native-fast-image';
 import { launchImageLibrary } from 'react-native-image-picker'; // 추가
 import mime from 'mime';
 import isEmpty from '../../utils/isEmpty';
-import { IAuthInfo, IUserAtDB } from '../model/interface/IAuthInfo';
+import { IAuthInfo, IProducerInfo, IUserAtDB } from '../model/interface/IAuthInfo';
 import { Picker } from '@react-native-picker/picker'; // Picker 추가
 
 
@@ -50,9 +50,9 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(false);
   const [product, setProduct] = useState<IProduct | null>(null);
   const [newImage, setNewImage] = useState<string | null>(null); // 이미지 상태 추가
-  const [producersList, setProducersList] = useState<IUserAtDB[]|null>(null);
+  const [producersList, setProducersList] = useState<IProducerInfo[]|null>(null);
   const [selectedProducer, setSelectedProducer] = useState<string | null>(null); // 선택된 producer 상태
-  const [currentProducer, setCurrentProducer] = useState<IUserAtDB|null>(null);
+  const [currentProducer, setCurrentProducer] = useState<string|null>(null);
 
 
 
@@ -104,14 +104,14 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
     const token = await getToken();
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}users/${id}`,
+        `${baseURL}userSql/${id}`,
         {
           headers: {Authorization: `Bearer ${token}`},
         },
       );
       if(response.status === 200){
         console.log('fetchProducerById producer = ', response.data);
-        setCurrentProducer(response.data as IUserAtDB);
+        setCurrentProducer(response.data);
       }
       else{
         console.log('producer fetch error status', response.status);
@@ -130,14 +130,14 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
     const token = await getToken();
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}users/producers`,
+        `${baseURL}userSql`,
         {
           headers: {Authorization: `Bearer ${token}`},
         },
       );
       if(response.status === 200){
         console.log('EditProductScreen producer = ', response.data);
-        setProducersList(response.data as IUserAtDB[]);
+        setProducersList(response.data);
       }
       else{
         console.log('producer fetch error status', response.status);
@@ -441,7 +441,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
                         {producersList?.map((producer) => (
                           <Picker.Item
                             key={producer.id}
-                            label={producer.nickName}
+                            label={producer.name}
                             value={producer.id}
                           />
                         ))}

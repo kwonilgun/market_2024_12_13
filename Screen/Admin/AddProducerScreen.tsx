@@ -38,15 +38,12 @@ import { AddProductScreenProps } from '../model/types/TEditNavigator';
 import FastImage from 'react-native-fast-image';
 import { launchImageLibrary } from 'react-native-image-picker'; // 추가
 import mime from 'mime';
+import { IProducerInfo } from '../model/interface/IAuthInfo';
 
 
 
-const AddProductScreen: React.FC<AddProductScreenProps> = props => {
+const AddProducerScreen: React.FC<AddProductScreenProps> = props => {
   const {state} = useAuth();
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [product, setProduct] = useState<IProduct | null>(null);
-  const [newImage, setNewImage] = useState<string | null>(null); // 이미지 상태 추가
-
 
 
   const {
@@ -56,24 +53,22 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     handleSubmit,
     formState: {errors},
     reset,
-  } = useForm<IProduct>({
+  } = useForm<IProducerInfo>({
     defaultValues: {
       id: '',
       name: '',
-      image: '',
-      description: '',
-      richDescription: '',
-      brand: '',
-      price:'',
-      discount: '',
-      countInStock: '',
+      nickName: '',
+      phoneNumber: '',
+      bankName: '',
+      bankNumber:'',
+      isProducerNumber: 0,
     },
   });
 
   useFocusEffect(
     useCallback(() => {
       console.log(
-        'AddProductScreen useFocusEffect'
+        'AddProducerScreen useFocusEffect'
       );
 
       // setProduct(props.route.params.item);
@@ -89,15 +84,14 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     const currentValues = getValues();
 
     // defaultValues의 타입 정의
-    const defaultValues: any = {
+    const defaultValues: IProducerInfo = {
+      id: '',
       name: '',
-      image: '',
-      description: '',
-      richDescription: '',
-      brand: '',
-      price: '',
-      discount: '',
-      countInStock: '',
+      nickName: '',
+      phoneNumber: '',
+      bankName: '',
+      bankNumber:'',
+      isProducerNumber: 0,
     };
 
     // 기본값과 현재 값 비교
@@ -110,67 +104,29 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
   };
 
 
-  const confirmUpload: SubmitHandler<IProduct> = async data => {
+  const confirmUpload: SubmitHandler<IProducerInfo> = async data => {
     const param: ConfirmAlertParams = {
       title: strings.CONFIRMATION,
-      message: '상품 추가',
-      func: async (in_data: IProduct) => {
+      message: '생산자 추가',
+      func: async (in_data: IProducerInfo) => {
         console.log('업로드 상품 추가 data = ', in_data);
         const token = await getToken();
 
-        // 이미지를 업로드 할경우 form태그에 entype 속성값을 multipart/form-data로 설정해주면 이미지파일도 값이 전송할수 있다.
-        // multipart/form-data 는 post를 통해 파일을 보낼 수 있는 인코딩 유형이다
-
-        let formData = new FormData();
-
-        formData.append('name', in_data.name);
-        formData.append('brand', in_data.brand);
-        formData.append('price', in_data.price);
-        formData.append('discount', in_data.discount);
-        formData.append('description', in_data.description);
-        formData.append('category', in_data.category);
-        formData.append('countInStock', in_data.countInStock);
-        // formData.append('richDescription', richDescription);
-        formData.append('rating', in_data.rating);
-        formData.append('numReviews', in_data.numReviews);
-        formData.append('isFeatured', in_data.isFeatured);
-        formData.append('richDescription', in_data.richDescription);
-        formData.append('dateCreated', Date.now());
-
-        //2023-01-29 : 추가함
-        formData.append('user', in_data.user);
-
         const config = {
           headers: {
-            'Content-Type': 'multipart/form-data', //이미지 전송을 위해서
-            //     "Content-Type": "application/json; charset=utf-8",
+            'Content-Type': 'application/json; charset=utf-8',
             Authorization: `Bearer ${token}`,
           },
         };
 
-        let serverImageUri;
-        if (newImage) {
-          //로컬 카메라에서 이미지를 가져왔다.
-          serverImageUri = 'file:///' + newImage.split('file:/').join('');
-          formData.append('image', {
-            uri: serverImageUri,
-            type: mime.getType(serverImageUri),
-            name: serverImageUri.split('/').pop(), //마지막 이름
-          });
 
-        } else {
-          formData.append('dataExist', 'yes');
-        }
-
-        console.log('EditProductScreen formData', formData);
+        console.log('EditProducerScreen data', data);
 
         axios
-          .post(`${baseURL}products`, formData, config)
+          .post(`${baseURL}userSql`, JSON.stringify(data), config)
           .then(res => {
             if (res.status === 200 || res.status === 201) {
              alertMsg('success', '상품 성공적으로 추가됨');
-              // props.navigation.navigate("Products");
-              // props.navigation.goBack();
             }
           })
           .catch(error => {
@@ -187,8 +143,8 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     confirmAlert(param);
   };
 
-  const uploadProductInfo = () => {
-    console.log('채팅 사용자 정보 업로드');
+  const uploadProducerInfo = () => {
+    console.log('AddProducerScreen : 생산자 정보 업로드');
     if (isChanged()) {
       console.log('데이타가 변경되었습니다. ');
       handleSubmit(confirmUpload)();
@@ -217,19 +173,6 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     );
   };
 
-  // 갤러리에서 이미지 선택 함수
-  const selectImageFromGallery = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.5,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      const imageUri = result.assets[0].uri; // 선택한 이미지의 URI
-      setNewImage(imageUri!); // 상태 업데이트
-      setValue('image', imageUri);
-    }
-  };
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -241,12 +184,6 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
         leftCustomView={LeftCustomComponent}
         isRight={false}
       />
-
-      {/* {loading ? (
-        <>
-          <LoadingWheel />
-        </>
-      ) : ( */}
         <>
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -260,7 +197,7 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 
                     <TouchableOpacity
                       onPress={() => {
-                        uploadProductInfo();
+                        uploadProducerInfo();
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>{strings.REGISTER}</Text>
@@ -270,28 +207,6 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 
                   <View style={styles.UserInfoBorderBox}>
 
-                    <View style={[styles.imageContainer]}>
-                        {/* FastImage로 이미지 렌더링 */}
-                        {newImage ? (
-                          <FastImage
-                            style={styles.image}
-                            source={{ uri: newImage }}
-                            resizeMode={FastImage.resizeMode.cover}
-                          />
-                        ) : null }
-                    </View>
-                    <TouchableOpacity
-                      onPress={selectImageFromGallery}
-                      style={{
-                        alignItems: 'center', // 수평 가운데 정렬
-                        justifyContent: 'center', // 수직 가운데 정렬
-                        // marginTop: RFPercentage(2), // 여백 추가
-                      }}>
-                      <FontAwesome
-                        style={styles.camera}
-                        name="camera"
-                      />
-                    </TouchableOpacity>
                     {/* 이름 */}
                     <Text style={[GlobalStyles.inputTitle]}>
                       {strings.NAME}
@@ -314,118 +229,98 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                         </Text>
                       )}
                     </View>
-                    {/* 브랜드 */}
+                    {/* 전화번호 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      브랜드
+                      전화 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
+                          minLength: 11,
+                          maxLength: 11,
+                          pattern: /^01(?:0)\d{4}\d{4}$/,
                         }}
-                        name="brand"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="phoneNumber"
+                        placeholder="전화번호 입력하세요"
+                        keyboard="phone-pad" // 숫자 판으로 변경
+                        isEditable={true}
+                      />
+                      {errors.phoneNumber && (
+                        <Text style={GlobalStyles.errorMessage}>
+                          전화번호 에러.
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* 은행 이름 */}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      은행 이름
+                    </Text>
+                    <View style={GlobalStyles.HStack}>
+                      <InputField
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 2,
+                        }}
+                        name="bankName"
+                        placeholder= "은행이름 입력하세요"
                         keyboard="name-phone-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.name && (
+                      {errors.bankName && (
                         <Text style={GlobalStyles.errorMessage}>
-                          브랜드 {strings.ERROR}
+                          은행이름 {strings.ERROR}
                         </Text>
                       )}
                     </View>
 
-                    {/* 재고수량 */}
+                      {/* 계좌 번호 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      재고수량(개)
+                      계좌 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
+                          minLength: 5,
                         }}
-                        name="countInStock"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="bankNumber"
+                        placeholder="계좌번호 입력하세요"
                         keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
                       {errors.name && (
                         <Text style={GlobalStyles.errorMessage}>
-                          재고수량 {strings.ERROR}
+                          계좌번호{strings.ERROR}
                         </Text>
                       )}
                     </View>
 
-                      {/* 가격 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      가격(원)
+                      생산자 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
                         }}
-                        name="price"
-                        placeholder="가격"
+                        name="isProducerNumber"
+                        placeholder="생산자 입력하세요"
                         keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.name && (
+                      {errors.isProducerNumber && (
                         <Text style={GlobalStyles.errorMessage}>
-                          가격 {strings.ERROR}
+                          생산자 번호 {strings.ERROR}
                         </Text>
                       )}
                     </View>
 
-                    <Text style={[GlobalStyles.inputTitle]}>
-                      할인(%)
-                    </Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                          required: true,
-                          minLength: 1,
-                        }}
-                        name="discount"
-                        placeholder="할인"
-                        keyboard="number-pad" // 숫자 판으로 변경
-                        isEditable={true}
-                      />
-                      {errors.name && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          할인 {strings.ERROR}
-                        </Text>
-                      )}
-                    </View>
-
-                    <Text style={GlobalStyles.inputTitle}>설명</Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                            required: true,
-                            minLength: 1,
-                        }}
-                        name="description"
-                        placeholder= "설명"
-                        keyboard="ascii-capable" // 숫자 판으로 변경
-                        isEditable={true}
-                        multiline={true}
-                        numberOfLines={50}
-                      />
-                      {errors.description && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          설명에러
-                        </Text>
-                      )}
-                    </View>
                   </View>
                 </View>
               </ScrollView>
@@ -535,4 +430,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddProductScreen;
+export default AddProducerScreen;

@@ -12,7 +12,8 @@ const deleteOrder = async (id: string, props: any) => {
   try {
     const token = await getToken();
     const response: AxiosResponse = await axios.delete(
-      `${baseURL}orders/${id}`,
+      // 2025-03-17 14:50:29, orderSql 추가
+      `${baseURL}orderSql/${id}`,
       {
         headers: {Authorization: `Bearer ${token}`},
       },

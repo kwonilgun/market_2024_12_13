@@ -2,7 +2,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useCallback, useState } from 'react';
 import {
-  FlatList, StyleSheet,
+  FlatList, ScrollView, StyleSheet,
   Text,
   TouchableOpacity,
   View
@@ -23,17 +23,20 @@ import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../assets/common/BaseUrl';
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import GlobalStyles from '../../styles/GlobalStyles';
+import { IProducerInfo } from '../model/interface/IAuthInfo';
 
 const EditMainScreen: React.FC<EditMainScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
 
     const [productList, setProductList] = useState<IProduct[] | null>(null);
+    const [producerList, setProducerList] = useState<IProducerInfo[] | null>(null);
 
   useFocusEffect(
     useCallback(() => {
       console.log('EditMainScreen : useFocusEffect');
       setLoading(true);
       fetchProductList();
+      fetchProducerList();
 
       return () => {
         setLoading(true);
@@ -58,11 +61,42 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
       );
       if (response.status === 200) {
         // console.log('products = ', response.data);
-        setProductList(response.data);
-        setLoading(false);
+        const productL = response.data as IProduct[];
+        productL.sort((a,b) => a.name.localeCompare(b.name));
+        setProductList(productL);
       }
     } catch (error) {
       alertMsg(strings.ERROR, '상품 리스 다운로드 실패');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2025-03-18 11:17:58, 생산자 정보를 읽어온다. 
+  const fetchProducerList = async () => {
+    try {
+      const token = await getToken();
+      //헤드 정보를 만든다.
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}userSql`,
+        config,
+      );
+      if (response.status === 200) {
+        // console.log('products = ', response.data);
+        const producerL = response.data as IProducerInfo[];
+        producerL.sort((a,b) => a.name!.localeCompare(b.name!));
+        setProducerList(response.data);
+      }
+    } catch (error) {
+      alertMsg(strings.ERROR, '상품 리스 다운로드 실패');
+    } finally{
+      setLoading(false);
     }
   };
 
@@ -76,8 +110,24 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
     <View style={{margin: RFPercentage(2), alignItems: 'flex-end'}}>
       <TouchableOpacity
         onPress={async () => {
-          console.log('ChatRegister: 등록필요. ');
+          console.log('EditMainScreen: renderAdddProduct. ');
           props.navigation.navigate('AddProductScreen');
+        }}>
+        <View style={GlobalStyles.buttonSmall}>
+          <Text style={{fontSize: RFPercentage(3)}}> + </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  </View>
+  );
+
+  const renderAddProducer = () => (
+    <View style={{alignItems: 'center', marginTop: 10}}>
+    <View style={{margin: RFPercentage(2), alignItems: 'flex-end'}}>
+      <TouchableOpacity
+        onPress={async () => {
+          console.log('EditMainScreen: renderAdddProduct. ');
+          props.navigation.navigate('AddProducerScreen');
         }}>
         <View style={GlobalStyles.buttonSmall}>
           <Text style={{fontSize: RFPercentage(3)}}> + </Text>
@@ -112,6 +162,33 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
 
   );
 
+  const renderProducerList =  () => (
+    <View style={styles.productListContainer}>
+         <Text style={styles.title}>생산자 리스트</Text>
+         <FlatList
+           data={producerList}
+           keyExtractor={item => item.id}
+           renderItem={({item}) => (
+             <TouchableOpacity
+               style={styles.productItem}
+               onPress={() => {
+                console.log('EditMainScreen renderProducerList');
+                props.navigation.navigate('EditProducerScreen',{item:item});
+                //  startEdit(item);
+               }} // Navigate to chat when a user is selected
+             >
+               <Text style={styles.productName}>{item.name}</Text>
+             </TouchableOpacity>
+           )}
+           ListHeaderComponent={renderAddProducer} // 리스트 상단에 추가 버튼 배치
+           ListEmptyComponent={
+             <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+           }
+         />
+    </View>
+
+ );
+
   const onPressRight = () => {
       console.log('Profile.tsx onPressRight...');
     //   props.navigation.navigate('SystemInfoScreen');
@@ -132,6 +209,19 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
       );
     };
 
+    const renderLists = () => (
+      <FlatList
+        ListHeaderComponent={
+          <>
+            {renderProductList()}
+            {renderProducerList()}
+          </>
+        }
+        data={[]} // 빈 데이터 배열
+        renderItem={() => null} // 빈 렌더링 함수
+      />
+    );
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
@@ -144,24 +234,24 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
         rightCustomView={RightCustomComponent}
       />
 
-      {loading ? (
-        <LoadingWheel />
-      ) : (
-        renderProductList()
-
-      )}
+        {loading ? (
+          <LoadingWheel />
+        ) : (
+          renderLists()
+        )}
 
     </WrapperContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  
+
   productListContainer: {
     padding: 10,
   },
   productItem: {
-    padding: 10,
+    padding: RFPercentage(1),
+    marginHorizontal: RFPercentage(3),
     marginBottom: 5,
     backgroundColor: colors.grey,
     borderRadius: 5,

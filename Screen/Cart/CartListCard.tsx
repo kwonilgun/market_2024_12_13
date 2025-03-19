@@ -35,18 +35,6 @@ const CartListCard: React.FC<CartListCardProps> = props => {
     console.log(`CartListCard.tsx: 진입: refNumber = ${refNumber.current}`);
     // cartItems가 배열이 아니거나 undefined일 경우 기본값 설정
 
-    // console.log('props.cartItems = ', props.item);
-
-    // let sum = 0;
-    // if (Array.isArray(props.item)) {
-    //   props.item.forEach(element => {
-    //     sum += Number(element.product.price) * element.quantity;
-    //   });
-    // } else {
-    //   console.log('CartListCard: useEffect: Array가 아니다.');
-    // }
-
-    // console.log(`CartListCard.tsx: number 총계 = ${sum}`);
   }, [props.item, item]);
 
   const incNum = () => {

@@ -3,13 +3,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useCallback, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
@@ -30,22 +30,22 @@ import InputField from '../../utils/InputField';
 import { errorAlert } from '../../utils/alerts/errorAlert';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
-    confirmAlert,
-    ConfirmAlertParams,
+  confirmAlert,
+  ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
-import { IProduct } from '../model/interface/IProductInfo';
-import { AddProductScreenProps } from '../model/types/TEditNavigator';
-import FastImage from 'react-native-fast-image';
-import { launchImageLibrary } from 'react-native-image-picker'; // 추가
-import mime from 'mime';
+import { EditProducerScreenProps } from '../model/types/TEditNavigator';
+import { IProducerInfo } from '../model/interface/IAuthInfo';
 
 
 
-const AddProductScreen: React.FC<AddProductScreenProps> = props => {
-  const {state} = useAuth();
-  // const [loading, setLoading] = useState<boolean>(false);
-  // const [product, setProduct] = useState<IProduct | null>(null);
-  const [newImage, setNewImage] = useState<string | null>(null); // 이미지 상태 추가
+
+const EditProducerScreen: React.FC<EditProducerScreenProps> = props => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [product, setProducer] = useState<IProducerInfo | null>(null);
+  const [producersList, setProducersList] = useState<IProducerInfo[]|null>(null);
+  const [selectedProducer, setSelectedProducer] = useState<string | null>(null); // 선택된 producer 상태
+  const [currentProducer, setCurrentProducer] = useState<IProducerInfo|null>(null);
+
 
 
 
@@ -56,33 +56,33 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     handleSubmit,
     formState: {errors},
     reset,
-  } = useForm<IProduct>({
+  } = useForm<IProducerInfo>({
     defaultValues: {
-      id: '',
-      name: '',
-      image: '',
-      description: '',
-      richDescription: '',
-      brand: '',
-      price:'',
-      discount: '',
-      countInStock: '',
+      name: props.route.params.item.name,
+      nickName: props.route.params.item.nickName,
+      phoneNumber: props.route.params.item.phoneNumber,
+      bankName: props.route.params.item.bankName,
+      bankNumber: props.route.params.item.bankNumber,
+      isProducerNumber: props.route.params.item.isProducerNumber,
+
     },
   });
 
   useFocusEffect(
     useCallback(() => {
       console.log(
-        'AddProductScreen useFocusEffect'
+        'EditProductScreen useFocusEffect'
       );
 
-      // setProduct(props.route.params.item);
+      setProducer(props.route.params.item);
+      setSelectedProducer(props.route.params.item.id);
 
       return () => {
-        // setLoading(true);
+        setLoading(true);
       };
-    }, []),
+    }, [props]),
   );
+
 
 
   const isChanged = () => {
@@ -90,14 +90,12 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 
     // defaultValues의 타입 정의
     const defaultValues: any = {
-      name: '',
-      image: '',
-      description: '',
-      richDescription: '',
-      brand: '',
-      price: '',
-      discount: '',
-      countInStock: '',
+      name: props.route.params.item.name,
+      nickName: props.route.params.item.nickName,
+      phoneNumber: props.route.params.item.phoneNumber,
+      bankName: props.route.params.item.bankName,
+      bankNumber: props.route.params.item.bankNumber,
+      isProducerNumber: props.route.params.item.isProducerNumber,
     };
 
     // 기본값과 현재 값 비교
@@ -110,73 +108,30 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
   };
 
 
-  const confirmUpload: SubmitHandler<IProduct> = async data => {
+  const confirmUpload: SubmitHandler<IProducerInfo> = async data => {
     const param: ConfirmAlertParams = {
       title: strings.CONFIRMATION,
-      message: '상품 추가',
-      func: async (in_data: IProduct) => {
-        console.log('업로드 상품 추가 data = ', in_data);
+      message: '상품 등록',
+      func: async (in_data: IProducerInfo) => {
+        console.log('업로드 상품 data = ', in_data);
         const token = await getToken();
-
-        // 이미지를 업로드 할경우 form태그에 entype 속성값을 multipart/form-data로 설정해주면 이미지파일도 값이 전송할수 있다.
-        // multipart/form-data 는 post를 통해 파일을 보낼 수 있는 인코딩 유형이다
-
-        let formData = new FormData();
-
-        formData.append('name', in_data.name);
-        formData.append('brand', in_data.brand);
-        formData.append('price', in_data.price);
-        formData.append('discount', in_data.discount);
-        formData.append('description', in_data.description);
-        formData.append('category', in_data.category);
-        formData.append('countInStock', in_data.countInStock);
-        // formData.append('richDescription', richDescription);
-        formData.append('rating', in_data.rating);
-        formData.append('numReviews', in_data.numReviews);
-        formData.append('isFeatured', in_data.isFeatured);
-        formData.append('richDescription', in_data.richDescription);
-        formData.append('dateCreated', Date.now());
-
-        //2023-01-29 : 추가함
-        formData.append('user', in_data.user);
-
         const config = {
           headers: {
-            'Content-Type': 'multipart/form-data', //이미지 전송을 위해서
-            //     "Content-Type": "application/json; charset=utf-8",
+            'Content-Type': 'application/json; charset=utf-8',
             Authorization: `Bearer ${token}`,
           },
         };
 
-        let serverImageUri;
-        if (newImage) {
-          //로컬 카메라에서 이미지를 가져왔다.
-          serverImageUri = 'file:///' + newImage.split('file:/').join('');
-          formData.append('image', {
-            uri: serverImageUri,
-            type: mime.getType(serverImageUri),
-            name: serverImageUri.split('/').pop(), //마지막 이름
-          });
-
-        } else {
-          formData.append('dataExist', 'yes');
-        }
-
-        console.log('EditProductScreen formData', formData);
 
         axios
-          .post(`${baseURL}products`, formData, config)
+          .put(`${baseURL}userSql/${selectedProducer}`, JSON.stringify(in_data), config)
           .then(res => {
             if (res.status === 200 || res.status === 201) {
              alertMsg('success', '상품 성공적으로 추가됨');
-              // props.navigation.navigate("Products");
-              // props.navigation.goBack();
             }
           })
           .catch(error => {
             console.error(error);
-            // alert("1. 상품 업데이트 실패" + error)
-            // setShowModal(false);
             errorAlert('1. 상품업로드 에러', ' ' + error);
           });
 
@@ -187,14 +142,55 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     confirmAlert(param);
   };
 
-  const uploadProductInfo = () => {
-    console.log('채팅 사용자 정보 업로드');
-    if (isChanged()) {
+  const isProducerChanged = ()=>{
+    return props.route.params.item.id !== selectedProducer;
+  };
+
+  const uploadProducerInfo = () => {
+    console.log('생산자 정보 업로드');
+    if (isChanged() || isProducerChanged()) {
       console.log('데이타가 변경되었습니다. ');
       handleSubmit(confirmUpload)();
     } else {
       errorAlert(strings.ERROR, '데이터 변경이 없음');
     }
+  };
+
+  const deleteProducerInfo = async () => {
+    console.log('deleteProduerInfo');
+    const param: ConfirmAlertParams = {
+      title: strings.DELETE,
+      message: '생산자 삭제',
+      func: async () => {
+        const token = await getToken();
+
+        //헤드 정보를 만든다.
+        const config = {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            Authorization: `Bearer ${token}`,
+          },
+          params: {id: selectedProducer},
+        };
+        //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
+        try {
+          console.log('producer 삭제 id = ', selectedProducer);
+          const response: AxiosResponse = await axios.delete(
+            `${baseURL}products/${selectedProducer}`,
+            config,
+          );
+          if (response.status === 200 || response.status === 201) {
+            alertMsg(strings.DELETE, strings.SUCCESS);
+            props.navigation.goBack();
+          }
+        } catch (error) {
+          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
+        }
+      },
+      params: [],
+    };
+
+    confirmAlert(param);
   };
 
   const onPressLeft = () => {
@@ -217,36 +213,24 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     );
   };
 
-  // 갤러리에서 이미지 선택 함수
-  const selectImageFromGallery = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.5,
-    });
 
-    if (result.assets && result.assets.length > 0) {
-      const imageUri = result.assets[0].uri; // 선택한 이미지의 URI
-      setNewImage(imageUri!); // 상태 업데이트
-      setValue('image', imageUri);
-    }
-  };
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={'상품 추가'}
+        centerText={'생산자 편집'}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
         isRight={false}
       />
 
-      {/* {loading ? (
+      {loading ? (
         <>
           <LoadingWheel />
         </>
-      ) : ( */}
+      ) : (
         <>
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -260,38 +244,24 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 
                     <TouchableOpacity
                       onPress={() => {
-                        uploadProductInfo();
+                        uploadProducerInfo();
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>{strings.REGISTER}</Text>
                     </TouchableOpacity>
 
+                    <TouchableOpacity
+                      onPress={() => {
+                        deleteProducerInfo();
+                      }}
+                      style={styles.saveButton}>
+                      <Text style={styles.buttonText}>{strings.DELETE}</Text>
+                    </TouchableOpacity>
                   </View>
 
                   <View style={styles.UserInfoBorderBox}>
 
-                    <View style={[styles.imageContainer]}>
-                        {/* FastImage로 이미지 렌더링 */}
-                        {newImage ? (
-                          <FastImage
-                            style={styles.image}
-                            source={{ uri: newImage }}
-                            resizeMode={FastImage.resizeMode.cover}
-                          />
-                        ) : null }
-                    </View>
-                    <TouchableOpacity
-                      onPress={selectImageFromGallery}
-                      style={{
-                        alignItems: 'center', // 수평 가운데 정렬
-                        justifyContent: 'center', // 수직 가운데 정렬
-                        // marginTop: RFPercentage(2), // 여백 추가
-                      }}>
-                      <FontAwesome
-                        style={styles.camera}
-                        name="camera"
-                      />
-                    </TouchableOpacity>
+
                     {/* 이름 */}
                     <Text style={[GlobalStyles.inputTitle]}>
                       {strings.NAME}
@@ -314,115 +284,95 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                         </Text>
                       )}
                     </View>
-                    {/* 브랜드 */}
+
+                    {/* 전화번호 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      브랜드
+                      전화 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
+                          minLength: 11,
+                          maxLength: 11,
+                          pattern: /^01(?:0)\d{4}\d{4}$/,
                         }}
-                        name="brand"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="phoneNumber"
+                        placeholder="전화번호 입력하세요"
+                        keyboard="phone-pad" // 숫자 판으로 변경
+                        isEditable={true}
+                      />
+                      {errors.phoneNumber && (
+                        <Text style={GlobalStyles.errorMessage}>
+                          전화번호 에러.
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* 은행 이름 */}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      은행 이름
+                    </Text>
+                    <View style={GlobalStyles.HStack}>
+                      <InputField
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 2,
+                        }}
+                        name="bankName"
+                        placeholder= "은행이름 입력하세요"
                         keyboard="name-phone-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.name && (
+                      {errors.bankName && (
                         <Text style={GlobalStyles.errorMessage}>
-                          브랜드 {strings.ERROR}
+                          은행이름 {strings.ERROR}
                         </Text>
                       )}
                     </View>
 
-                    {/* 재고수량 */}
+                      {/* 계좌 번호 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      재고수량(개)
+                      계좌 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
+                          minLength: 5,
                         }}
-                        name="countInStock"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="bankNumber"
+                        placeholder="계좌번호 입력하세요"
                         keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
                       {errors.name && (
                         <Text style={GlobalStyles.errorMessage}>
-                          재고수량 {strings.ERROR}
+                          계좌번호{strings.ERROR}
                         </Text>
                       )}
                     </View>
 
-                      {/* 가격 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      가격(원)
+                      생산자 번호
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 1,
                         }}
-                        name="price"
-                        placeholder="가격"
+                        name="isProducerNumber"
+                        placeholder="생산자 입력하세요"
                         keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.name && (
+                      {errors.isProducerNumber && (
                         <Text style={GlobalStyles.errorMessage}>
-                          가격 {strings.ERROR}
-                        </Text>
-                      )}
-                    </View>
-
-                    <Text style={[GlobalStyles.inputTitle]}>
-                      할인(%)
-                    </Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                          required: true,
-                          minLength: 1,
-                        }}
-                        name="discount"
-                        placeholder="할인"
-                        keyboard="number-pad" // 숫자 판으로 변경
-                        isEditable={true}
-                      />
-                      {errors.name && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          할인 {strings.ERROR}
-                        </Text>
-                      )}
-                    </View>
-
-                    <Text style={GlobalStyles.inputTitle}>설명</Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                            required: true,
-                            minLength: 1,
-                        }}
-                        name="description"
-                        placeholder= "설명"
-                        keyboard="ascii-capable" // 숫자 판으로 변경
-                        isEditable={true}
-                        multiline={true}
-                        numberOfLines={50}
-                      />
-                      {errors.description && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          설명에러
+                          생산자 번호 {strings.ERROR}
                         </Text>
                       )}
                     </View>
@@ -431,12 +381,29 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
               </ScrollView>
             </KeyboardAvoidingView>
         </>
-      {/* )} */}
+      )}
     </WrapperContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  pickerContainer: {
+    width: '95%',
+    borderColor: 'black', // 테두리 색상
+    borderWidth: 1, // 테두리 두께
+    borderRadius: 10, // 테두리 둥글기
+    // marginBottom: 10, // 여백
+    // overflow: 'hidden', // 내부 요소가 테두리를 벗어나지 않도록
+  },
+  picker: {
+    height: RFPercentage(8),
+    // width: '80%',
+    // backgroundColor: colors.white,
+    // borderColor: 'black',
+    // borderWidth: 2,
+    // borderRadius: 10,
+    // marginBottom: 10,
+  },
   imageContainer: {
     alignItems: 'center', // 수평 가운데 정렬
     justifyContent: 'center', // 수직 가운데 정렬 (필요 시 추가)
@@ -535,4 +502,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddProductScreen;
+export default EditProducerScreen;

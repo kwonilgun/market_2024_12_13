@@ -21,5 +21,5 @@ export interface IOrderInfo {
   receiverName: string;
   receiverPhone: string;
   status: number;
-  user: string;
+  userId?: string;
 }

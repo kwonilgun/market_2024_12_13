@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useFocusEffect} from '@react-navigation/native';
 
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
@@ -10,7 +10,7 @@ import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {baseURL} from '../../assets/common/BaseUrl';
 import {height} from '../../assets/common/BaseValue';
 import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
-import {IUserAtDB} from '../model/interface/IAuthInfo';
+import {IProducerInfo, IUserAtDB} from '../model/interface/IAuthInfo';
 import GlobalStyles from '../../styles/GlobalStyles';
 import {errorAlert} from '../../utils/alerts/errorAlert';
 import strings from '../../constants/lang';
@@ -30,19 +30,53 @@ type Props = {
 };
 
 const TransferSheet: React.FC<Props> = ({modalRef, item, transMoney}) => {
-  const [producerInfo, setProducerInfo] = useState<IUserAtDB | null>(null);
+  const [producerInfo, setProducerInfo] = useState<IProducerInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useFocusEffect(
     useCallback(() => {
       if (!isEmpty(item?.product?.user)) {
-        fetchProducerInform(setProducerInfo, setLoading, item.product.user!);
+        console.log('userId ', item.product.user!);
+        fetchProducerInform(item.product.user!);
       }
-      return () => {
-        setLoading(true);
-      };
     }, [item]),
   );
+
+
+  async function fetchProducerInform(userId: string,) {
+    try {
+      const token = await getToken();
+      console.log('TransferSheet userId =', userId);
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}userSql/${userId}`,
+        {
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+
+      console.log('TransferSheet response = ', response.status);
+
+      if (response.status === 200) {
+        console.log(
+          'TransferSheet.tsx: 유저 데이터 정상적으로 가져옴 data = ',
+          response.data,
+        );
+        setProducerInfo(response.data[0]);
+      } else if (response.status === 202) {
+        console.log('생산자 정보 없음 ', response.data);
+        setProducerInfo(response.data);
+        errorAlert(strings.ERROR, '생산자 정보가 없음.');
+      } else {
+        console.log('생산자 정보 없음... data =');
+      }
+    } catch (error) {
+      console.log('TransferSheet.tsx: 데이터 가져오지 못함', error);
+      errorAlert(strings.ERROR, '생산자 정보를 가져오지 못함.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   return (
     <Modalize
@@ -51,7 +85,7 @@ const TransferSheet: React.FC<Props> = ({modalRef, item, transMoney}) => {
       adjustToContentHeight={true}>
       {loading === false ? (
         <View style={styles.container}>
-          <Text style={styles.text}>생산자 이름: {producerInfo?.nickName}</Text>
+          <Text style={styles.text}>생산자 이름: {producerInfo?.name}</Text>
           <Text style={styles.text}>은행 이름: {producerInfo?.bankName}</Text>
           <Text style={styles.text}>계좌 번호: {producerInfo?.bankNumber}</Text>
           <Text style={styles.text}>송금할 금액: {transMoney}원</Text>
@@ -71,43 +105,6 @@ const TransferSheet: React.FC<Props> = ({modalRef, item, transMoney}) => {
   );
 };
 
-async function fetchProducerInform(
-  setProducerInfo: React.Dispatch<React.SetStateAction<IUserAtDB | null>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
-  userId: string,
-) {
-  try {
-    const token = await getToken();
-    console.log('TransferSheet userId =', userId);
-    const response: AxiosResponse = await axios.get(
-      `${baseURL}users/${userId}`,
-      {
-        headers: {Authorization: `Bearer ${token}`},
-      },
-    );
-
-    console.log('TransferSheet response = ', response.status);
-
-    if (response.status === 200) {
-      console.log(
-        'TransferSheet.tsx: 유저 데이터 정상적으로 가져옴 data = ',
-        response.data,
-      );
-      setProducerInfo(response.data);
-    } else if (response.status === 202) {
-      console.log('생산자 정보 없음 ', response.data);
-      setProducerInfo(response.data);
-      errorAlert(strings.ERROR, '생산자 정보가 없음.');
-    } else {
-      console.log('생산자 정보 없음... data =');
-    }
-  } catch (error) {
-    console.log('TransferSheet.tsx: 데이터 가져오지 못함', error);
-    errorAlert(strings.ERROR, '생산자 정보를 가져오지 못함.');
-  } finally {
-    setLoading(false);
-  }
-}
 
 const styles = StyleSheet.create({
   container: {

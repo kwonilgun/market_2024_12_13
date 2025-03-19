@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
-  FlatList, StyleSheet,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View
@@ -10,15 +10,10 @@ import {
 import WrapperContainer from '../../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../../utils/basicForm/HeaderComponents';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 import colors from '../../../styles/colors';
 import { useFocusEffect } from '@react-navigation/native';
-import LoadingWheel from '../../../utils/loading/LoadingWheel';
-import strings from '../../../constants/lang';
 
-import { alertMsg } from '../../../utils/alerts/alertMsg';
-import GlobalStyles from '../../../styles/GlobalStyles';
 import { AdminOrderMainScreenProps } from '../../model/types/TAdminOrderNavigator';
 
 const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {

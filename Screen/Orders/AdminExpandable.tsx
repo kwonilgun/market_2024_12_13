@@ -165,8 +165,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',  // 중앙 정렬
     // justifyContent: 'space-between',
     marginVertical: 4,
-    borderBottomWidth: 1,
-    borderColor: 'black',
+    // borderBottomWidth: 1,
+    // borderColor: 'black',
     // paddingHorizontal: RFPercentage(2),
   },
   subtitleContainer: {

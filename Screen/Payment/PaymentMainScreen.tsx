@@ -157,10 +157,28 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
               deliveryDate: null,
             };
 
+            const token = await getToken();
+                      //헤드 정보를 만든다.
+            const config = {
+                          headers: {
+                            'Content-Type': 'application/json; charset=utf-8',
+                            Authorization: `Bearer ${token}`,
+                          },
+                      };
+
             try {
+
+              // const data: AxiosResponse = await axios.post(
+              //   `${baseURL}orders`,
+              //   order,
+              // );
+
+              // 2025-03-17 12:59:10, order/sql로 변경
+
               const data: AxiosResponse = await axios.post(
-                `${baseURL}orders/sql`,
+                `${baseURL}orderSql`,
                 order,
+                config,
               );
               return data;
 
@@ -328,6 +346,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                         }}>
                         <TouchableOpacity
                           onPress={() => {
+                            console.log('송금할 계좌 item = ', item);
                             setCart(item);
                             setTransMoney(String(amount));
                             onOpen();

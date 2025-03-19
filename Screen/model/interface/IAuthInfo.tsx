@@ -15,12 +15,14 @@ export interface IAuth {
   // ozsId?: string;
 }
 
-// export interface IDeliveryInfo extends IAuth {
-//   address1: string;
-//   address2?: string;
-//   deliveryMethod: number;
-//   checkMark: boolean;
-// }
+// 서버에서 사용자 번호에 대한 인증 대한 데이타 타입
+export interface IProducerInfo extends IAuth {
+  id: string;
+  bankName: string;
+  bankNumber: string;
+  isProducerNumber: number;
+}
+
 
 export interface IAuthResult {
   status: number;

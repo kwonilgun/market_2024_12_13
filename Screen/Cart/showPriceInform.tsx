@@ -10,11 +10,11 @@ export function showPriceInform(
   price: string,
 ) {
   return (
-    <View style={[styles.priceInfoContainer, {marginTop: RFPercentage(1)}]}>
+    <View style={[styles.priceInfoContainer, {marginTop: RFPercentage(1), marginLeft:RFPercentage(0.2)}]}>
       <Text style={styles.productName}>
         {name.length > 15 ? name.substring(0, 12) + '...' : name}
       </Text>
-      <View style={styles.discountContainer}>
+      {/* <View style={styles.discountContainer}> */}
         <Text style={styles.discountText}>
           {discount ? `${discount}% ` : ''}
         </Text>
@@ -27,7 +27,7 @@ export function showPriceInform(
             {Number(price).toLocaleString('kr-KR')}원
           </Text>
         )}
-      </View>
+      {/* </View> */}
       {!isEmpty(discount) ? (
         <Text style={styles.finalPriceText}>
           {(
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   strikethroughPrice: {
     textDecorationLine: 'line-through',
-    fontSize: 12,
+    fontSize: RFPercentage(1.2),
   },
   priceText: {
     fontSize: RFPercentage(2),
@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
     marginVertical: RFPercentage(0.5),
   },
   finalPriceText: {
-    fontSize: RFPercentage(2),
-    fontWeight: 'bold',
+    fontSize: RFPercentage(1.2),
+    // fontWeight: 'bold',
     marginVertical: RFPercentage(0.5),
   },
   freeShippingContainer: {

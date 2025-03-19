@@ -180,7 +180,7 @@ const OrderChangeScreen: React.FC<OrderChangeScreenProps> = props => {
         };
         try {
           const response: AxiosResponse = await axios.put(
-            `${baseURL}orders/status/${item.id}`,
+            `${baseURL}orderSql/status/${item.id}`,
             JSON.stringify(status),
             config,
           );
