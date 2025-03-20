@@ -43,6 +43,7 @@ import {
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import { PaymentMainScreenProps } from '../model/types/TPaymentNavigator';
 import { PAYMENT_COMPLETE } from '../../assets/common/BaseValue';
+import colors from '../../styles/colors';
 
 const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
   const {state, dispatch} = useAuth();
@@ -301,13 +302,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                   return (
                     <View
                       key={index}
-                      style={{
-                        width: width * 0.9,
-                        margin: RFPercentage(2),
-                        padding: RFPercentage(2),
-                        borderColor: 'black',
-                        borderWidth: 2,
-                      }}>
+                      style={styles.CardContainer}>
                       <View style={styles.HStackHead}>
                         <Text style={{fontWeight: 'bold'}}>
                           상품: {item.product.brand || ''}
@@ -340,9 +335,10 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                       <View
                         style={{
                           flex: 1,
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          margin: RFPercentage(1),
+                          // width: width * 0.5,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          margin: RFPercentage(0.5),
                         }}>
                         <TouchableOpacity
                           onPress={() => {
@@ -351,8 +347,8 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                             setTransMoney(String(amount));
                             onOpen();
                           }}>
-                          <View style={GlobalStyles.buttonSmall}>
-                            <Text style={GlobalStyles.buttonTextStyle}>
+                          <View >
+                            <Text style={styles.buttonTextStyle}>
                               송금할 계좌
                             </Text>
                           </View>
@@ -361,8 +357,8 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                           onPress={() => {
                             finishOrder(item);
                           }}>
-                          <View style={GlobalStyles.buttonSmall}>
-                            <Text style={GlobalStyles.buttonTextStyle}>
+                          <View >
+                            <Text style={styles.buttonTextStyle}>
                               송금 완료
                             </Text>
                           </View>
@@ -393,25 +389,22 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
-  heading: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 10,
+  CardContainer: {
+    width: width * 0.9,
+    margin: RFPercentage(2),
+    padding: RFPercentage(1),
+    borderColor: 'black',
+    borderWidth: 2,
+    borderRadius: RFPercentage(1),
   },
+
   HStackHead: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignContent: 'center',
   },
-  container: {
-    marginTop: 8,
-    paddingBottom: 8,
-  },
-  borderTop: {
-    borderTopColor: 'black',
-    borderTopWidth: 0.5,
-  },
+
   text: {
     marginLeft: 8,
   },
@@ -430,6 +423,18 @@ const styles = StyleSheet.create({
     color: 'blue',
     fontSize: 20,
   },
+
+  buttonTextStyle: {
+      fontWeight: 'bold',
+      fontSize: RFPercentage(2), // Adjust the percentage based on your design
+      padding: RFPercentage(0.5),
+      color: 'black',
+      borderColor: 'blue',
+      borderWidth: 1,
+      borderRadius: RFPercentage(1),
+      // alignItems: 'center',
+  },
+ 
 });
 
 const mapDispatchToProps = (dispatch: any) => {

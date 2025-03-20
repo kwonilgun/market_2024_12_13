@@ -110,10 +110,10 @@ const ProductCard: React.FC<ProductCardProps> = props => {
               console.log('요약 보기');
               fetchProductDetails(props.items.name, false);
               }}>
-              <Text style={{ color: 'blue', marginHorizontal: 10 }}>요약</Text>
+              <Text style={styles.textButton}>요약</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => fetchProductDetails(props.items.name, true)}>
-              <Text style={{ color: 'blue', marginHorizontal: 10 }}>상세</Text>
+              <Text style={styles.textButton}>상세</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -260,6 +260,15 @@ const styles = StyleSheet.create({
     padding: RFPercentage(1),
     borderRadius: 10,
     alignItems: 'center',
+  },
+
+  textButton: {
+     color: 'black',
+     padding: RFPercentage(0.5),
+     marginHorizontal: RFPercentage(1),
+     borderColor: 'blue',
+     borderWidth: 1,
+     borderRadius: RFPercentage(0.5),
   },
 
   listItem: {

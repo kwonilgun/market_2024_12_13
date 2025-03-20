@@ -28,8 +28,7 @@ import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../assets/common/BaseUrl';
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import { IOrderInfo } from '../model/interface/IOrderInfo';
-import groupBy from 'group-by';
-import { DataList, makeExpandableDataList } from '../Orders/makeExpandable';
+import { DataList, makeExpandableDataList, updateLayout } from '../Orders/makeExpandable';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import GlobalStyles from '../../styles/GlobalStyles';
 import { height, width } from '../../assets/common/BaseValue';
@@ -38,6 +37,8 @@ import InputField from '../../utils/InputField';
 import isEmpty from '../../utils/isEmpty';
 import { areJsonEqual } from '../../utils/etc/areJsonEqual';
 import { errorAlert } from '../../utils/alerts/errorAlert';
+import { Expandable } from '../Orders/Expandable';
+import deleteOrder from '../Orders/deleteOrder';
 
 
 // import { Badge } from 'react-native-elements';
@@ -53,14 +54,19 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
   const {state, badgeCountState} = useAuth();
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  
   const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
-  const [dataList, setDataList] = useState<DataList | null>(null);
-  const [completeList, setCompleteList] = useState<DataList | null>(null);
+  const [dataOrdersList, setDataOrdersList] = useState<DataList | null>(null);
+  const [dataCompleteList, setDataCompleteList] = useState<DataList | null>(null);
   const [badge, setBadgeCount] = useState<number>(0);
   // const [producersGroup, setProducerGroup] = useState({});
   const userIdRef = useRef<string>('');
   const userOriginalInfo = useRef<IUserInfo | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpandedOrderList, setIsExpandedOrderList] = useState(false);
+  const [isExpandedCompleteList, setIsExpandedCompleteList] = useState(false);
+  const [isExpandedRegister, setIsExpandedRegister] = useState(false);
+
+  // const [ordersList, setOrdersList] = useState<DataList | null>(null);
   
 
   const {
@@ -85,10 +91,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         state.isAuthenticated,
       );
 
-      // fetchBadgeCount(badgeCountState.isBadgeCount);
       setIsLogin(true);
       getUserProfile();
-      // checkOrderList();
 
       return () => {
         setUserProfile(null);
@@ -139,8 +143,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         setUserProfile(response.data);
 
         // getUserProfile이 완료된 후에 checkOrderList 호출
-        await checkOrderList();
-        await fetchDeliveryCompleteList();
+        // await checkOrderList();
+        // await fetchDeliveryCompleteList();
 
       } else {
         alertMsg(strings.ERROR, '사용자 정보 가져오지 못함');
@@ -197,12 +201,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
          console.log('checkOrderList result', orders);
 
         // setProducerGroup(result);
-        makeExpandableDataList(orders, setDataList);
+        makeExpandableDataList(orders, setDataOrdersList);
+        // setOrdersList(dataOrdersList);
 
       }
       else{
         console.log('ProfileScreen - 주문 리스트가 없다.');
-        setDataList([]);
+        setDataOrdersList([]);
       }
     } catch (error) {
       console.log('ProfileScreen CheckOrderList error', error);
@@ -242,17 +247,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
          console.log('fetchDeliveryCompleteList', orders);
 
         // setProducerGroup(result);
-        makeExpandableDataList(orders, setCompleteList);
+        makeExpandableDataList(orders, setDataCompleteList);
 
       }
       else{
         console.log('ProfileScreen fetchDeliveryCompleteList- 주문 리스트가 없다.');
-        setDataList([]);
+        setDataCompleteList([]);
       }
     } catch (error) {
       console.log('ProfileScreen fetchDeliveryCompleteList error', error);
     } finally {
       // setDeliveryComplete(true);
+      setLoading(false);
     }
   };
 
@@ -371,142 +377,223 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                 style={GlobalStyles.scrollView}
                 keyboardShouldPersistTaps="handled">
                 <View style={GlobalStyles.VStack}>
-                  <View style={styles.HStackTitle}>
-                    <Text style={styles.HeadTitleText}>사용자 정보</Text>
-
-                    <TouchableOpacity
-                      onPress={() => {
-                        uploadUserInfo();
+                  <View >
+                    <Text
+                      style={styles.HeadTitleText}
+                      onPress={ () => {
+                        console.log('사용자 정보 click');
+                        setIsExpanded(!isExpanded);
                       }}
-                      style={styles.saveButton}>
-                      <Text style={styles.buttonText}>{strings.UPLOAD}</Text>
-                    </TouchableOpacity>
+                    >사용자 정보</Text>
+
                   </View>
-                  <View style={styles.UserInfoBorderBox}>
-                    <Text style={[GlobalStyles.inputTitle]}>
-                      {strings.EMAIL}
-                    </Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                          required: true,
-                          minLength: 2,
-                        }}
-                        name="email"
-                        placeholder={strings.PLEASE_ENTER_NAME}
-                        keyboard="name-phone-pad" // 숫자 판으로 변경
-                        isEditable={false}
-                      />
-                      {errors.email && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          {strings.EMAIL} {strings.ERROR}
-                        </Text>
-                      )}
-                    </View>
-                    <Text style={GlobalStyles.inputTitle}>{strings.PHONE}</Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                          required: true,
-                          minLength: 11,
-                          maxLength: 11,
-                          pattern: /^01(?:0)\d{4}\d{4}$/,
-                        }}
-                        name="phone"
-                        placeholder={strings.PLEASE_ENTER_TEL}
-                        keyboard="phone-pad" // 숫자 판으로 변경
-                        isEditable={true}
-                      />
-                      {errors.phone && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          전화번호 에러.
-                        </Text>
-                      )}
-                    </View>
-                    <Text style={GlobalStyles.inputTitle}>
-                      {strings.NICKNAME}
-                    </Text>
-                    <View style={GlobalStyles.HStack}>
-                      <InputField
-                        control={control}
-                        rules={{
-                          required: true,
-                          minLength: 2,
-                          // maxLength: 2,
-                        }}
-                        name="nickName"
-                        placeholder={strings.PLEASE_ENTER_TEL}
-                        keyboard="name-phone-pad" // 숫자 판으로 변경
-                        isEditable={true}
-                      />
-                      {errors.nickName && (
-                        <Text style={GlobalStyles.errorMessage}>
-                          {strings.NICKNAME} {strings.ERROR}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
+
+                  {isExpanded && (
+                    <>
+
+                        <View style={styles.UserInfoBorderBox}>
+                          <View style ={{
+                            flex: 1,
+                            flexDirection: 'row',
+                            width: width * 0.8,
+                            justifyContent: 'space-between',
+                            alignContent: 'center',
+                            alignItems: 'center',
+
+                          }}>
+                              <Text style={[styles.inputTitle]}>
+                              {strings.EMAIL}
+                              </Text>
+                              <TouchableOpacity
+                                onPress={() => {
+                                    uploadUserInfo();
+                              }}
+                              >
+                                  <Text style={styles.buttonTextStyle}>{strings.UPLOAD}</Text>
+                              </TouchableOpacity>
+
+                          </View>
+                          <View style={GlobalStyles.HStack}>
+                            <InputField
+                              control={control}
+                              rules={{
+                                required: true,
+                                minLength: 2,
+                              }}
+                              name="email"
+                              placeholder={strings.PLEASE_ENTER_NAME}
+                              keyboard="name-phone-pad" // 숫자 판으로 변경
+                              isEditable={false}
+                            />
+                            {errors.email && (
+                              <Text style={GlobalStyles.errorMessage}>
+                                {strings.EMAIL} {strings.ERROR}
+                              </Text>
+                            )}
+                          </View>
+                          <Text style={GlobalStyles.inputTitle}>{strings.PHONE}</Text>
+                          <View style={GlobalStyles.HStack}>
+                            <InputField
+                              control={control}
+                              rules={{
+                                required: true,
+                                minLength: 11,
+                                maxLength: 11,
+                                pattern: /^01(?:0)\d{4}\d{4}$/,
+                              }}
+                              name="phone"
+                              placeholder={strings.PLEASE_ENTER_TEL}
+                              keyboard="phone-pad" // 숫자 판으로 변경
+                              isEditable={true}
+                            />
+                            {errors.phone && (
+                              <Text style={GlobalStyles.errorMessage}>
+                                전화번호 에러.
+                              </Text>
+                            )}
+                          </View>
+                          <Text style={GlobalStyles.inputTitle}>
+                            {strings.NICKNAME}
+                          </Text>
+                          <View style={GlobalStyles.HStack}>
+                            <InputField
+                              control={control}
+                              rules={{
+                                required: true,
+                                minLength: 2,
+                                // maxLength: 2,
+                              }}
+                              name="nickName"
+                              placeholder={strings.PLEASE_ENTER_TEL}
+                              keyboard="name-phone-pad" // 숫자 판으로 변경
+                              isEditable={true}
+                            />
+                            {errors.nickName && (
+                              <Text style={GlobalStyles.errorMessage}>
+                                {strings.NICKNAME} {strings.ERROR}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                    </>
+
+
+                  )}
+
                   {!userProfile?.isAdmin && (
-                    <View>
-                      <TouchableOpacity
+                    <>
+                     <View>
+                      <Text
                         onPress={() => {
                           console.log('click order list');
-                          props.navigation.navigate('OrderListScreen', {
-                            items: dataList!,
-                          });
+                          checkOrderList();
+                          setIsExpandedOrderList(!isExpandedOrderList);
+                          // props.navigation.navigate('OrderListScreen', {
+                          //   items: dataList!,
+                          // });
                         }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>주문 리스트</Text>
-                      </TouchableOpacity>
+                        style={styles.HeadTitleText}>
+                          주문 리스트
+                      </Text>
 
                     </View>
+                    {isExpandedOrderList && (
+                      <View style={styles.listContainer}>
+                      {/* <Text style={styles.title}>주문리스트</Text> */}
+                      {!isEmpty(dataOrdersList) ? (
+                        dataOrdersList!.map((item, index) => {
+                          if (!isEmpty(item.subtitle)) {
+                            return (
+                              <View key={index} style={styles.itemContainer}>
+                                <Expandable
+                                  navigation={props.navigation}
+                                  item={item}
+                                  onClickFunction={() => {
+                                    updateLayout(index, dataOrdersList!, setDataOrdersList);
+                                  }}
+                                  actionFt={deleteOrder}
+                                  orders={dataOrdersList!}
+                                />
+                              </View>
+                            );
+                          }
+                          return null;
+                        })
+                      ) : (
+                        <Text style={{textAlign: 'center'}}> 주문 정보 없음</Text>
+                      )}
+                      </View>
+                    )}
+                    </>
+
                   ) }
 
                   {!userProfile?.isAdmin && (
                     <View>
-                      <TouchableOpacity
+                      <Text
                         onPress={() => {
                           console.log('구매 내역 click');
                           fetchDeliveryCompleteList();
-                          props.navigation.navigate('OrderHistoryScreen', {
-                              items: completeList!,
-                            });
+                          setIsExpandedCompleteList(!isExpandedCompleteList);
+                          // props.navigation.navigate('OrderHistoryScreen', {
+                          //     items: completeList!,
+                          //   });
                         }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>구매 내역</Text>
-                      </TouchableOpacity>
-
+                        style={styles.HeadTitleText}>
+                        구매 내역
+                      </Text>
+                      {isExpandedCompleteList && (
+                        <View style={styles.listContainer}>
+                              {!isEmpty(dataCompleteList) ? (
+                                dataCompleteList!.map((item, index) => {
+                                  if (!isEmpty(item.subtitle)) {
+                                    return (
+                                      <View key={index} style={styles.itemContainer}>
+                                        <Expandable
+                                          navigation={props.navigation}
+                                          item={item}
+                                          onClickFunction={() => {
+                                            updateLayout(index, dataCompleteList!, setDataCompleteList);
+                                          }}
+                                          actionFt={deleteOrder}
+                                          orders={dataCompleteList!}
+                                        />
+                                      </View>
+                                    );
+                                  }
+                                  return null;
+                                })
+                              ) : (
+                                <Text style={{textAlign: 'center'}}> 주문 정보 없음</Text>
+                              )}
+                      </View>)}
                     </View>
                   ) }
 
+                  <Text
+                            onPress={() => {
+                              console.log('채팅 등록 ....');
+                              props.navigation.navigate('ChatRegisterScreen');
+                            }}
+                            style={styles.HeadTitleText}>
+                              채팅 등록
+                  </Text>
 
-
-                   <TouchableOpacity
-                        onPress={() => {
-                          console.log('채팅 등록 ....');
-                          props.navigation.navigate('ChatRegisterScreen');
-                        }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 등록</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        onPress={() => {
-                          console.log('채팅 문의 ....');
-                          props.navigation.navigate('ChatMainScreen');
-                        }}
-                        style={styles.orderButton}>
-                        <Text style={styles.buttonText}>채팅 방</Text>
-                        <View style={styles.iconWrapper}>
-                            {badge > 0 && (
-                              <View style={styles.badge}>
-                                <Text style={styles.badgeText}>{badge}</Text>
-                              </View>
-                            )}
-                          </View>
-                      </TouchableOpacity>
+                  <Text
+                      onPress={() => {
+                        console.log('채팅 방 ....');
+                        props.navigation.navigate('ChatMainScreen');
+                      }}
+                      style={styles.HeadTitleText}>
+                        채팅 방
+                  </Text>
+                  <View style={styles.iconWrapper}>
+                      {badge > 0 && (
+                        <View style={styles.badge}>
+                          <Text style={styles.badgeText}>{badge}</Text>
+                        </View>
+                      )}
+                  </View>
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
@@ -518,17 +605,32 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  listContainer: {
+    margin: RFPercentage(1),
+    padding: RFPercentage(0.5),
+    borderWidth: 1,
+    borderRadius: RFPercentage(1),
+    backgroundColor: '#E0E0E0',
+  },
+  itemContainer: {
+    marginBottom: 10,
+  },
   HStackTitle: {
     flexDirection: 'row',
     marginTop: RFPercentage(1),
     padding: RFPercentage(0.5),
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   HeadTitleText: {
     fontWeight: 'bold',
-    fontSize: RFPercentage(3),
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    fontSize: RFPercentage(2),
     marginTop: RFPercentage(2),
+    borderColor: 'blue',
+    borderBottomWidth: 1,
   },
 
   UserInfoBorderBox: {
@@ -565,6 +667,19 @@ const styles = StyleSheet.create({
     fontSize: RFPercentage(2),
     color: colors.white,
   },
+
+  buttonTextStyle: {
+    width: width * 0.2,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: RFPercentage(2), // Adjust the percentage based on your design
+    padding: RFPercentage(0.5),
+    color: 'black',
+    borderColor: 'blue',
+    borderWidth: 1,
+    borderRadius: RFPercentage(1),
+    // alignItems: 'center',
+},
   searchButton: {
     alignItems: 'center',
     backgroundColor: '#007bff',
@@ -573,8 +688,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   saveButton: {
-    width: RFPercentage(10),
+    width: 'auto',
     height: 'auto',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     backgroundColor: '#28a745',
     marginTop: RFPercentage(1),
@@ -608,6 +724,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  inputTitle: {
+    fontWeight: 'bold',
+    fontSize: RFPercentage(2.2),
+    color: 'black',
+    // marginTop: RFPercentage(1),
   },
 });
 
