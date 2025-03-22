@@ -42,7 +42,7 @@ export const Expandable: React.FC<ExpandableProps> = ({
   return (
     <View>
       <TouchableOpacity activeOpacity={0.8} onPress={onClickFunction}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.title}>{item.title} {item.isExpanded ? '  🔼' : '  🔽'}</Text>
       </TouchableOpacity>
       <View
         style={{

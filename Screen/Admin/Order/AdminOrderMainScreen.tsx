@@ -22,12 +22,12 @@ import { getToken } from '../../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../../assets/common/BaseUrl';
 import { IOrderInfo } from '../../model/interface/IOrderInfo';
-import groupBy from 'group-by';
 import { DataList, makeExpandableDataList, updateLayout } from '../../Orders/makeExpandable';
 import isEmpty from '../../../utils/isEmpty';
 import { AdminExpandable } from '../../Orders/AdminExpandable';
-import deleteOrder from '../../Orders/deleteOrder';
+
 import { height, width } from '../../../styles/responsiveSize';
+import adminDeleteOrder from '../../Orders/adminDeleteOrder';
 
 const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
 
@@ -43,12 +43,13 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('AdminOrderMainScreen : useFocusEffect');
+      console.log('AdminOrderMainScreen : useFocusEffect 진입');
       checkOrderStatus();
       fetchPaymentComplete();
       fetchOnDelivery();
       fetchDeliveryComplete();
       return () => {
+        console.log('AdminOrderMainScreen : useFocusEffect exit');
         setLoading(true);
       };
     }, []),
@@ -145,7 +146,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
       );
 
       const orders = response.data as IOrderInfo[];
-      console.log('fetchOnDelivery orders = ', orders);
+      // console.log('fetchOnDelivery orders = ', orders);
 
       if (orders.length) {
         // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
@@ -182,7 +183,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
       );
 
       const orders = response.data as IOrderInfo[];
-      console.log('fetchDeliveryComplete orders = ', orders);
+      // console.log('fetchDeliveryComplete orders = ', orders);
 
       if (orders.length) {
         // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
@@ -221,7 +222,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                             onClickFunction={() => {
                               updateLayout(index, dataList, setOrderList);
                             }}
-                            actionFt={deleteOrder}
+                            actionFt={adminDeleteOrder}
                             orders={orderList!}
                           />
                         </View>
@@ -256,7 +257,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                           onClickFunction={() => {
                             updateLayout(index, dataPaymentCompleteList, setPaymentCompleteList);
                           }}
-                          actionFt={deleteOrder}
+                          actionFt={adminDeleteOrder}
                           orders={paymentCompleteList!}
                         />
                       </View>
@@ -291,7 +292,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                         onClickFunction={() => {
                           updateLayout(index, dataOnDeliveryList, setDataOnDeliveryList);
                         }}
-                        actionFt={deleteOrder}
+                        actionFt={adminDeleteOrder}
                         orders={onDeliveryList!}
                       />
                     </View>
@@ -327,7 +328,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
                         onClickFunction={() => {
                           updateLayout(index, dataDeliveryCompleteList, setDataDeliveryCompleteList);
                         }}
-                        actionFt={deleteOrder}
+                        actionFt={adminDeleteOrder}
                         orders={deliveryCompleteList!}
                       />
                     </View>

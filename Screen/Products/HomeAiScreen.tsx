@@ -120,7 +120,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
 
       if(response.status === 200){
             const orders = response.data as IOrderInfo[];
-            console.log('HomeAiScreen orders = ', orders);
+            // console.log('HomeAiScreen orders = ', orders);
           // 날짜 정렬을 먼저 수행한 후 변환
             const list = orders
             .sort((a, b) => new Date(b.dateOrdered).getTime() - new Date(a.dateOrdered).getTime()) // 먼저 날짜 정렬
@@ -170,7 +170,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
     return ( // return 추가
       <View style={styles.Container}>
         <Text style={styles.title}>주문 정보 조회</Text>
-        <View style={styles.subtitleContainer}>
+        <View style={styles.headerContainer}>
           <Text style={[styles.headerText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
             주문날짜
           </Text>
@@ -187,12 +187,14 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
               fetchOrderDetails(item)
             }>
               <View style={styles.subtitleContainer}>
-                <Text style={[styles.itemText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
+                <Text style={[styles.itemText, {  width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
                   {item.dateOrdered}
                 </Text>
                 <Text style={[styles.itemText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
                   {item.orderNumber}
                 </Text>
+                <Text>{'  ▶️ ' } {/* 인디케이터 추가 */}</Text>
+
               </View>
             </TouchableOpacity>
           )}
@@ -310,7 +312,21 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 중앙 정렬
     // justifyContent: 'space-between',
     marginBottom: RFPercentage(0.5),
-    paddingHorizontal: RFPercentage(2),
+    // marginLeft: RFPercentage(1),
+    // paddingHorizontal: RFPercentage(2),
+    // borderWidth: 1,
+    // borderColor: 'red',
+  },
+  headerContainer: {
+
+    flexDirection: 'row',
+    alignItems: 'center', // 중앙 정렬
+    // justifyContent: 'space-between',
+    marginBottom: RFPercentage(0.5),
+    marginLeft: RFPercentage(-4),
+    // paddingHorizontal: RFPercentage(2),
+    borderWidth: 1,
+    borderColor: 'red',
   },
   headerText: {
     // flex: 1, // 동일한 비율 유지

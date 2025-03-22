@@ -38,15 +38,7 @@ import {
 } from '../../utils/alerts/confirmAlert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export interface IChatUserInfo {
-  userId: string;
-  nickName: string;
-  phone: string;
-  email: string;
-  groupName?: string;
-  isManager?: boolean;
-  fcmToken?: string;
-}
+
 
 const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
   const {state, dispatch} = useAuth();
