@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 /*
  * File: Membership.Screen.tsx
  * Project: market_2024_12_13
@@ -14,39 +15,87 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import {
+  Button,
   KeyboardAvoidingView,
-  Platform, StyleSheet,
-  Text, TouchableOpacity
+  Platform, ScrollView, StyleSheet, TouchableOpacity,
+  View
 } from 'react-native';
 
-import isEmpty from '../../utils/isEmpty';
 
 import { NaverLoginScreenProps } from '../model/types/TUserNavigator';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
-import strings from '../../constants/lang';
 import colors from '../../styles/colors';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GlobalStyles from '../../styles/GlobalStyles';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
 
 
+const Gap = (): ReactElement => <View style={{ marginTop: 24 }} />;
 
 const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
 
   useEffect(() => {
     console.log('NaverLoginScreen - useEffect');
+    GoogleSignin.configure({
+      webClientId: '60338696147-ba7sethhai2vluk5np1gmluta1eliuoo.apps.googleusercontent.com',
+      // iosClientId: GOOGLE_IOS_CLIENT_ID,
+      scopes: ['profile', 'email'],
+    });
     return () => {
       console.log('NaverLoginScreen - return');
     };
   }, []);
 
+  const login = async (): Promise<void> => {
+    console.log('Google Login');
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
+
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const tokenId = userInfo.data?.idToken;
+      const token = {token: tokenId};
+      console.log('token = ', token);
+
+      const response: AxiosResponse = await axios.post(
+        `${baseURL}users/google`,
+        JSON.stringify(token),
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      console.log('Google Login Success:', response.data);
+    } catch (error) {
+      console.error('Google Login Failed:', error);
+    }
+
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      await GoogleSignin.signOut();
+      // Perform additional cleanup and logout operations.
+      console.log('google sign out 성공');
+    } catch (error) {
+      console.log('Google Sign-Out Error: ', error);
+    }
+  };
+
+  // const getProfile = async (): Promise<void> => {
+  // };
+
   const backToLogin = async (props: any) => {
     console.log('Membership.screen.tsx: backTo Login 함수 실행 \n');
 
@@ -60,8 +109,6 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
 
     props.navigation.navigate('LoginScreen');
   };
-
-  
 
   const LeftCustomComponent = () => {
     return (
@@ -93,7 +140,7 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
         rightPressActive={false}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
-        centerText={strings.MEMBERSHIP}
+        centerText= '구글 로그인'
         containerStyle={{paddingHorizontal: 8}}
         isRight={false}
         // rightText={'       '}
@@ -103,7 +150,22 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={GlobalStyles.containerKey}>
-       <Text>네이버 로그인</Text>
+       <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, padding: 24 }}
+      >
+        <Button title={'Login'} onPress={login} />
+        <Gap />
+        <Button title={'Logout'} onPress={logout} />
+        <Gap />
+{/*         
+          <>
+            <Button title="Get Profile" onPress={getProfile} />
+            <Gap />
+          </>
+         */}
+        
+      </ScrollView>
       </KeyboardAvoidingView>
     </WrapperContainer>
   );

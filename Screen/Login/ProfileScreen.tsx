@@ -708,8 +708,9 @@ const styles = StyleSheet.create({
     borderRadius: RFPercentage(2),
   },
   listContainer: {
-    margin: RFPercentage(1),
-    padding: RFPercentage(0.5),
+    width: width * 0.9,
+    marginVertical: RFPercentage(1),
+    padding: RFPercentage(0.2),
     borderWidth: 1,
     borderRadius: RFPercentage(1),
     backgroundColor: '#E0E0E0',

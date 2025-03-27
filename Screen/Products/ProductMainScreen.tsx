@@ -151,7 +151,7 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={strings.HOME}
+        centerText={ state.user?.isAdmin ? '홈(관리자)' :  strings.HOME}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
         isRightView={isAdmin ? false : true}

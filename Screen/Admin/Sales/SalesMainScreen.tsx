@@ -28,6 +28,7 @@ import LoadingWheel from '../../../utils/loading/LoadingWheel';
 import { BarChart, LineChart, lineDataItem } from 'react-native-gifted-charts';
 import moment from 'moment';
 import { height, width } from '../../../styles/responsiveSize';
+import { Picker } from '@react-native-picker/picker';
 
 // 판매 데이터의 타입을 정의합니다.
 interface SalesData {
@@ -49,13 +50,24 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
   const [modalSales, setModalSales] = useState<boolean>(false);
   const [modalMonthly, setModalMonthly] = useState<boolean>(false);
 
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [months, setMonths] = useState<{ label: string; value: string }[]>([]);
+
+  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [years, setYears] = useState<{ label: string; value: string }[]>([]);
+
+
+
   useFocusEffect(
     useCallback(() => {
+      const newDate = new Date();
+      const yearString = String(newDate.getFullYear());
+      const monthString = newDate.toISOString().slice(0, 7);
       console.log('SalesMainScreen : useFocusEffect');
-      // setLoading(true);
-
-      fetchSalesData();
-      fetchMonthlyData();
+      generateYears();
+      generateMonths();
+      fetchSalesData(monthString);
+      fetchMonthlyData(yearString);
 
       return () => {
         setLoading(true);
@@ -63,19 +75,59 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
     }, []),
   );
 
+
+  const generateYears = () => {
+    const currentYear = new Date().getFullYear();
+    const yearList = [];
+
+    for (let i = 0; i < 10; i++) {
+        const yearValue = currentYear - i;
+        const yearLabel = `${yearValue}년`;
+        yearList.push({ label: yearLabel, value: String(yearValue) });
+    }
+    console.log('yearList = ', yearList);
+
+    setYears(yearList);
+    setSelectedYear(String(yearList[0].value)); // 기본값 현재 년도
+};
+
+  const generateMonths = () => {
+    const currentDate = new Date();
+    const monthList = [];
+
+    for (let i = 0; i < 12; i++) {
+      const newDate = new Date();
+      newDate.setMonth(currentDate.getMonth() - i);
+      const monthValue = newDate.toISOString().slice(0, 7); // YYYY-MM 형식
+      const monthLabel = `${newDate.getFullYear()}년 ${newDate.getMonth() + 1}월`;
+      monthList.push({ label: monthLabel, value: monthValue });
+    }
+    console.log('monthList = ', monthList);
+
+    setMonths(monthList);
+    setSelectedMonth(monthList[0].value); // 기본값 현재 월
+  };
+
    // 컴포넌트가 마운트될 때 API에서 데이터를 가져옵니다.
-   const fetchSalesData = async () => {
+   const fetchSalesData = async (itemValue: string) => {
     try {
           const token = await getToken();
+          // const currentDate = new Date();
+          // const month = currentDate.getMonth() + 1; // JavaScript의 getMonth()는 0부터 시작
+          // const year = currentDate.getFullYear();
+          console.log('selectedMonth = ', itemValue);
+          const [year, month] = itemValue.split('-').map(Number);
+          console.log('fetchSaleData year, month', year, month);
+
           const response: AxiosResponse = await axios.get(
-            `${baseURL}sales/summary`,
+            `${baseURL}sales/summary?month=${month}&year=${year}`,
             {
               headers: {Authorization: `Bearer ${token}`},
             },
           );
 
           if(response.status === 200){
-            console.log('sales data from AWS', response.data);
+            // console.log('sales data from AWS', response.data);
             if (Array.isArray(response.data)) {
               const sortedData = response.data.sort(
                 (a: SalesData, b: SalesData) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -100,11 +152,11 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
 
 
   // 컴포넌트가 마운트될 때 API에서 데이터를 가져옵니다.
-  const fetchMonthlyData = async () => {
+  const fetchMonthlyData = async (year: string) => {
     try {
           const token = await getToken();
           const response: AxiosResponse = await axios.get(
-            `${baseURL}sales/revenue/monthly`,
+            `${baseURL}sales/revenue/monthly/${year}`,
             {
               headers: {Authorization: `Bearer ${token}`},
             },
@@ -113,7 +165,10 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
           if(response.status === 200){
             console.log('sales monthly data from AWS', response.data);
             if (Array.isArray(response.data)) {
-              setSalesMonthly(response.data);
+              const sortedData = response.data.sort(
+                (a: SalesMonthlyData, b: SalesMonthlyData) => new Date(a.month).getTime() - new Date(b.month).getTime()
+              );
+              setSalesMonthly(sortedData);
             } else {
               console.error('Unexpected sales data format:', response.data);
               alertMsg(strings.ERROR, '서버에서 예상치 못한 응답을 받았습니다.');
@@ -155,7 +210,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
     const date = new Date(dateString); // 이미 한국 시간 기준
     const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
     const day = date.getDate();
-    console.log('SalesChartScreen - label = ', `${month}월 ${day}일`);
+    // console.log('SalesChartScreen - label = ', `${month}월 ${day}일`);
     return `${month}월 ${day}일`;
   }
 
@@ -168,89 +223,149 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
     .sort((a, b) => a.date.getTime() - b.date.getTime()) // 날짜 기준 정렬
     .map(({ date, ...rest }) => rest); // date 필드 제거
 
-  const renderItem = ({ item }: { item: SalesData }) => (
-          <View style={styles.listItem}>
-            <Text style={styles.monthText}>{moment(item.date).format('YYYY년 MM월 DD일')}</Text>
-            <Text style={styles.profitText}>{item.total_sales}원</Text>
-          </View>
-        );
-
-  const renderMonthlyItem = ({ item }: { item: SalesMonthlyData }) => (
-    <View style={styles.listItem}>
-      <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월 DD일')}</Text>
-      <Text style={styles.profitText}>{item.total_sales}원</Text>
-    </View>
-  );
-
-  const render1MonthSales =  () => (
-      <View style={styles.Container}>
-           <Text style={styles.title}>지난 한달 매출</Text>
-            <View style={{marginTop:RFPercentage(5), marginHorizontal:RFPercentage(0.5), alignSelf:'center'}} >
-                      {/* react-native-svg-charts의 LineChart 컴포넌트를 사용하여 차트를 렌더링합니다. */}
-                      <LineChart
-                        data={chartData}
-                        width={Dimensions.get('window').width - RFPercentage(10)} // Adjust width as needed
-                        height={300} // Adjust height as needed
-                        maxValue={10000}
-                                  // hideYAxisText={true}
-
-                        formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
-
-                        yAxisLabelWidth={30}
-                        yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
-                        xAxisLabelTextStyle={{
-                          rotation: 90, // Rotate x-axis labels by 90 degrees
-                          fontSize: 12, // Adjust font size if needed
-                          color: 'blue', // Adjust color if needed
-                        }}
-                        dataPointsColor={'red'} // 데이터 포인트의 색상
-                        // showDataPointLabelOnFocus={true}
-                        showYAxisIndices={true}
-                        showXAxisIndices={true}
-                        // showValuesAsDataPointsText={true}
-                    />
-            </View>
-            <TouchableOpacity
-                        onPress={() => {
-                          console.log('지난 1달 매출 차트 클릭');
-                          setModalSales(true);
-                        }}
-                        style={styles.saveButton}>
-                        <Text style={styles.buttonText}>상세 데이타</Text>
-            </TouchableOpacity>
+  const renderItem = ({ item }: { item: SalesData }) => {
+    console.log('salesValue typeof ', typeof item.total_sales);
+    const salesValue = typeof item.total_sales === 'number' ? item.total_sales : parseFloat(item.total_sales); // 숫자 유형 확인 및 변환
+    const formattedSales =  salesValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 }); // 소수점 제거 및 세 자리마다 쉼표 추가
+    console.log('formattedSales Data = ', formattedSales);
+    return (
+      <View style={styles.listItem}>
+        <Text style={styles.monthText}>{moment(item.date).format('YYYY년 MM월 DD일')}</Text>
+        <Text style={styles.profitText}>{formattedSales}원</Text>
       </View>
-  );
+    );
+  };
+
+  const renderMonthlyItem = ({ item }: { item: SalesMonthlyData }) => {
+
+      console.log('salesValue typeof ', typeof item.total_sales);
+      const salesValue = typeof item.total_sales === 'number' ? item.total_sales : parseFloat(item.total_sales); // 숫자 유형 확인 및 변환
+      const formattedSales =  salesValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 }); // 소수점 제거 및 세 자리마다 쉼표 추가
+
+    return (
+      <View style={styles.listItem}>
+        <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월 DD일')}</Text>
+        <Text style={styles.profitText}>{formattedSales}원</Text>
+      </View>
+    );
+  };
+
+  const render1MonthSales =  () =>{
+
+    const maxValue = Math.max(...chartData.map(item => item.value ? item.value : 0));
+
+        return (<View style={styles.Container}>
+          {/* <Text style={styles.title}>지난 한달 매출</Text> */}
+          <Text style={styles.label}>일별 매출</Text>
+          <View style={styles.PickerContainer}>
+            <Picker
+              selectedValue={selectedMonth}
+              onValueChange={(itemValue) => {
+                console.log('itemValue = ', itemValue);
+                setSelectedMonth(itemValue);
+                fetchSalesData(itemValue);
+
+              }}
+              style={styles.picker}
+            >
+              {months.map((month) => (
+                <Picker.Item key={month.value} label={month.label} value={month.value} />
+              ))}
+            </Picker>
+          </View>
+          {/* <Text style={styles.selectedText}>선택한 월: {selectedMonth}</Text> */}
 
 
-  const renderMonthlySales =  () => (
+          <View style={{marginTop:RFPercentage(3)}} >
+                    {/* react-native-svg-charts의 LineChart 컴포넌트를 사용하여 차트를 렌더링합니다. */}
+                    <LineChart
+                      data={chartData}
+                      width={Dimensions.get('window').width - RFPercentage(10)} // Adjust width as needed
+                      height={300} // Adjust height as needed
+                      maxValue={maxValue * 1.1} // 최대값을 데이터 최대값보다 약간 크게 설정
+                      formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
+
+                      yAxisLabelWidth={40}
+                      yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
+                      xAxisLabelTextStyle={{
+                        rotation: 90, // Rotate x-axis labels by 90 degrees
+                        fontSize: 12, // Adjust font size if needed
+                        color: 'blue', // Adjust color if needed
+                      }}
+                      dataPointsColor={'red'} // 데이터 포인트의 색상
+                      // showDataPointLabelOnFocus={true}
+                      showYAxisIndices={true}
+                      showXAxisIndices={true}
+                      // showValuesAsDataPointsText={true}
+                  />
+          </View>
+          <TouchableOpacity
+                      onPress={() => {
+                        console.log('지난 1달 매출 차트 클릭');
+                        setModalSales(true);
+                      }}
+                      style={styles.saveButton}>
+                      <Text style={styles.buttonText}>상세 데이타</Text>
+          </TouchableOpacity>
+    </View>
+    );
+  };
+
+
+  const renderMonthlySales =  () => 
+    {
+      const maxValue = Math.max(...salesMonthly.map(item => item.total_sales ? Number(item.total_sales) : 0));
+
+      return (
     <View style={styles.Container}>
          <Text style={styles.title}>월별 매출</Text>
 
-         <BarChart
-                data={salesMonthly.map((item, index) => ({
-                  label: moment(item.month).format('MMM'),
-                  value: Number(item.total_sales),
-                  frontColor: index % 2 === 0 ? "green" : "blue", // 짝수 인덱스는 녹색, 홀수 인덱스는 파란색
-                  // topLabelComponent: () => (
-                  //   <Text style={{ fontSize: 10, color: "black" }}>
-                  //     {(item.netProfit / 1000).toFixed(1)}k
-                  //   </Text>
-                  // ),
-                }))}
-                width={Dimensions.get('window').width - RFPercentage(15)}
-                barWidth={RFPercentage(2)}
-                frontColor="green"
-                spacing={10}
-                noOfSections={5}
-                yAxisThickness={0}
-                xAxisLabelTextStyle={{ fontSize: 10, color: "black" }}
-                // showValuesAsTopLabel={true}
-                maxValue={10000}
-                formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
-                yAxisLabelWidth={30}
-                yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
+         <View style={styles.PickerContainer}>
+            <Picker
+              selectedValue={selectedYear}
+              onValueChange={(itemValue) => {
+                console.log('itemValue = ', itemValue);
+                setSelectedYear(itemValue);
+                fetchMonthlyData(itemValue);
 
-            />
+              }}
+              style={styles.picker}
+            >
+              {years.map((year) => (
+                <Picker.Item key={year.value} label={year.label} value={year.value} />
+              ))}
+            </Picker>
+          </View>
+          {/* <Text style={styles.selectedText}>선택한 년도: {selectedYear}</Text> */}
+
+          <View style={{marginTop:RFPercentage(3)}} >
+              <BarChart
+                      data={salesMonthly.map((item, index) => ({
+                        label: moment(item.month).format('MMM'),
+                        value: Number(item.total_sales),
+                        frontColor: index % 2 === 0 ? "green" : "blue", // 짝수 인덱스는 녹색, 홀수 인덱스는 파란색
+                        // topLabelComponent: () => (
+                        //   <Text style={{ fontSize: 10, color: "black" }}>
+                        //     {(item.netProfit / 1000).toFixed(1)}k
+                        //   </Text>
+                        // ),
+                      }))}
+                      width={Dimensions.get('window').width - RFPercentage(10)}
+                      height={300} // Adjust height as needed
+                      barWidth={RFPercentage(2)}
+                      frontColor="green"
+                      spacing={10}
+                      noOfSections={5}
+                      yAxisThickness={1}
+                      xAxisLabelTextStyle={{ fontSize: 10, color: "black" }}
+                      // showValuesAsTopLabel={true}
+                      maxValue={maxValue * 1.1} // 최대값을 데이터 최대값보다 약간 크게 설정
+                      formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
+                      yAxisLabelWidth={50}
+                      yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
+
+                  />
+          </View>
 
           <TouchableOpacity
                       onPress={() => {
@@ -261,7 +376,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
                       <Text style={styles.buttonText}>상세 데이타</Text>
           </TouchableOpacity>
     </View>
-);
+)};
 
 
   const renderLists = () => (
@@ -355,33 +470,6 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
               </>
         )}
 
-      {/* <View style={styles.VStack}>
-            <TouchableOpacity
-                  onPress={() => {
-                    console.log('지난 1달 매출 차트 클릭');
-                    props.navigation.navigate('SalesChartScreen');
-                  }}
-                  style={styles.saveButton}>
-                  <Text style={styles.buttonText}>한달 매출</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                  onPress={() => {
-                    console.log('월별 차트 클릭');
-                    props.navigation.navigate('SalesMonthlyScreen');
-                  }}
-                  style={styles.saveButton}>
-                  <Text style={styles.buttonText}>월별 매출</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                  onPress={() => {
-                    console.log('월별  클릭');
-                    props.navigation.navigate('ProfitMonthlyScreen');
-                  }}
-                  style={styles.saveButton}>
-                  <Text style={styles.buttonText}>월별 순매출</Text>
-            </TouchableOpacity>
-
-      </View> */}
 
     </WrapperContainer>
   );
@@ -390,10 +478,36 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
 export const styles = StyleSheet.create({
   Container: {
     padding: RFPercentage(2),
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     borderWidth: 1,
     borderColor: 'blue',
+  },
+
+  PickerContainer: {
+    width: '70%',
+    height: RFPercentage(6),
+    paddingHorizontal: RFPercentage(2),
+    borderColor: 'black', // 테두리 색상
+    borderWidth: 1, // 테두리 두께
+    borderRadius: 10, // 테두리 둥글기
+    // marginBottom: RFPercentage(1),
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: RFPercentage(1),
+  },
+  picker: {
+    height: RFPercentage(8),
+    width: '100%',
+    alignItems: 'center',
+    alignContent: 'center',
+  },
+  selectedText: {
+    marginTop: RFPercentage(0.5),
+    fontSize: 16,
+    color: 'blue',
   },
 
   modalContainer: {
@@ -429,7 +543,7 @@ export const styles = StyleSheet.create({
   },
   subtitleHeader: {
     flexDirection: 'row',
-    width: width * 0.7,
+    width: width * 0.8,
     marginTop: RFPercentage(2),
     justifyContent: 'center',
     alignItems: 'center',
@@ -452,8 +566,9 @@ export const styles = StyleSheet.create({
   },
   listItem: {
         flexDirection: 'row',
+        width: width * 0.8,
         justifyContent: 'space-between',
-        paddingVertical: RFPercentage(1),
+        paddingVertical: RFPercentage(0.5),
         borderBottomWidth: 1,
         borderBottomColor: 'grey',
       },
@@ -465,7 +580,7 @@ export const styles = StyleSheet.create({
   profitText: {
     fontSize: RFPercentage(2),
     color: colors.black,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
   },
   emptyMessage: {
     fontSize: 16,

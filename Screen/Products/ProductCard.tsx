@@ -16,7 +16,7 @@
  */
 
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Button, Modal } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Button, Modal, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 // import {baseURL} from '../../assets/common/baseUrl';
@@ -85,7 +85,7 @@ const ProductCard: React.FC<ProductCardProps> = props => {
   };
 
   React.useEffect(() => {
-    console.log("Modal 상태 변경:", modalDetail);
+    // console.log("Modal 상태 변경:", modalDetail);
   }, [modalDetail]);
 
   return (
@@ -200,17 +200,18 @@ export function showPriceInform(
 
 const styles = StyleSheet.create({
   cardContainer: {
-    height: RFPercentage(30),
-    width: width * 0.9,
+    height: Platform.OS === 'ios' ? RFPercentage(30) : RFPercentage(32),
+    width: Platform.OS === 'ios' ? width * 0.9 : width * 0.92,
     borderWidth: 1,
     borderColor: 'green',
     padding: 4,
     borderRadius: 10,
     marginBottom: RFPercentage(1),
     flexDirection: 'column',
+    alignItems: 'center',
   },
   image: {
-    width: RFPercentage(40),
+    width:  Platform.OS === 'ios' ? RFPercentage(40) : RFPercentage(42),
     height: RFPercentage(20),
     borderRadius: 10,
   },

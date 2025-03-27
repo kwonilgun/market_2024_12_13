@@ -12,6 +12,7 @@
   "dependencies": {
     "@actbase/react-daum-postcode": "^1.0.4",
     "@expo/react-native-action-sheet": "^4.1.0",
+    "@invertase/react-native-apple-authentication": "^2.4.0",
     "@notifee/react-native": "^9.1.8",
     "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-native-community/checkbox": "^0.5.17",
@@ -20,6 +21,7 @@
     "@react-native-community/push-notification-ios": "^1.11.0",
     "@react-native-firebase/app": "^21.6.2",
     "@react-native-firebase/messaging": "^21.6.2",
+    "@react-native-google-signin/google-signin": "^13.2.0",
     "@react-native-picker/picker": "^2.10.2",
     "@react-native-seoul/naver-login": "^4.0.4",
     "@react-navigation/bottom-tabs": "^7.2.0",
