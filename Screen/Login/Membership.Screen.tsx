@@ -177,7 +177,7 @@ const MembershipScreen: React.FC<MembershipScreenProps> = props => {
       console.log('Membership.screen language=', value);
     }
 
-    props.navigation.navigate('LoginScreen');
+    props.navigation.goBack();
   };
 
   function registerResult(status: number) {

@@ -156,8 +156,8 @@ const PasswordResetScreen: React.FC<PasswordResetScreenProps> = props => {
   };
 
   const onPressLeft = () => {
-    console.log('PasswordReset. Screen.tsx: onPressLeft');
-    props.navigation.navigate('LoginScreen');
+    console.log('PasswordReset.Screen.tsx: onPressLeft');
+    props.navigation.goBack();
   };
 
   const LeftCustomComponent = () => {

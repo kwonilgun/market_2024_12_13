@@ -135,12 +135,14 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
           width: RFPercentage(4),
           height: RFPercentage(4),
           borderRadius: RFPercentage(5) / 2, // 원형
-          backgroundColor: 'blue', // 배경색
+          borderColor: 'black',
+          borderWidth: 2,
+          backgroundColor: 'white', // 배경색
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
-        <Text style={{ fontSize: RFPercentage(2), color: 'white', fontWeight: 'bold' }}>
+        <Text style={{ fontSize: RFPercentage(2), color: 'black', fontWeight: 'bold' }}>
           Q/A
         </Text>
       </View>

@@ -34,6 +34,7 @@ export type RootStackParamList = {
   EditUsageTermScreen: undefined;
   EditPrivatePolicyScreen: undefined;
   LoginScreen: undefined;
+  EmailLoginScreen: undefined;
   PasswordResetScreen: undefined;
   ChangePasswordScreen: undefined;
   ProfileScreen: {userInfo: UserFormInput};
@@ -89,6 +90,10 @@ export type EditPrivatePolicyScreenProps = {
 
 export type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'LoginScreen'>;
+};
+
+export type EmailLoginScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'EmailLoginScreen'>;
 };
 
 export type ChangePasswordScreenProps = {

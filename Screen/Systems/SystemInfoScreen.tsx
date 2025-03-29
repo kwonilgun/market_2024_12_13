@@ -43,6 +43,7 @@ import InputField from '../../utils/InputField';
 import { areJsonEqual } from '../../utils/etc/areJsonEqual';
 import { errorAlert } from '../../utils/alerts/errorAlert';
 import isEmpty from '../../utils/isEmpty';
+import { appleLogout, googleLogout } from '../Login/snsLogin';
 
 interface IUserInfo {
   nickName: string;
@@ -159,10 +160,16 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
     } catch (error) {
       console.log('logout error = ', error);
     } finally {
-      //   iotStop('on');
+
       dispatch({type: 'LOGOUT'});
-      // 소켓을 끊는다.
-      //   disconnectSocket();
+
+      // 2025-03-28 15:15:48, googl sign out 추가
+      if(Platform.OS === 'android'){
+        googleLogout();
+      } else {
+        appleLogout();
+      }
+
       props.navigation.navigate('UserMain', {screen: 'LoginScreen'});
     }
   };
@@ -292,15 +299,25 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
 
   const RightCustomComponent = () => {
     return (
-      <TouchableOpacity onPress={onPressRight}>
-        <>
-          <Icon
-            style={{color: 'black', fontSize: RFPercentage(5)}}
-            name="language"
-          />
-        </>
-      </TouchableOpacity>
-    );
+            <TouchableOpacity onPress={onPressRight}>
+            <View
+              style={{
+                width: RFPercentage(5),
+                height: RFPercentage(5),
+                borderColor: 'black',
+                borderWidth: 2,
+                borderRadius: RFPercentage(5) / 2, // 원형
+                // backgroundColor: 'blue', // 배경색
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: RFPercentage(2), color: 'black', fontWeight: 'bold' }}>
+                한/A
+              </Text>
+            </View>
+          </TouchableOpacity>
+          );
   };
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -341,10 +358,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
                       }}
                     >사용자 정보
                      {isExpanded ? '  🔼' : '  🔽'} {/* 인디케이터 추가 */}
-
-                    
                     </Text>
-                    
 
                   </View>
 
@@ -353,7 +367,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
 
                         <View style={styles.UserInfoBorderBox}>
                           <View style ={styles.userContainer}>
-                              <Text style={[styles.inputTitle]}>
+                              <Text style={GlobalStyles.inputTitle}>
                               {strings.EMAIL}
                               </Text>
                               <TouchableOpacity
@@ -404,7 +418,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
                               </Text>
                             )}
                           </View>
-                          <Text style={GlobalStyles.inputTitle}>
+                          {/* <Text style={GlobalStyles.inputTitle}>
                             {strings.NICKNAME}
                           </Text>
                           <View style={GlobalStyles.HStack}>
@@ -425,7 +439,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
                                 {strings.NICKNAME} {strings.ERROR}
                               </Text>
                             )}
-                          </View>
+                          </View> */}
                         </View>
                     </>
 
@@ -444,7 +458,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
             <Text
               style={styles.HeadTitleText}
               onPress={() => {
-                console.log('Profile: 로그 아웃 클릭');
+                console.log('SystemInfoScreen: 로그 아웃 클릭');
                 handleLogout(props);
               }}>
               {strings.LOGOUT}{'  ▶️ ' } {/* 인디케이터 추가 */}

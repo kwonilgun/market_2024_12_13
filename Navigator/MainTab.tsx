@@ -50,7 +50,7 @@ const TabIcon = ({name, color}: {name: string; color: string}) => (
 const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const {state, badgeCountState, badgeCountDispatch} = useAuth();
   const [badgeCount, setBadgeCount] = useState<number>(0);
-  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
+  // const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
   // const [status, setStatus] = useState<string>("정상 상태");
 
   const isAuthenticated = state.isAuthenticated;
@@ -208,7 +208,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         />
       )}
 
-      {!isAdmin && (
+      {(isAuthenticated && !isAdmin) && (
         <>
           <Tab.Screen
             name="ShoppingCart"
@@ -236,7 +236,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         </>
       )}
 
-      {isAdmin && (
+      {(isAuthenticated && isAdmin )&& (
         <>
         <Tab.Screen
                 name="EditManager"
