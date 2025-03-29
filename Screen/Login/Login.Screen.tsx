@@ -29,7 +29,7 @@ import GlobalStyles from '../../styles/GlobalStyles';
 import { appleAuth, AppleButton, AppleCredentialState } from '@invertase/react-native-apple-authentication';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
-import { width } from '../../assets/common/BaseValue';
+import { GOOGLE_WEB_CLIENTID, width } from '../../assets/common/BaseValue';
 import { appleLogin, googleLogin, loginBySns } from './snsLogin';
 import { useAuth } from '../../context/store/Context.Manager';
 import axios, { AxiosResponse } from 'axios';
@@ -62,7 +62,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       loginSetLanguage(language);
 
       GoogleSignin.configure({
-            webClientId: '60338696147-ba7sethhai2vluk5np1gmluta1eliuoo.apps.googleusercontent.com',
+            webClientId: GOOGLE_WEB_CLIENTID,
             // iosClientId: GOOGLE_IOS_CLIENT_ID,
             scopes: ['profile', 'email'],
           });
