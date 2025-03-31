@@ -426,7 +426,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
                     {/* 생산자 선택 */}
 
                     <Text style={[GlobalStyles.inputTitle]}>생산자 선택</Text>
-                    <View style={styles.pickerContainer}>
+                    <View  style={ Platform.OS === 'android' ?  styles.pickerContainer : styles.IosPickerContainer}>
                       <Picker
                         selectedValue={selectedProducer}
                         onValueChange={(itemValue) => {
@@ -435,7 +435,9 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
                           setSelectedProducer(itemValue);
                         }
                         }
-                        style={styles.picker}
+                          style={Platform.OS === 'android' ? styles.picker : styles.IosPicker}
+                                      itemStyle={{ color: 'black' }} // iOS에서 텍스트가 안 보일 경우 추가
+                                      dropdownIconColor="black" // 안드로이드에서 드롭다운 아이콘 색상
                       >
                         <Picker.Item label="생산자를 선택하세요" value={null} />
                         {producersList?.map((producer) => (
@@ -573,7 +575,7 @@ const EditProductScreen: React.FC<EditProductScreenProps> = props => {
                         keyboard="ascii-capable" // 숫자 판으로 변경
                         isEditable={true}
                         multiline={true}
-                        numberOfLines={50}
+                        numberOfLines={100}
                       />
                       {errors.description && (
                         <Text style={GlobalStyles.errorMessage}>
@@ -600,14 +602,21 @@ const styles = StyleSheet.create({
     // marginBottom: 10, // 여백
     // overflow: 'hidden', // 내부 요소가 테두리를 벗어나지 않도록
   },
+  IosPickerContainer: {
+    height: RFPercentage(8),
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 10,
+    // width: width * 0.7, // 너비를 제한
+    overflow: 'hidden', // 내용이 넘치지 않도록
+  },
   picker: {
     height: RFPercentage(8),
-    // width: '80%',
-    // backgroundColor: colors.white,
-    // borderColor: 'black',
-    // borderWidth: 2,
-    // borderRadius: 10,
-    // marginBottom: 10,
+  },
+  IosPicker: {
+    height: RFPercentage(2),
+     marginTop: RFPercentage(-8),
+    marginLeft: RFPercentage(2),
   },
   imageContainer: {
     alignItems: 'center', // 수평 가운데 정렬

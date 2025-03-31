@@ -319,6 +319,8 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
           </TouchableOpacity>
           );
   };
+
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
@@ -360,7 +362,7 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
                      {isExpanded ? '  🔼' : '  🔽'} {/* 인디케이터 추가 */}
                     </Text>
 
-                  </View>
+            </View>
 
                   {isExpanded && (
                     <>
@@ -418,28 +420,6 @@ const SystemInfoScreen: React.FC<SystemInfoScreenProps> = props => {
                               </Text>
                             )}
                           </View>
-                          {/* <Text style={GlobalStyles.inputTitle}>
-                            {strings.NICKNAME}
-                          </Text>
-                          <View style={GlobalStyles.HStack}>
-                            <InputField
-                              control={control}
-                              rules={{
-                                required: true,
-                                minLength: 2,
-                                // maxLength: 2,
-                              }}
-                              name="nickName"
-                              placeholder={strings.PLEASE_ENTER_TEL}
-                              keyboard="name-phone-pad" // 숫자 판으로 변경
-                              isEditable={true}
-                            />
-                            {errors.nickName && (
-                              <Text style={GlobalStyles.errorMessage}>
-                                {strings.NICKNAME} {strings.ERROR}
-                              </Text>
-                            )}
-                          </View> */}
                         </View>
                     </>
 

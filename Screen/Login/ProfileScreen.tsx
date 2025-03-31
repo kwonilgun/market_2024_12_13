@@ -384,8 +384,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
         onPressRight={() => {}}
-        isRightView={true}
-        rightCustomView={RightCustomComponent}
+        isRightView={false}
+        rightText={''}
+        // rightCustomView={RightCustomComponent}
       />
 
       {loading ? (
@@ -613,28 +614,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                               </Text>
                             )}
                           </View>
-                          <Text style={GlobalStyles.inputTitle}>
-                            {strings.NICKNAME}
-                          </Text>
-                          <View style={GlobalStyles.HStack}>
-                            <InputField
-                              control={control}
-                              rules={{
-                                required: true,
-                                minLength: 2,
-                                // maxLength: 2,
-                              }}
-                              name="nickName"
-                              placeholder={strings.PLEASE_ENTER_TEL}
-                              keyboard="name-phone-pad" // 숫자 판으로 변경
-                              isEditable={true}
-                            />
-                            {errors.nickName && (
-                              <Text style={GlobalStyles.errorMessage}>
-                                {strings.NICKNAME} {strings.ERROR}
-                              </Text>
-                            )}
-                          </View>
+                          
                           <Text style={GlobalStyles.inputTitle}>아파트 이름</Text>
                           <View style={GlobalStyles.HStack}>
                             <InputField
@@ -680,6 +660,17 @@ const ProfileScreen: React.FC<ProfileScreenProps> = props => {
                         </View>
                       )}
                   </View>
+
+                  <Text
+                      onPress={() => {
+                        console.log('사용자 정보 클릭 ....');
+                        props.navigation.navigate('SystemInfoScreen');
+                      }}
+                      style={styles.HeadTitleText}>
+                        시스템 정보
+                        {'  ▶️ ' } {/* 인디케이터 추가 */}
+                  </Text>
+
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>

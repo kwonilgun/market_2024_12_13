@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
   Dimensions,
   FlatList,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -28,7 +29,7 @@ import LoadingWheel from '../../../utils/loading/LoadingWheel';
 import { BarChart, LineChart, lineDataItem } from 'react-native-gifted-charts';
 import moment from 'moment';
 import { height, width } from '../../../styles/responsiveSize';
-import { Picker } from '@react-native-picker/picker';
+import { Picker, PickerIOS } from '@react-native-picker/picker';
 
 // 판매 데이터의 타입을 정의합니다.
 interface SalesData {
@@ -49,6 +50,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
   const [salesMonthly, setSalesMonthly] = useState<SalesMonthlyData[]>([]);
   const [modalSales, setModalSales] = useState<boolean>(false);
   const [modalMonthly, setModalMonthly] = useState<boolean>(false);
+  const [pickerVisible, setPickerVisible] = useState<boolean>(false);
 
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [months, setMonths] = useState<{ label: string; value: string }[]>([]);
@@ -64,8 +66,8 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
       const yearString = String(newDate.getFullYear());
       const monthString = newDate.toISOString().slice(0, 7);
       console.log('SalesMainScreen : useFocusEffect');
-      generateYears();
-      generateMonths();
+      // generateYears();
+      // generateMonths();
       fetchSalesData(monthString);
       fetchMonthlyData(yearString);
 
@@ -74,6 +76,11 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
       };
     }, []),
   );
+
+  useEffect(() => {
+    generateYears();
+    generateMonths();
+  }, []);
 
 
   const generateYears = () => {
@@ -91,34 +98,36 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
     setSelectedYear(String(yearList[0].value)); // 기본값 현재 년도
 };
 
-  const generateMonths = () => {
-    const currentDate = new Date();
-    const monthList = [];
+const generateMonths = () => {
+  const currentDate = new Date();
+  const monthList = [];
 
-    for (let i = 0; i < 12; i++) {
-      const newDate = new Date();
+  for (let i = 0; i < 12; i++) {
+      const newDate = new Date(currentDate);
+      newDate.setDate(1); // 날짜를 1일로 고정하여 월 변경 시 오류 방지
       newDate.setMonth(currentDate.getMonth() - i);
-      const monthValue = newDate.toISOString().slice(0, 7); // YYYY-MM 형식
-      const monthLabel = `${newDate.getFullYear()}년 ${newDate.getMonth() + 1}월`;
-      monthList.push({ label: monthLabel, value: monthValue });
-    }
-    console.log('monthList = ', monthList);
 
-    setMonths(monthList);
-    setSelectedMonth(monthList[0].value); // 기본값 현재 월
-  };
+      // YYYY-MM 형식의 값 설정
+      const year = newDate.getFullYear();
+      const month = newDate.getMonth() + 1;
+      const monthValue = `${year}-${String(month).padStart(2, '0')}`;
+      const monthLabel = `${year}년 ${month}월`;
+
+      monthList.push({ label: monthLabel, value: monthValue });
+  }
+
+  console.log('monthList = ', monthList);
+
+  setMonths(monthList);
+  setSelectedMonth(monthList[0].value); // 기본값 현재 월
+};
 
    // 컴포넌트가 마운트될 때 API에서 데이터를 가져옵니다.
-   const fetchSalesData = async (itemValue: string) => {
+const fetchSalesData = async (itemValue: string) => {
+    setLoading(true);
     try {
           const token = await getToken();
-          // const currentDate = new Date();
-          // const month = currentDate.getMonth() + 1; // JavaScript의 getMonth()는 0부터 시작
-          // const year = currentDate.getFullYear();
-          console.log('selectedMonth = ', itemValue);
           const [year, month] = itemValue.split('-').map(Number);
-          console.log('fetchSaleData year, month', year, month);
-
           const response: AxiosResponse = await axios.get(
             `${baseURL}sales/summary?month=${month}&year=${year}`,
             {
@@ -126,17 +135,13 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
             },
           );
 
-          if(response.status === 200){
-            // console.log('sales data from AWS', response.data);
-            if (Array.isArray(response.data)) {
-              const sortedData = response.data.sort(
-                (a: SalesData, b: SalesData) => new Date(b.date).getTime() - new Date(a.date).getTime()
-              );
-              setSalesData(sortedData);
-            } else {
-              console.error('Unexpected sales data format:', response.data);
-              alertMsg(strings.ERROR, '서버에서 예상치 못한 응답을 받았습니다.');
-            }
+          if (response.status === 200 && Array.isArray(response.data)) {
+            setSalesData(response.data.sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            ));
+          } else {
+            console.error('Unexpected sales data format:', response.data);
+            alertMsg(strings.ERROR, '서버에서 예상치 못한 응답을 받았습니다.');
           }
 
       }
@@ -244,7 +249,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
 
     return (
       <View style={styles.listItem}>
-        <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월 DD일')}</Text>
+        <Text style={styles.monthText}>{moment(item.month).format('YYYY년 MM월')}</Text>
         <Text style={styles.profitText}>{formattedSales}원</Text>
       </View>
     );
@@ -257,7 +262,16 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
         return (<View style={styles.Container}>
           {/* <Text style={styles.title}>지난 한달 매출</Text> */}
           <Text style={styles.label}>일별 매출</Text>
-          <View style={styles.PickerContainer}>
+          <View  style={ Platform.OS === 'android' ?  styles.PickerContainer : styles.IosPickerContainer}>
+          {!selectedMonth ? (
+            <TouchableOpacity onPress={() => setPickerVisible(true)}>
+              <Text>연도를 선택하세요</Text>
+            </TouchableOpacity>
+          ) : (
+
+            Platform.OS === 'android' ?
+            <Text style={{marginTop: RFPercentage(2)}}>{selectedMonth}</Text> : null
+          )}
             <Picker
               selectedValue={selectedMonth}
               onValueChange={(itemValue) => {
@@ -266,7 +280,10 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
                 fetchSalesData(itemValue);
 
               }}
-              style={styles.picker}
+              style={Platform.OS === 'android' ? styles.picker : styles.IosPicker}
+              itemStyle={styles.pickerItemStyle} // iOS 스타일 추가
+              mode="dialog" // iOS에서 정상적으로 표시되도록 설정
+
             >
               {months.map((month) => (
                 <Picker.Item key={month.value} label={month.label} value={month.value} />
@@ -320,20 +337,36 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
     <View style={styles.Container}>
          <Text style={styles.title}>월별 매출</Text>
 
-         <View style={styles.PickerContainer}>
+         <View  style={ Platform.OS === 'android' ?  styles.PickerContainer : styles.IosPickerContainer}>
+         {!selectedYear ? (
+            <TouchableOpacity onPress={() => setPickerVisible(true)}>
+              <Text>연도를 선택하세요</Text>
+            </TouchableOpacity>
+          ) : (
+            Platform.OS === 'android' ? <Text style={{marginTop: RFPercentage(2)}}>{selectedYear}</Text> : null
+          )}
             <Picker
               selectedValue={selectedYear}
               onValueChange={(itemValue) => {
-                console.log('itemValue = ', itemValue);
-                setSelectedYear(itemValue);
-                fetchMonthlyData(itemValue);
+                // console.log('itemValue = ', itemValue);
+                setSelectedYear(String(itemValue));
+                fetchMonthlyData(String(itemValue));
 
               }}
-              style={styles.picker}
+              style={Platform.OS === 'android' ? styles.picker : styles.IosPicker}
+              itemStyle={{ color: 'black' }} // iOS에서 텍스트가 안 보일 경우 추가
+              dropdownIconColor="black" // 안드로이드에서 드롭다운 아이콘 색상
+
             >
-              {years.map((year) => (
-                <Picker.Item key={year.value} label={year.label} value={year.value} />
-              ))}
+
+              {years.map((year) => {
+                // console.log('PickerOS year', year);
+                return (<Picker.Item
+                  key={year.value}
+                  label={year.label}
+                  value={year.value}
+                  />
+              )})}
             </Picker>
           </View>
           {/* <Text style={styles.selectedText}>선택한 년도: {selectedYear}</Text> */}
@@ -369,7 +402,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
 
           <TouchableOpacity
                       onPress={() => {
-                        console.log('월별  매출 차트 클릭');
+                        console.log('월별 매출 차트 클릭');
                         setModalMonthly(true);
                       }}
                       style={styles.saveButton}>
@@ -428,7 +461,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
                         <FlatList
                             data={salesData}
                             renderItem={renderItem}
-                            keyExtractor={(item) => item.date!}
+                            keyExtractor={(item) => item.date ?? Math.random().toString()}
                             contentContainerStyle={styles.listContainer}
                             ListEmptyComponent={
                               <Text style={styles.emptyMessage}> 리스트 없음.</Text>
@@ -457,7 +490,7 @@ const SalesMainScreen: React.FC<SalesMainScreenProps> = props => {
                         <FlatList
                             data={salesMonthly}
                             renderItem={renderMonthlyItem}
-                            keyExtractor={(item) => item.month!}
+                            keyExtractor={(item) => item.month ?? Math.random().toString()}
                             contentContainerStyle={styles.listContainer}
                             ListEmptyComponent={
                                           <Text style={styles.emptyMessage}> 리스트 없음.</Text>
@@ -484,26 +517,48 @@ export const styles = StyleSheet.create({
     borderColor: 'blue',
   },
 
+  pickerItemStyle: { // iOS에서 텍스트 색상 스타일
+    color: 'black',
+  },
+
   PickerContainer: {
-    width: '70%',
+    // width: '70%',
     height: RFPercentage(6),
+    marginLeft: RFPercentage(2),
     paddingHorizontal: RFPercentage(2),
     borderColor: 'black', // 테두리 색상
     borderWidth: 1, // 테두리 두께
     borderRadius: 10, // 테두리 둥글기
-    // marginBottom: RFPercentage(1),
+
+  },
+  IosPickerContainer: {
+    height: RFPercentage(8),
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 10,
+    // width: width * 0.7, // 너비를 제한
+    overflow: 'hidden', // 내용이 넘치지 않도록
+  },
+  picker: {
+    height: RFPercentage(4),
+    marginTop: RFPercentage(-3),
+    width: '100%',
+    alignItems: 'center',
+    alignContent: 'center',
+  },
+
+  IosPicker: {
+    height: RFPercentage(2),
+     marginTop: RFPercentage(-8),
+    marginLeft: RFPercentage(2),
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: RFPercentage(1),
   },
-  picker: {
-    height: RFPercentage(8),
-    width: '100%',
-    alignItems: 'center',
-    alignContent: 'center',
-  },
+  
+
   selectedText: {
     marginTop: RFPercentage(0.5),
     fontSize: 16,
