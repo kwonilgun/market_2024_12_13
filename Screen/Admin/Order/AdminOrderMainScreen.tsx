@@ -370,6 +370,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
         isLeftView={false}
         onPressRight={() => {}}
         isRightView={false}
+        rightText=' '
       />
 
         {loading ? (

@@ -1168,7 +1168,7 @@ PODS:
   - Firebase/Messaging (11.8.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.8.0)
-  - FirebaseAppCheckInterop (11.8.0)
+  - FirebaseAppCheckInterop (11.10.0)
   - FirebaseAuth (11.8.1):
     - FirebaseAppCheckInterop (~> 11.0)
     - FirebaseAuthInterop (~> 11.0)
@@ -1178,7 +1178,7 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GTMSessionFetcher/Core (< 5.0, >= 3.4)
     - RecaptchaInterop (~> 100.0)
-  - FirebaseAuthInterop (11.8.0)
+  - FirebaseAuthInterop (11.10.0)
   - FirebaseCore (11.8.1):
     - FirebaseCoreInternal (~> 11.8.0)
     - GoogleUtilities/Environment (~> 8.0)
@@ -1221,7 +1221,7 @@ PODS:
     - GoogleUtilities/Reachability (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
-  - FirebaseSharedSwift (11.8.0)
+  - FirebaseSharedSwift (11.10.0)
   - fmt (9.1.0)
   - glog (0.3.5)
   - GoogleDataTransport (10.1.0):
@@ -3684,9 +3684,9 @@ SPEC CHECKSUMS:
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
   FBLazyVector: 1bf99bb46c6af9a2712592e707347315f23947aa
   Firebase: d80354ed7f6df5f9aca55e9eb47cc4b634735eaf
-  FirebaseAppCheckInterop: 7bf86d55a2b7e9bd91464120eba3e52e4b63b2e2
+  FirebaseAppCheckInterop: 9664c858489710f682766ef54e2b6741d3b62070
   FirebaseAuth: ad59a1a7b161e75f74c39f70179d2482d40e2737
-  FirebaseAuthInterop: 651756e70d9a0b9160db39ead71fd5507dbb6c84
+  FirebaseAuthInterop: 01a804fb074424fd58b92dd50dd0272277199356
   FirebaseCore: 99fe0c4b44a39f37d99e6404e02009d2db5d718d
   FirebaseCoreExtension: 3d3f2017a00d06e09ab4ebe065391b0bb642565e
   FirebaseCoreInternal: df24ce5af28864660ecbd13596fc8dd3a8c34629
@@ -3694,7 +3694,7 @@ SPEC CHECKSUMS:
   FirebaseFirestoreInternal: 8c5921c360a70e447bfeefb245f450e8b50e750b
   FirebaseInstallations: 6c963bd2a86aca0481eef4f48f5a4df783ae5917
   FirebaseMessaging: 487b634ccdf6f7b7ff180fdcb2a9935490f764e8
-  FirebaseSharedSwift: 672954eac7b141d6954fab9a32d45d6b1d922df8
+  FirebaseSharedSwift: 1baacae75939499b5def867cbe34129464536a38
   fmt: 10c6e61f4be25dc963c36bd73fc7b1705fe975be
   glog: 08b301085f15bcbb6ff8632a8ebaf239aae04e6a
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7

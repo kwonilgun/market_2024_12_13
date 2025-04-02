@@ -232,7 +232,7 @@ const fetchSalesData = async (itemValue: string) => {
     console.log('salesValue typeof ', typeof item.total_sales);
     const salesValue = typeof item.total_sales === 'number' ? item.total_sales : parseFloat(item.total_sales); // 숫자 유형 확인 및 변환
     const formattedSales =  salesValue.toLocaleString('ko-KR', { maximumFractionDigits: 0 }); // 소수점 제거 및 세 자리마다 쉼표 추가
-    console.log('formattedSales Data = ', formattedSales);
+    // console.log('formattedSales Data = ', formattedSales);
     return (
       <View style={styles.listItem}>
         <Text style={styles.monthText}>{moment(item.date).format('YYYY년 MM월 DD일')}</Text>
@@ -299,10 +299,14 @@ const fetchSalesData = async (itemValue: string) => {
                       data={chartData}
                       width={Dimensions.get('window').width - RFPercentage(10)} // Adjust width as needed
                       height={300} // Adjust height as needed
-                      maxValue={maxValue * 1.1} // 최대값을 데이터 최대값보다 약간 크게 설정
-                      formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
+                      maxValue={maxValue < 10000 ? 10000 : maxValue * 1.1} // 최대값을 데이터 최대값보다 약간 크게 설정
+                      formatYLabel={(label: string) => {
+                        // console.log("maxValue, Y-axis Label: ", maxValue, label); // 콘솔에 label 값 출력
+                        // return maxValue < 10000 ? (parseFloat(label) / 1000.0).toFixed(1).toString() : Math.round(parseFloat(label) / 1000.0).toString();
+                        return  Math.round(parseFloat(label) / 1000.0).toString();
+                      }}
 
-                      yAxisLabelWidth={40}
+                      yAxisLabelWidth={50}
                       yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
                       xAxisLabelTextStyle={{
                         rotation: 90, // Rotate x-axis labels by 90 degrees
@@ -392,7 +396,7 @@ const fetchSalesData = async (itemValue: string) => {
                       yAxisThickness={1}
                       xAxisLabelTextStyle={{ fontSize: 10, color: "black" }}
                       // showValuesAsTopLabel={true}
-                      maxValue={maxValue * 1.1} // 최대값을 데이터 최대값보다 약간 크게 설정
+                      maxValue={maxValue < 10000 ? 10000 : maxValue * 1.1} // 최대값을 데이터 
                       formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
                       yAxisLabelWidth={50}
                       yAxisLabelSuffix="k" // Add prefix to y-axis labels if neede
@@ -433,8 +437,9 @@ const fetchSalesData = async (itemValue: string) => {
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
         onPressRight={() => {}}
-        isRightView={true}
-        rightCustomView={RightCustomComponent}
+        isRightView={false}
+        // rightCustomView={RightCustomComponent}
+        rightText=''
       />
 
       {loading ? (
