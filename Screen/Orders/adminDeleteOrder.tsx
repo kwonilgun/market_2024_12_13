@@ -37,7 +37,7 @@ const adminDeleteOrder = async (id: string, props: any) => {
       props.navigation.replace('AdminOrderMainScreen');
     }
   } catch (error) {
-    alertMsg(strings.ERROR, '삭제 실패함');
+    alertMsg(strings.ERROR, '관리자 주문 삭제 실패함');
   }
 };
 

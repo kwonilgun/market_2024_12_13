@@ -48,7 +48,8 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('ShippingMainScreen useCallback cart=', props.cart);
+      // console.log('ShippingMainScreen useCallback cart=', props.cart);
+      console.log('ShippingMainScreen useCallback cart=');
       if (state.isAuthenticated) {
         setIsLogin(true);
       } else {
@@ -100,9 +101,11 @@ const ShippingMainScreen: React.FC<ShippingMainScreenProps> = props => {
       };
 
       const deliveryResponse: AxiosResponse = await axios.get(
-        `${baseURL}delivery/${state.user.userId}`,
+        `${baseURL}delivery/${state.user?.userId}`,
         config,
       );
+
+      console.log('ShippingMainScreen deliveryResponse =', deliveryResponse.data);
 
       if (deliveryResponse.status === 200 || deliveryResponse.status === 201) {
         if (deliveryResponse.data.length === 0) {

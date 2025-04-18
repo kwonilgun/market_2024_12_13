@@ -305,7 +305,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                       style={styles.CardContainer}>
                       <View style={styles.HStackHead}>
                         <Text style={{fontWeight: 'bold'}}>
-                          상품: {item.product.brand || ''}
+                          상품: {item.product.name || ''}
                         </Text>
 
                         <TouchableOpacity
@@ -343,6 +343,7 @@ const PaymentMainScreen: React.FC<PaymentMainScreenProps> = props => {
                         <TouchableOpacity
                           onPress={() => {
                             console.log('송금할 계좌 item = ', item);
+                            console.log('amount = ', amount);
                             setCart(item);
                             setTransMoney(String(amount));
                             onOpen();

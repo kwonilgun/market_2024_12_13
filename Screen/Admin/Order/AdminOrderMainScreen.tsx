@@ -44,6 +44,10 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
   useFocusEffect(
     useCallback(() => {
       console.log('AdminOrderMainScreen : useFocusEffect 진입');
+      setDataList([]);
+      setDataPaymentCompleteList([]);
+      setDataOnDeliveryList([]);
+      setDataDeliveryCompleteList([]);
       checkOrderStatus();
       fetchPaymentComplete();
       fetchOnDelivery();
@@ -73,6 +77,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
       );
 
       const orders = response.data as IOrderInfo[];
+      console.log('ProductMainScreen orders = ', orders);
 
       if (orders.length) {
         // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
@@ -84,6 +89,10 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
         makeExpandableDataList(orders, setDataList);
         setOrderList(dataList);
 
+      }
+      else{
+        console.log('ProductMainScreen orders is empty');
+        setOrderList([]);
       }
     } catch (error) {
       console.log('ProfileScreen CheckOrderList error', error);
@@ -109,7 +118,7 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
       );
 
       const orders = response.data as IOrderInfo[];
-      // console.log('fetchPaymentComplete orders = ', orders);
+      console.log('fetchPaymentComplete orders = ', orders);
 
       if (orders.length) {
         // 2023-05-20 : Date를 new를 통해서 값으로 변환해야 소팅이 동작이 된다. 아니면 NaN이 리턴이 된다.
@@ -121,6 +130,9 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
         makeExpandableDataList(orders, setDataPaymentCompleteList);
         setPaymentCompleteList(dataPaymentCompleteList);
 
+      } else{
+        console.log('setPaymentCompletesList is Empty');
+        setPaymentCompleteList([]);
       }
     } catch (error) {
       console.log('ProfileScreen CheckOrderList error', error);
@@ -159,6 +171,9 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
         setOnDeliveryList(dataOnDeliveryList);
 
       }
+      else{
+        setOnDeliveryList([]);
+      }
     } catch (error) {
       console.log('ProfileScreen fetchOnDelivery error', error);
     } finally {
@@ -195,6 +210,8 @@ const AdminOrderMainScreen: React.FC<AdminOrderMainScreenProps> = props => {
         makeExpandableDataList(orders, setDataDeliveryCompleteList);
         setOnDeliveryList(dataDeliveryCompleteList);
 
+      } else{
+        setOnDeliveryList([]);
       }
     } catch (error) {
       console.log('ProfileScreen fetchOnDelivery error', error);

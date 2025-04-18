@@ -38,7 +38,24 @@ import { AddProductScreenProps } from '../model/types/TEditNavigator';
 import FastImage from 'react-native-fast-image';
 import { launchImageLibrary } from 'react-native-image-picker'; // 추가
 import mime from 'mime';
+import { IProducerInfo } from '../model/interface/IAuthInfo';
+import { Picker } from '@react-native-picker/picker';
 
+// 2025-04-05 10:47:16, sql product interface
+export interface ISProduct {
+      id : string;
+      package : string;
+      name : string;
+      price : number | string;
+      unitDesc: string;
+      discount: number | string;
+      stock: number | string;
+      description: string;
+      image : string | null;
+      producer_id: string;
+      created_at : Date | null;
+      updated_at : Date | null;
+}
 
 
 const AddProductScreen: React.FC<AddProductScreenProps> = props => {
@@ -46,7 +63,8 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
   // const [loading, setLoading] = useState<boolean>(false);
   // const [product, setProduct] = useState<IProduct | null>(null);
   const [newImage, setNewImage] = useState<string | null>(null); // 이미지 상태 추가
-
+  const [producersList, setProducersList] = useState<IProducerInfo[]|null>(null);
+  const [selectedProducer, setSelectedProducer] = useState<string | null>(null); // 선택된 producer 상태
 
 
   const {
@@ -56,17 +74,20 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     handleSubmit,
     formState: {errors},
     reset,
-  } = useForm<IProduct>({
+  } = useForm<ISProduct>({
     defaultValues: {
       id: '',
+      package: '',
       name: '',
-      image: '',
+      price : 0,
+      unitDesc: '',
+      discount: 0,
+      stock: 0,
       description: '',
-      richDescription: '',
-      brand: '',
-      price:'',
-      discount: '',
-      countInStock: '',
+      image : '',
+      producer_id: '',
+      created_at : null,
+      updated_at : null,
     },
   });
 
@@ -76,6 +97,7 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
         'AddProductScreen useFocusEffect'
       );
 
+      fetchProducersFromAWS();
       // setProduct(props.route.params.item);
 
       return () => {
@@ -85,19 +107,45 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
   );
 
 
+  const fetchProducersFromAWS = async ()=>{
+    const token = await getToken();
+    try {
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}producers`,
+        {
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+      if(response.status === 200){
+        console.log('fetchProducersFromAWS producer = ', response.data);
+        setProducersList(response.data);
+      }
+      else{
+        console.log('producer fetch error status', response.status);
+      }
+    }
+    catch(error){
+      console.log('producer error', error);
+    }
+
+  };
+
   const isChanged = () => {
     const currentValues = getValues();
 
     // defaultValues의 타입 정의
     const defaultValues: any = {
+      package: '',
       name: '',
-      image: '',
+      price : 0,
+      unitDesc: '',
+      discount: 0,
+      stock: 0,
       description: '',
-      richDescription: '',
-      brand: '',
-      price: '',
-      discount: '',
-      countInStock: '',
+      image : '',
+      producer_id: '',
+      created_at : null,
+      updated_at : null,
     };
 
     // 기본값과 현재 값 비교
@@ -110,11 +158,11 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
   };
 
 
-  const confirmUpload: SubmitHandler<IProduct> = async data => {
+  const confirmUpload: SubmitHandler<ISProduct> = async data => {
     const param: ConfirmAlertParams = {
       title: strings.CONFIRMATION,
       message: '상품 추가',
-      func: async (in_data: IProduct) => {
+      func: async (in_data: ISProduct) => {
         console.log('업로드 상품 추가 data = ', in_data);
         const token = await getToken();
 
@@ -123,22 +171,27 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 
         let formData = new FormData();
 
+        formData.append('package', in_data.package);
         formData.append('name', in_data.name);
-        formData.append('brand', in_data.brand);
         formData.append('price', in_data.price);
+        formData.append('unitDesc', in_data.unitDesc);
         formData.append('discount', in_data.discount);
-        formData.append('description', in_data.description);
-        formData.append('category', in_data.category);
-        formData.append('countInStock', in_data.countInStock);
+        formData.append('stock', in_data.stock);
         // formData.append('richDescription', richDescription);
-        formData.append('rating', in_data.rating);
-        formData.append('numReviews', in_data.numReviews);
-        formData.append('isFeatured', in_data.isFeatured);
-        formData.append('richDescription', in_data.richDescription);
+        formData.append('description', in_data.description);
         formData.append('dateCreated', Date.now());
 
         //2023-01-29 : 추가함
-        formData.append('user', in_data.user);
+        // formData.append('user', in_data.user);
+
+        if (selectedProducer) {
+            formData.append('producer_id', selectedProducer);
+        } else{
+            // alertMsg('에러', '생산자를 먼저 선택을 해 주세요');
+            // return;
+            console.log('AddProductScreen : 생산자 없음');
+            formData.append('producer_id', '');
+        }
 
         const config = {
           headers: {
@@ -165,7 +218,7 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
         console.log('EditProductScreen formData', formData);
 
         axios
-          .post(`${baseURL}products`, formData, config)
+          .post(`${baseURL}products/sql`, formData, config)
           .then(res => {
             if (res.status === 200 || res.status === 201) {
              alertMsg('success', '상품 성공적으로 추가됨');
@@ -227,7 +280,7 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
     if (result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri; // 선택한 이미지의 URI
       setNewImage(imageUri!); // 상태 업데이트
-      setValue('image', imageUri);
+      setValue('image', imageUri!);
     }
   };
 
@@ -242,11 +295,6 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
         isRight={false}
       />
 
-      {/* {loading ? (
-        <>
-          <LoadingWheel />
-        </>
-      ) : ( */}
         <>
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -292,6 +340,53 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                         name="camera"
                       />
                     </TouchableOpacity>
+
+                    <Text style={[GlobalStyles.inputTitle]}>생산자 선택</Text>
+                    <View  style={ Platform.OS === 'android' ?  styles.AndroidPickerContainer : styles.IosPickerContainer}>
+                      <Picker
+                        selectedValue={selectedProducer}
+                        onValueChange={(itemValue) => {
+                          // itemValue는 producerId 이다. 
+                          console.log('itemValue =', itemValue);
+                          setSelectedProducer(itemValue);
+                        }
+                        }
+                          style={Platform.OS === 'android' ? styles.AndroidPicker : styles.IosPicker}
+                                      itemStyle={{ color: 'black' }} // iOS에서 텍스트가 안 보일 경우 추가
+                                      dropdownIconColor="black" // 안드로이드에서 드롭다운 아이콘 색상
+                      >
+                        <Picker.Item label="생산자를 선택하세요" value={null} />
+                        {producersList?.map((producer) => (
+                          <Picker.Item
+                            key={producer.id}
+                            label={producer.name}
+                            value={producer.id}
+                          />
+                        ))}
+                      </Picker>
+                    </View>
+                    {/*패키지*/}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      {strings.PACKAGE}
+                    </Text>
+                    <View style={GlobalStyles.HStack}>
+                      <InputField
+                        control={control}
+                        rules={{
+                          required: true,
+                          minLength: 2,
+                        }}
+                        name="package"
+                        placeholder= "패키지 이름 입력해주세요"
+                        keyboard="name-phone-pad" // 숫자 판으로 변경
+                        isEditable={true}
+                      />
+                      {errors.package && (
+                        <Text style={GlobalStyles.errorMessage}>
+                          패키지 입력 오류
+                        </Text>
+                      )}
+                    </View>
                     {/* 이름 */}
                     <Text style={[GlobalStyles.inputTitle]}>
                       {strings.NAME}
@@ -314,9 +409,10 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                         </Text>
                       )}
                     </View>
-                    {/* 브랜드 */}
+
+                    {/* 단위 설명 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      브랜드
+                      단위
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
@@ -325,14 +421,14 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                           required: true,
                           minLength: 1,
                         }}
-                        name="brand"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="unitDesc"
+                        placeholder= '단위를 입력하세요'
                         keyboard="name-phone-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
                       {errors.name && (
                         <Text style={GlobalStyles.errorMessage}>
-                          브랜드 {strings.ERROR}
+                          단위 입력 에러
                         </Text>
                       )}
                     </View>
@@ -348,8 +444,8 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
                           required: true,
                           minLength: 1,
                         }}
-                        name="countInStock"
-                        placeholder={strings.PLEASE_ENTER_NAME}
+                        name="stock"
+                        placeholder= "재고수량 입력해주세요"
                         keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
@@ -437,6 +533,32 @@ const AddProductScreen: React.FC<AddProductScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  AndroidPickerContainer: {
+    width: '95%',
+    borderColor: 'black', // 테두리 색상
+    borderWidth: 1, // 테두리 두께
+    borderRadius: 10, // 테두리 둥글기
+    margin: RFPercentage(1),
+
+    // overflow: 'hidden', // 내부 요소가 테두리를 벗어나지 않도록
+  },
+  IosPickerContainer: {
+    height: RFPercentage(8),
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 10,
+    // width: width * 0.7, // 너비를 제한
+    overflow: 'hidden', // 내용이 넘치지 않도록
+  },
+  AndroidPicker: {
+    height: RFPercentage(7),
+    // marginLeft: RFPercentage(2),
+  },
+  IosPicker: {
+    height: RFPercentage(2),
+    marginTop: RFPercentage(-8),
+    marginLeft: RFPercentage(2),
+  },
   imageContainer: {
     alignItems: 'center', // 수평 가운데 정렬
     justifyContent: 'center', // 수직 가운데 정렬 (필요 시 추가)

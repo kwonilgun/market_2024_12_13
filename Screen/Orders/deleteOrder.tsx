@@ -5,7 +5,7 @@ import {baseURL} from '../../assets/common/BaseUrl';
 import strings from '../../constants/lang';
 
 const deleteOrder = async (id: string, props: any) => {
-  console.log(' deleteOrder');
+  console.log('deleteOrder - deleteOrder');
   //   const orderList = props.route.params.orders;
 
   // token을 가져온다.
@@ -37,7 +37,7 @@ const deleteOrder = async (id: string, props: any) => {
       props.navigation.replace('ProfileScreen');
     }
   } catch (error) {
-    alertMsg(strings.ERROR, '삭제 실패함');
+    alertMsg(strings.ERROR, '소비자 주문 삭제 실패함');
   }
 };
 

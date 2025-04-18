@@ -75,6 +75,7 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
   };
 
   useEffect(() => {
+    console.log('DeliveryCard useEffect');
     setChkValue(displayCheck);
   }, [displayCheck]);
 
@@ -109,14 +110,15 @@ const DeliveryCard: React.FC<DeliveryCardProps> = props => {
             backgroundColor: chkValue ? 'transparent' : 'transparent',
           }}
           onPress={() => changeCheckValue(!chkValue)}>
-          {chkValue && (
+          {/* 2025-04-18 10:35:41, sql 서버로 변경하면서 chkValue가 false 대신에 0으로 온다. 이부분을 Boolean으로 변경을 해 주여야 한다.  */}
+          {Boolean(chkValue) && (
             <Text
               style={{
                 padding: RFPercentage(1),
                 textAlign: 'center',
                 color: Platform.OS === 'ios' ? 'white' : 'black',
               }}>
-              ✔
+              {'\u2714'}  {/* ✔의 유니코드 */}
             </Text>
           )}
         </TouchableOpacity>

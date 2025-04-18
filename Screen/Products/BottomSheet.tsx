@@ -10,17 +10,22 @@ import GlobalStyles from '../../styles/GlobalStyles';
 import strings from '../../constants/lang';
 import {IProduct} from '../model/interface/IProductInfo';
 import {CartItem} from '../../Redux/Cart/Reducers/cartItems';
+import { ISProduct } from '../Admin/AddProductScreen';
+import { getToken } from '../../utils/getSaveToken';
+import axios, { AxiosResponse } from 'axios';
+import { baseURL } from '../../assets/common/BaseUrl';
+import { alertMsg } from '../../utils/alerts/alertMsg';
 
 type Props = {
   modalRef: React.RefObject<Modalize>;
-  item: IProduct;
+  item: ISProduct;
   dProps: {
     navigation: {
       goBack: () => void;
       navigate: (screen: string, params?: object) => void;
     };
   };
-  addItemToCart: (number: number, product: IProduct) => void;
+  addItemToCart: (number: number, product: ISProduct) => void;
   clearCart: () => void;
   removeFromCart: (item: CartItem) => void;
   changeQuantity: (item: CartItem) => void;
@@ -30,21 +35,47 @@ const BottomSheet: React.FC<Props> = props => {
   const {modalRef, item, dProps} = props;
   const refNumber = useRef<number>(1);
   const [buyNumber, setBuyNumber] = useState<number>(1);
+  console.log('BottomSheet, item', item);
 
   useEffect(() => {
     refNumber.current = 1;
   }, []);
 
-  const putInShoppingCart = (
+  const putInShoppingCart = async (
     dProps: Props['dProps'],
     number: number,
     item: Props['item'],
   ) => {
-    // console.log('putInShoppingCart number, item', number, item);
+    console.log('putInShoppingCart number, item', number, item);
     props.addItemToCart(number, item);
-    //     dProps.navigation.goBack();
-    dProps.navigation.navigate('ShoppingCart', {screen: 'CartMainMenu'});
-    modalRef.current?.close();
+    //2025-04-09 15:45:22 - 재고 숫자를 감축해야 한다.
+    try {
+      const token = await getToken();
+      const config = {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const data = {
+        productId : item.id,
+        quantity: number,
+      };
+
+      const response: AxiosResponse =  await axios.post(
+        `${baseURL}stock/decrease`,
+        JSON.stringify(data),
+        config,
+      );
+
+      // console.log('putInShopping cart response ', response);
+      dProps.navigation.navigate('ShoppingCart', {screen: 'CartMainMenu'});
+      modalRef.current?.close();
+
+    } catch (error) {
+      alertMsg('에러', '재고 감소 에러');
+    }
+
   };
 
   const buyItRightAway = async (
@@ -75,7 +106,9 @@ const BottomSheet: React.FC<Props> = props => {
   };
 
   const incNum = () => {
-    if (refNumber.current < 20) {
+    // console.log('BottomSheet incNum item.stock =', item.stock);
+    // 2025-04-09 15:21:58, item.stock는 재고 숫자
+    if (refNumber.current < Number(item.stock)) {
       props.changeQuantity({product: item, quantity: refNumber.current + 1});
       refNumber.current += 1;
       setBuyNumber(refNumber.current);
@@ -96,7 +129,7 @@ const BottomSheet: React.FC<Props> = props => {
       snapPoint={height * 0.4}
       adjustToContentHeight={true}>
       <View style={styles.container}>
-        <Text style={styles.brandText}>브랜드: {item.brand}</Text>
+        <Text style={styles.brandText}>브랜드: {item.name}</Text>
 
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>

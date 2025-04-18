@@ -24,6 +24,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 function MyStack() {
   //   const {state} = useAuth();
+  console.log('HomeNavigator....')
 
   return (
     <Stack.Navigator

@@ -3,6 +3,8 @@
 const isEmpty = (value: any): boolean =>
   value === undefined ||
   value === null ||
+  value === 'null' ||
+  value === 'undefined' ||
   (typeof value === 'object' &&
     !(value instanceof Date) &&
     Object.keys(value).length === 0) ||

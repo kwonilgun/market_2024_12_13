@@ -30,13 +30,9 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { CartItem } from '../../Redux/Cart/Reducers/cartItems';
 import { getToken } from '../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
+import { ProductCardProps } from '../model/types/TUserNavigator';
 
-type ProductCardProps = {
-  items: IProduct;
-  onLoadingChange : (isLoading: boolean) => void;
-  navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
-  addItemToCart: (cart: CartItem) => void;
-};
+
 
 const ProductCard: React.FC<ProductCardProps> = props => {
   //   const {name, price, image, discount} = props;

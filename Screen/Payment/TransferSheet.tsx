@@ -35,20 +35,20 @@ const TransferSheet: React.FC<Props> = ({modalRef, item, transMoney}) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (!isEmpty(item?.product?.user)) {
-        console.log('userId ', item.product.user!);
-        fetchProducerInform(item.product.user!);
+      if (!isEmpty(item?.product?.producer_id)) {
+        console.log('producer Id =  ', item.product.producer_id);
+        fetchProducerInform(item.product.producer_id!);
       }
     }, [item]),
   );
 
 
-  async function fetchProducerInform(userId: string,) {
+  async function fetchProducerInform(producer_Id: string,) {
     try {
       const token = await getToken();
-      console.log('TransferSheet userId =', userId);
+      // console.log('TransferSheet userId =', userId);
       const response: AxiosResponse = await axios.get(
-        `${baseURL}userSql/${userId}`,
+        `${baseURL}producers/${producer_Id}`,
         {
           headers: {Authorization: `Bearer ${token}`},
         },

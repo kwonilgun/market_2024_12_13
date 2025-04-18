@@ -1,9 +1,10 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {IProduct} from '../../../Screen/Products/interface/IProductInfo';
 import isEmpty from '../../../utils/isEmpty';
+import { ISProduct } from '../../../Screen/Admin/AddProductScreen';
 
 export interface CartItem {
-  product: IProduct;
+  product: ISProduct;
   quantity: number;
   // Add other properties of the CartItem interface as needed
 }
@@ -20,7 +21,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<CartItem>) => {
+    addToCart: (state: CartState, action: PayloadAction<CartItem>) => {
       if (isEmpty(state.items)) {
         state.items = [action.payload];
       } else {
@@ -31,7 +32,7 @@ const cartSlice = createSlice({
       }
     },
 
-    changeQuantity: (state, action: PayloadAction<CartItem>) => {
+    changeQuantity: (state: CartState, action: PayloadAction<CartItem>) => {
       if (isEmpty(state.items)) {
         state.items = [action.payload];
       } else {
@@ -43,13 +44,13 @@ const cartSlice = createSlice({
       }
     },
 
-    removeFromCart: (state, action: PayloadAction<CartItem>) => {
+    removeFromCart: (state: CartState, action: PayloadAction<CartItem>) => {
       state.items = state.items.filter(
         item => item.product !== action.payload.product,
       );
     },
 
-    clearCart: state => {
+    clearCart: (state: CartState) => {
       state.items = [];
     },
   },

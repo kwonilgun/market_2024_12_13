@@ -38,7 +38,7 @@ const CartListCard: React.FC<CartListCardProps> = props => {
   }, [props.item, item]);
 
   const incNum = () => {
-    if (refNumber.current < 20) {
+    if (refNumber.current < Number(item.product.stock)) {
       props.changeQuantity({
         product: item.product,
         quantity: refNumber.current + 1,
@@ -58,6 +58,7 @@ const CartListCard: React.FC<CartListCardProps> = props => {
   };
 
   const deleteCartOrder = () => {
+
     props.removeFromCart(item);
   };
 

@@ -124,7 +124,7 @@ const EditProducerScreen: React.FC<EditProducerScreenProps> = props => {
 
 
         axios
-          .put(`${baseURL}userSql/${selectedProducer}`, JSON.stringify(in_data), config)
+          .put(`${baseURL}producers/${selectedProducer}`, JSON.stringify(in_data), config)
           .then(res => {
             if (res.status === 200 || res.status === 201) {
              alertMsg('success', '상품 성공적으로 추가됨');
@@ -176,7 +176,7 @@ const EditProducerScreen: React.FC<EditProducerScreenProps> = props => {
         try {
           console.log('producer 삭제 id = ', selectedProducer);
           const response: AxiosResponse = await axios.delete(
-            `${baseURL}products/${selectedProducer}`,
+            `${baseURL}producers/${selectedProducer}`,
             config,
           );
           if (response.status === 200 || response.status === 201) {

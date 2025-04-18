@@ -59,7 +59,7 @@ const EmailLoginScreen: React.FC<EmailLoginScreenProps> = ({navigation}) => {
     reset,
   } = useForm<UserFormInput>({
     defaultValues: {
-      nickName: '',
+      email: '',
       password: '',
     },
   });
@@ -95,7 +95,7 @@ const EmailLoginScreen: React.FC<EmailLoginScreenProps> = ({navigation}) => {
           savedPassword,
         );
         onSubmit({
-          nickName: savedEmail,
+          email: savedEmail,
           password: savedPassword,
           phoneNumber: '',
         });
@@ -123,11 +123,11 @@ const EmailLoginScreen: React.FC<EmailLoginScreenProps> = ({navigation}) => {
     const savedAutoLogin = await AsyncStorage.getItem('autoLogin');
     if (
       (isAutoLogin || savedAutoLogin === 'true') &&
-      data.nickName &&
+      data.email &&
       data.password
     ) {
       await AsyncStorage.setItem('autoLogin', 'true');
-      await AsyncStorage.setItem('email', data.nickName);
+      await AsyncStorage.setItem('email', data.email);
       await AsyncStorage.setItem('password', data.password);
     } else {
       await AsyncStorage.removeItem('autoLogin');
@@ -305,12 +305,12 @@ const EmailLoginScreen: React.FC<EmailLoginScreenProps> = ({navigation}) => {
                     // maxLength: 11,
                     pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
                   }}
-                  name="nickName"
+                  name="email"
                   placeholder={strings.PLEASE_ENTER_EMAIL}
                   keyboard="email-address" // 숫자 판으로 변경
                   // isEditable={false}
                 />
-                {errors.nickName && (
+                {errors.email && (
                   <Text style={GlobalStyles.errorMessage}>
                     {strings.EMAIL} {strings.ERROR}
                   </Text>

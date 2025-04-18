@@ -24,11 +24,12 @@ import { baseURL } from '../../assets/common/BaseUrl';
 import { alertMsg } from '../../utils/alerts/alertMsg';
 import GlobalStyles from '../../styles/GlobalStyles';
 import { IProducerInfo } from '../model/interface/IAuthInfo';
+import { ISProduct } from './AddProductScreen';
 
 const EditMainScreen: React.FC<EditMainScreenProps> = props => {
   const [loading, setLoading] = useState<boolean>(true);
 
-    const [productList, setProductList] = useState<IProduct[] | null>(null);
+    const [productList, setProductList] = useState<ISProduct[] | null>(null);
     const [producerList, setProducerList] = useState<IProducerInfo[] | null>(null);
 
   useFocusEffect(
@@ -56,17 +57,18 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
         },
       };
       const response: AxiosResponse = await axios.get(
-        `${baseURL}products/`,
+        `${baseURL}products/sql`,
         config,
       );
       if (response.status === 200) {
         // console.log('products = ', response.data);
-        const productL = response.data as IProduct[];
+        const productL = response.data as ISProduct[];
         productL.sort((a,b) => a.name.localeCompare(b.name));
         setProductList(productL);
       }
     } catch (error) {
-      alertMsg(strings.ERROR, '상품 리스 다운로드 실패');
+      console.log('상품 리스트 없음');
+      // alertMsg(strings.ERROR, '상품 리스트 없음');
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
         },
       };
       const response: AxiosResponse = await axios.get(
-        `${baseURL}userSql`,
+        `${baseURL}producers`,
         config,
       );
       if (response.status === 200) {
@@ -94,13 +96,14 @@ const EditMainScreen: React.FC<EditMainScreenProps> = props => {
         setProducerList(response.data);
       }
     } catch (error) {
-      alertMsg(strings.ERROR, '상품 리스 다운로드 실패');
+      console.log('생산자 리스트 없음');
+      // alertMsg(strings.ERROR, '상품 리스트 없음');
     } finally{
       setLoading(false);
     }
   };
 
-  const startEdit = (product: IProduct) =>{
+  const startEdit = (product: ISProduct) =>{
     console.log('start edit item ', product);
     props.navigation.navigate('EditProductScreen',{item:product});
   };

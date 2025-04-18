@@ -32,15 +32,19 @@ import {height, width} from '../../assets/common/BaseValue';
 import {baseURL} from '../../assets/common/BaseUrl';
 import BottomSheet from './BottomSheet';
 import {showPriceInform} from '../Cart/showPriceInform';
+import isEmpty from '../../utils/isEmpty';
+import { ISProduct } from '../Admin/AddProductScreen';
 
 const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
   const {state, dispatch} = useAuth();
-  const [item, setItem] = useState<IProduct>(props.route.params.item);
+  const [item, setItem] = useState<ISProduct>(props.route.params.item);
   const [companyInform, setCompanyInform] = useState<ICompany>(
     props.route.params.companyInform,
   );
 
-  const imageName = props.route.params.item.image!.split('/').pop(); // Image last name
+  console.log('ProductDetailScreen item = ', props.route.params.item);
+  const imageName = props.route.params.item.image?.split('/').pop() ?? '';
+  console.log('ProductDetailScreen imageName = ', imageName);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const modalRef = useRef<any>(null);
   const [star, setStar] = useState<number>(5);
@@ -125,20 +129,24 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = props => {
               </View>
             )}
             <View style={styles.productContainer}>
-              <FastImage
-                style={styles.imageStyle}
-                source={{
-                  uri: imageName
-                    ? `${baseURL}products/downloadimage/${imageName}`
-                    : undefined,
-                  priority: FastImage.priority.normal,
-                }}
-                resizeMode={FastImage.resizeMode.cover}
-              />
+              {!isEmpty(imageName) ? (
+                  <FastImage
+                    style={styles.imageStyle}
+                    source={{
+                      uri: imageName
+                        ? `${baseURL}products/downloadimage/${imageName}`
+                        : undefined,
+                      priority: FastImage.priority.normal,
+                    }}
+                    resizeMode={FastImage.resizeMode.cover}
+                  />
+              ) : null }
             </View>
 
-            {showPriceInform(0, item.name, item.discount!, item.price!)}
+            {showPriceInform(0, item.name, String(item.discount), String(item.price))}
             <View style={styles.divider} />
+            <Text style={styles.boldText}>재고</Text>
+            <Text style={styles.descriptionText}>{item.stock}</Text>
             <Text style={styles.boldText}>상품 설명</Text>
             <Text style={styles.descriptionText}>{item.description}</Text>
             <View style={styles.divider} />
@@ -225,7 +233,8 @@ const styles = StyleSheet.create({
     color: '#808080',
   },
   descriptionText: {
-    marginTop: RFPercentage(1),
+    marginTop: RFPercentage(0.5),
+    marginBottom: RFPercentage(2),
     paddingHorizontal: RFPercentage(2),
     fontSize: RFPercentage(1.5),
   },

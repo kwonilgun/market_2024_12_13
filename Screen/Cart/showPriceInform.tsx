@@ -15,9 +15,9 @@ export function showPriceInform(
         {name.length > 15 ? name.substring(0, 12) + '...' : name}
       </Text>
       {/* <View style={styles.discountContainer}> */}
-        <Text style={styles.discountText}>
+        {/* <Text style={styles.discountText}>
           {discount ? `${discount}% ` : ''}
-        </Text>
+        </Text> */}
         {!isEmpty(discount) ? (
           <Text style={styles.strikethroughPrice}>
             {Number(price).toLocaleString('kr-KR')}원

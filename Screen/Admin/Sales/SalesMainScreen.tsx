@@ -147,7 +147,7 @@ const fetchSalesData = async (itemValue: string) => {
       }
 
      catch (error) {
-          console.log('SalesCharScreens fetchSalesData error', error);
+          console.log('SalesMainScreens fetchSalesData error', error);
           alertMsg(strings.ERROR, 'sales 데이터 획득 실패');
     } finally {
           setLoading(false);

@@ -96,10 +96,11 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}orders/orderItems/${orderItemNumber}`,
+        `${baseURL}orderSql/orderItems/${orderItemNumber}`,
         config,
       );
       if (response.status === 200) {
+        console.log('orderItem = ', response.data);
         setOrderItem(response.data);
 
         //   setBrand(res.data.product.brand);
@@ -190,7 +191,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
                   <View style={styles.row}>
                     <Text style={styles.label}>상품 브랜드:</Text>
-                    <Text style={styles.value}>{orderItem?.product.brand}</Text>
+                    <Text style={styles.value}>{orderItem?.product.name}</Text>
                   </View>
 
                   <View style={styles.row}>

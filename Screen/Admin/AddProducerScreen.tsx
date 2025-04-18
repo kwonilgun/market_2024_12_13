@@ -123,7 +123,7 @@ const AddProducerScreen: React.FC<AddProductScreenProps> = props => {
         console.log('EditProducerScreen data', data);
 
         axios
-          .post(`${baseURL}userSql`, JSON.stringify(data), config)
+          .post(`${baseURL}producers`, JSON.stringify(data), config)
           .then(res => {
             if (res.status === 200 || res.status === 201) {
              alertMsg('success', '상품 성공적으로 추가됨');
@@ -178,7 +178,7 @@ const AddProducerScreen: React.FC<AddProductScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={'상품 추가'}
+        centerText={'생산자 추가'}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}

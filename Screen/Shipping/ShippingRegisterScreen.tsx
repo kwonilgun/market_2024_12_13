@@ -135,9 +135,11 @@ const ShippingRegisterScreen: React.FC<ShippingRegisterScreenProps> = props => {
             alertMsg('에러', '관리자 모드, 배송지 없음');
           } else if (response.status === 203) {
             alertMsg('에러', '생산자 모드, 배송지 없음');
+          } else if (response.status === 204) {
+            alertMsg('에러', '전화번호가 이미 존재함');
           }
         } catch (error) {
-          // console.log('confirmUpload error, error = ', error);
+          console.log('confirmUpload error, error = ', error);
           alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
         }
       },

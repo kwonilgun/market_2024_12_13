@@ -8,7 +8,7 @@
 // 사용자 정보에 대한 기본 정보
 export interface IAuth {
   phoneNumber: string;
-  nickName?: string;
+  email?: string;
   // 2024-12-23 : 추가
   name?: string;
   // 2024-05-05 : plasma id, iot 사물번호

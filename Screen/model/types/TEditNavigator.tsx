@@ -10,11 +10,12 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import { IProduct } from '../interface/IProductInfo';
 import { RouteProp } from '@react-navigation/native';
 import { IProducerInfo } from '../interface/IAuthInfo';
+import { ISProduct } from '../../Admin/AddProductScreen';
 
 export type EditStackParamList = {
   EditManager: {screen: 'EditMainScreen'};
   EditMainScreen: undefined;
-  EditProductScreen: {item: IProduct}
+  EditProductScreen: {item: ISProduct}
   EditProducerScreen: {item: IProducerInfo}
   AddProductScreen: undefined;
   AddProducerScreen: undefined;
