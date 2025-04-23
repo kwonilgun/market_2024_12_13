@@ -1,2 +1,7 @@
 1. 2024-12-18 : 
-     npx react-native start --experimental-debugger
+     npx react-native start --reset-cache
+
+2.2025-04-22 09:05:11
+     cd android
+     ./gradlew clean
+     ./gradlew installRelease
