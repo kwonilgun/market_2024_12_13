@@ -13,18 +13,12 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3E4C9025EA5EEAFE89795894 /* Pods_market_2024_12_13.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF0EE663055208C2ED2ECFC0 /* Pods_market_2024_12_13.framework */; };
 		5D3EC46741F11280ADEF3BA6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
-<<<<<<< HEAD
-		7049B6323E1D9DE30F1EF59B /* Pods_market_2024_12_13_market_2024_12_13Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7810E7DE22E61D19811E130C /* Pods_market_2024_12_13_market_2024_12_13Tests.framework */; };
-		768EDE4A2D36271800001134 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 768EDE492D36271800001134 /* main.jsbundle */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		CCCC12022D3B6B56000B0124 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC6342892D3A32EE00CEC720 /* GoogleService-Info.plist */; };
-		E3917D69B97E57F82DB19EB3 /* Pods_market_2024_12_13.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0EA13A010F7A080286FF289 /* Pods_market_2024_12_13.framework */; };
-=======
+
 		768EDE4A2D36271800001134 /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 768EDE492D36271800001134 /* main.jsbundle */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		CC63428A2D3A32EE00CEC720 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CC6342892D3A32EE00CEC720 /* GoogleService-Info.plist */; };
 		CEAAF222BD257AD2F8097097 /* Pods_market_2024_12_13_market_2024_12_13Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C659E36346C78D317BBA5785 /* Pods_market_2024_12_13_market_2024_12_13Tests.framework */; };
->>>>>>> 9ea8e4b (main 업데이트)
+
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
