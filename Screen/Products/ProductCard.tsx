@@ -16,7 +16,7 @@
  */
 
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Button, Modal } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Button, Modal, Platform } from 'react-native';
 import { connect } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 // import {baseURL} from '../../assets/common/baseUrl';
@@ -30,13 +30,9 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import { CartItem } from '../../Redux/Cart/Reducers/cartItems';
 import { getToken } from '../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
+import { ProductCardProps } from '../model/types/TUserNavigator';
 
-type ProductCardProps = {
-  items: IProduct;
-  onLoadingChange : (isLoading: boolean) => void;
-  navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
-  addItemToCart: (cart: CartItem) => void;
-};
+
 
 const ProductCard: React.FC<ProductCardProps> = props => {
   //   const {name, price, image, discount} = props;
@@ -85,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = props => {
   };
 
   React.useEffect(() => {
-    console.log("Modal 상태 변경:", modalDetail);
+    // console.log("Modal 상태 변경:", modalDetail);
   }, [modalDetail]);
 
   return (
@@ -110,10 +106,10 @@ const ProductCard: React.FC<ProductCardProps> = props => {
               console.log('요약 보기');
               fetchProductDetails(props.items.name, false);
               }}>
-              <Text style={{ color: 'blue', marginHorizontal: 10 }}>요약</Text>
+              <Text style={styles.textButton}>요약</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => fetchProductDetails(props.items.name, true)}>
-              <Text style={{ color: 'blue', marginHorizontal: 10 }}>상세</Text>
+              <Text style={styles.textButton}>상세</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -200,17 +196,18 @@ export function showPriceInform(
 
 const styles = StyleSheet.create({
   cardContainer: {
-    height: RFPercentage(30),
-    width: width * 0.9,
+    height: Platform.OS === 'ios' ? RFPercentage(30) : RFPercentage(32),
+    width: Platform.OS === 'ios' ? width * 0.9 : width * 0.92,
     borderWidth: 1,
     borderColor: 'green',
     padding: 4,
     borderRadius: 10,
     marginBottom: RFPercentage(1),
     flexDirection: 'column',
+    alignItems: 'center',
   },
   image: {
-    width: RFPercentage(40),
+    width:  Platform.OS === 'ios' ? RFPercentage(40) : RFPercentage(42),
     height: RFPercentage(20),
     borderRadius: 10,
   },
@@ -260,6 +257,15 @@ const styles = StyleSheet.create({
     padding: RFPercentage(1),
     borderRadius: 10,
     alignItems: 'center',
+  },
+
+  textButton: {
+     color: 'black',
+     padding: RFPercentage(0.5),
+     marginHorizontal: RFPercentage(1),
+     borderColor: 'blue',
+     borderWidth: 1,
+     borderRadius: RFPercentage(0.5),
   },
 
   listItem: {

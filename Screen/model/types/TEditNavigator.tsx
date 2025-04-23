@@ -9,14 +9,16 @@
 import {StackNavigationProp} from '@react-navigation/stack';
 import { IProduct } from '../interface/IProductInfo';
 import { RouteProp } from '@react-navigation/native';
-// import {RouteProp} from '@react-navigation/native';
-// import {IProduct} from '../interface/IProductInfo';
+import { IProducerInfo } from '../interface/IAuthInfo';
+import { ISProduct } from '../../Admin/AddProductScreen';
 
 export type EditStackParamList = {
   EditManager: {screen: 'EditMainScreen'};
   EditMainScreen: undefined;
-  EditProductScreen: {item: IProduct}
+  EditProductScreen: {item: ISProduct}
+  EditProducerScreen: {item: IProducerInfo}
   AddProductScreen: undefined;
+  AddProducerScreen: undefined;
 };
 
 export type EditMainScreenProps = {
@@ -27,7 +29,15 @@ export type EditProductScreenProps = {
   route: RouteProp<EditStackParamList, 'EditProductScreen'>;
   navigation: StackNavigationProp<EditStackParamList, 'EditProductScreen'>;
 };
+export type EditProducerScreenProps = {
+  route: RouteProp<EditStackParamList, 'EditProducerScreen'>;
+  navigation: StackNavigationProp<EditStackParamList, 'EditProducerScreen'>;
+};
 
 export type AddProductScreenProps = {
   navigation: StackNavigationProp<EditStackParamList, 'AddProductScreen'>;
+};
+
+export type AddProducerScreenProps = {
+  navigation: StackNavigationProp<EditStackParamList, 'AddProducerScreen'>;
 };

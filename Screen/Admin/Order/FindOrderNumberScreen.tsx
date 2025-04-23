@@ -150,7 +150,7 @@ const FindOrderNumberScreen: React.FC<FindOrderNumberScreenProps> = props => {
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="주문 현황"
+        centerText="주문 번호 찾기"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}

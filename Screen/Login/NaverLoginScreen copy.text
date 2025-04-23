@@ -41,7 +41,6 @@ import { decode } from 'base-64';
 
 import { appleAuth, AppleButton, AppleCredentialState } from '@invertase/react-native-apple-authentication';
 import { jwtDecode } from 'jwt-decode';
-import { alertMsg } from '../../utils/alerts/alertMsg';
 
 // polyfill for "atob" so that jwt.decode will work
 global.atob = decode;
@@ -79,7 +78,7 @@ async function onUpdateCredentialStateButtonPress(updateCredentialStateForUser: 
 /**
  * Starts the Sign In flow.
  */
-async function onAppleButtonPress() : Promise<{ success: boolean } | { success: false; error: any }> {
+async function onAppleButtonPress(updateCredentialStateForUser: any) {
   console.warn('Beginning Apple Authentication');
 
   // start a login request
@@ -91,56 +90,51 @@ async function onAppleButtonPress() : Promise<{ success: boolean } | { success: 
 
     console.log('appleAuthRequestResponse', appleAuthRequestResponse);
 
-    // const {
-    //   user: newUser,
-    //   email,
-    //   fullName,
-    //   identityToken,
-    //   nonce,
-    //   realUserStatus /* etc */,
-    // } = appleAuthRequestResponse;
+    const {
+      user: newUser,
+      email,
+      fullName,
+      identityToken,
+      nonce,
+      realUserStatus /* etc */,
+    } = appleAuthRequestResponse;
 
-    // 인증 상태 확인
-    const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user);
+    userId = newUser;
+    email ? (userEmail = email) : (userEmail = 'unknown');
+    fullName && fullName.givenName && fullName.familyName
+      ? (userName = `${fullName.givenName} ${fullName.familyName}`)
+      : (userName = 'unknown');
 
-    console.log('credentialState = ', credentialState);
+    // The email and fullName are only provided on the first sign in to an app.
+    // But, we can get the email from the JWT every time if we decode it.
+    const decoded = jwtDecode(identityToken!);
+    console.log('decoded token: ', decoded);
+    // userEmail === 'unknown' && decoded.email
+    //   ? (userEmail = decoded.email)
+    //   : (userEmail = 'unknown');
 
-    // 인증 성공 시
-    // if (credentialState === appleAuth.State.AUTHORIZED) {
-      const { identityToken, email } = appleAuthRequestResponse;
+    fetchAndUpdateCredentialState(updateCredentialStateForUser).catch(error =>
+      updateCredentialStateForUser(`Error: ${error.code}`),
+    );
 
-      if (!identityToken) {
-        throw new Error('Apple Sign-In failed - no identify token returned');
-      }
+    if (identityToken) {
+      // e.g. sign in with Firebase Auth using `nonce` & `identityToken`
+      console.log(nonce, identityToken);
+    } else {
+      // no token - failed sign-in?
+    }
 
-      console.log('identityToken, email', identityToken, email);
+    if (realUserStatus === appleAuth.UserStatus.LIKELY_REAL) {
+      console.log("I'm a real person!");
+    }
 
-      // 백엔드로 토큰 전송
-      const response: AxiosResponse = await axios.post(
-        `${baseURL}users/apple`,
-        JSON.stringify({
-        token: identityToken,
-        email: email}),
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        },
-      );
-
-      // await AsyncStorage.setItem('token', res.data.token);
-      // axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-      // setUser(res.data.user);
-      console.log('Apple Login Success:', response.data);
-
-      return { success: true };
-    // } else {
-    //   throw new Error('Apple Sign-In failed - user not authorized');
-    // }
-
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Apple login failed' };
+    console.warn(`Apple Authentication Completed, ${userId}, ${email}`);
+  } catch (error: any) {
+    if (error?.code === appleAuth.Error.CANCELED) {
+      console.warn('User canceled Apple Sign in.');
+    } else {
+      console.error(error);
+    }
   }
 }
 
@@ -153,20 +147,20 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
 
   useEffect(() => {
     console.log('NaverLogin - useEffect');
-    GoogleSignin.configure({
-      webClientId: '60338696147-ba7sethhai2vluk5np1gmluta1eliuoo.apps.googleusercontent.com',
-      // iosClientId: GOOGLE_IOS_CLIENT_ID,
-      scopes: ['profile', 'email'],
-    });
+    // GoogleSignin.configure({
+    //   webClientId: '60338696147-ba7sethhai2vluk5np1gmluta1eliuoo.apps.googleusercontent.com',
+    //   // iosClientId: GOOGLE_IOS_CLIENT_ID,
+    //   scopes: ['profile', 'email'],
+    // });
 
     if (!appleAuth.isSupported) {
       console.log('애플 auth 지원하지 않음');
       return;
     }
 
-    // fetchAndUpdateCredentialState(updateCredentialStateForUser).catch(error =>
-    //   updateCredentialStateForUser(`Error: ${error.code}`),
-    // );
+    fetchAndUpdateCredentialState(updateCredentialStateForUser).catch(error =>
+      updateCredentialStateForUser(`Error: ${error.code}`),
+    );
 
     return () => {
       console.log('NaverLoginScreen - return');
@@ -174,15 +168,15 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
   }, []);
 
 
-  // if (!appleAuth.isSupported) {
-  //   return (
-  //     <View style={[styles.container, styles.horizontal]}>
-  //       <Text>Apple Authentication is not supported on this device.</Text>
-  //     </View>
-  //   );
-  // }
+  if (!appleAuth.isSupported) {
+    return (
+      <View style={[styles.container, styles.horizontal]}>
+        <Text>Apple Authentication is not supported on this device.</Text>
+      </View>
+    );
+  }
 
-  const googleLogin = async (): Promise<void> => {
+  const login = async (): Promise<void> => {
     console.log('Google Login');
 
 
@@ -211,7 +205,7 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
 
   };
 
-  const googleLogout = async (): Promise<void> => {
+  const logout = async (): Promise<void> => {
     try {
       await GoogleSignin.signOut();
       // Perform additional cleanup and logout operations.
@@ -268,9 +262,12 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
         rightPressActive={false}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
-        centerText= 'SNS 로그인'
+        centerText= '구글 로그인'
         containerStyle={{paddingHorizontal: 8}}
         isRight={false}
+        // rightText={'       '}
+        // rightTextStyle={{color: colors.lightBlue}}
+        // onPressRight={() => {}}
       />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -279,45 +276,74 @@ const NaverLoginScreen: React.FC<NaverLoginScreenProps> = props => {
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, padding: 24 }}
       >
-        <Button title={'Google Login'} onPress={googleLogin} />
+        {/* <Button title={'Login'} onPress={login} />
         <Gap />
-        <Button title={'Google Logout'} onPress={googleLogout} />
-        <Gap />
+        <Button title={'Logout'} onPress={logout} />
+        <Gap /> */}
 
-        <View style={[styles.container, styles.horizontal]}>
-            <Text
-              style={styles.header}
-              onPress={() => onUpdateCredentialStateButtonPress(updateCredentialStateForUser)}
-            >
-              Credential State
-            </Text>
-            <Text>{credentialStateForUser}</Text>
+      <View style={[styles.container, styles.horizontal]}>
+          <Text
+            style={styles.header}
+            onPress={() => onUpdateCredentialStateButtonPress(updateCredentialStateForUser)}
+          >
+            Credential State
+          </Text>
+          <Text>{credentialStateForUser}</Text>
 
-            <Text
-              style={styles.header}
-              onPress={() => onUpdateCredentialStateButtonPress(updateCredentialStateForUser)}
-            >
-              User Information
-            </Text>
-            <Text>{`id: ${userId} / email: ${userEmail} / name: ${userName}`}</Text>
+          <Text
+            style={styles.header}
+            onPress={() => onUpdateCredentialStateButtonPress(updateCredentialStateForUser)}
+          >
+            User Information
+          </Text>
+          <Text>{`id: ${userId} / email: ${userEmail} / name: ${userName}`}</Text>
 
-            <Text style={styles.header}>Buttons</Text>
-            <AppleButton
-              style={styles.appleButton}
-              cornerRadius={5}
-              buttonStyle={AppleButton.Style.BLACK}
-              buttonType={AppleButton.Type.SIGN_IN}
-              onPress={ async () => {
-                const result = await onAppleButtonPress();
-                if (!result.success) {
-                  alertMsg('에러', '에러');
-                }
-                else {
-                  alertMsg('성공', '애플 로그인 성공');
-                }
-              } }
-            />
-        </View>
+          <Text style={styles.header}>Buttons</Text>
+          <Text>Continue Styles</Text>
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.WHITE}
+            buttonType={AppleButton.Type.CONTINUE}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.WHITE_OUTLINE}
+            buttonType={AppleButton.Type.CONTINUE}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.BLACK}
+            buttonType={AppleButton.Type.CONTINUE}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+          <Text>Sign-in Styles</Text>
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.WHITE}
+            buttonType={AppleButton.Type.SIGN_IN}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.WHITE_OUTLINE}
+            buttonType={AppleButton.Type.SIGN_IN}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+          <AppleButton
+            style={styles.appleButton}
+            cornerRadius={5}
+            buttonStyle={AppleButton.Style.BLACK}
+            buttonType={AppleButton.Type.SIGN_IN}
+            onPress={() => onAppleButtonPress(updateCredentialStateForUser)}
+          />
+      </View>
 
 
       </ScrollView>

@@ -8,19 +8,21 @@
 // 사용자 정보에 대한 기본 정보
 export interface IAuth {
   phoneNumber: string;
-  nickName?: string;
+  email?: string;
   // 2024-12-23 : 추가
   name?: string;
   // 2024-05-05 : plasma id, iot 사물번호
   // ozsId?: string;
 }
 
-// export interface IDeliveryInfo extends IAuth {
-//   address1: string;
-//   address2?: string;
-//   deliveryMethod: number;
-//   checkMark: boolean;
-// }
+// 서버에서 사용자 번호에 대한 인증 대한 데이타 타입
+export interface IProducerInfo extends IAuth {
+  id: string;
+  bankName: string;
+  bankNumber: string;
+  isProducerNumber: number;
+}
+
 
 export interface IAuthResult {
   status: number;

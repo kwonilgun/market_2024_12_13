@@ -19,6 +19,7 @@ import ChatMainScreen from '../Screen/Chat/ChatMainScreen';
 import ChatRegisterScreen from '../Screen/Chat/ChatRegisterScreen';
 import NaverLoginScreen from '../Screen/Login/NaverLoginScreen';
 import OrderHistoryScreen from '../Screen/Orders/OrderHistoryScreen';
+import EmailLoginScreen from '../Screen/Login/EmailLoginScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<RootStackParamList>();
@@ -85,6 +86,22 @@ function MyStack() {
           })}
         />
       ) : null}
+
+      {state.isAuthenticated ? null : (
+        <Stack.Screen
+          name="EmailLoginScreen"
+          component={EmailLoginScreen}
+          options={({navigation, route}) => ({
+            headerShown: false,
+            headerLeft: () => null,
+            title: '이메일 ',
+            // headerTitle: props => (
+            //   <LogoTitle title="루트원 마켓" navigation={navigation} />
+            // ),
+          })}
+        />
+      )}
+
 
       {state.isAuthenticated ? null : (
         <Stack.Screen

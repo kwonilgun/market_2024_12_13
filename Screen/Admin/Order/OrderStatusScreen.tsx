@@ -28,6 +28,7 @@ import { DataList, makeExpandableDataList, updateLayout } from '../../Orders/mak
 import isEmpty from '../../../utils/isEmpty';
 import deleteOrder from '../../Orders/deleteOrder';
 import { AdminExpandable } from '../../Orders/AdminExpandable';
+import { getToken } from '../../../utils/getSaveToken';
 
 
 const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
@@ -49,9 +50,19 @@ const OrderStatusScreen: React.FC<OrderStatusScreenProps> = props => {
 
 
   const checkOrderStatus = async () => {
+
+    const token = await getToken();
+              //헤드 정보를 만든다.
+    const config = {
+                  headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    Authorization: `Bearer ${token}`,
+                  },
+              };
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}orders`,
+        `${baseURL}orderSql`,
+        config
       );
 
       const orders = response.data as IOrderInfo[];

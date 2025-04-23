@@ -50,16 +50,16 @@ const TabIcon = ({name, color}: {name: string; color: string}) => (
 const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
   const {state, badgeCountState, badgeCountDispatch} = useAuth();
   const [badgeCount, setBadgeCount] = useState<number>(0);
-  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
+  // const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
   // const [status, setStatus] = useState<string>("정상 상태");
 
   const isAuthenticated = state.isAuthenticated;
-  const isAdmin = state.user?.isAdmin;
+  const isAdmin = Boolean(state.user?.isAdmin);
 
-  console.log('MainTab, state =', state);
+  console.log('MainTab, isAuthenticated =', isAuthenticated);
   console.log('MainTab: isAdmin = ', isAdmin);
 
-
+  
 
   if (Platform.OS === 'android') {
     // const notifee = require('@notifee/react-native').default;
@@ -153,15 +153,6 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
     }, [badgeCountState]),
   );
 
-  // useEffect(() => {
-
-  //   console.log('MainTab-useEffect - badge count =', badgeCountState.isBadgeCount );
-  //   setBadgeCount(badgeCountState.isBadgeCount);
-
-  //   return () => {
-  //       console.log('MainTab- useEffect - badge count exit');
-  //   };
-  // }, [badgeCountState]);
 
 
   // 알림 취소 함수
@@ -208,7 +199,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         />
       )}
 
-      {!isAdmin && (
+      {(isAuthenticated && !isAdmin) && (
         <>
           <Tab.Screen
             name="ShoppingCart"
@@ -236,7 +227,7 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
         </>
       )}
 
-      {isAdmin && (
+      {(isAuthenticated && isAdmin ) && (
         <>
         <Tab.Screen
                 name="EditManager"
@@ -263,21 +254,32 @@ const MainTab: React.FC<{initialUrl: string | null}> = ({initialUrl}) => {
 
       )}
 
-      <Tab.Screen
-        name="UserMain"
-        component={UserNavigator}
-        listeners={{
-          tabPress: () => {
-            console.log('사용자 tab pressed');
-            // setBadgeCount(0); // Chat 탭을 누르면 뱃지 초기화
-            // cancelNotifications();
-          },
-        }}
-        options={{
-          tabBarIcon: ({color}) => <TabIcon name="user" color={color} />,
-          tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
-        }}
-      />
+    {isAuthenticated && (
+        <Tab.Screen
+          name="UserMain"
+          component={UserNavigator}
+          listeners={{
+            tabPress: () => {
+              console.log('사용자 tab pressed');
+              // setBadgeCount(0); // Chat 탭을 누르면 뱃지 초기화
+              // cancelNotifications();
+            },
+          }}
+          options={{
+            tabBarIcon: ({color}) => <TabIcon name="user" color={color} />,
+            tabBarBadge: badgeCount > 0 ? badgeCount : undefined,
+          }}
+        />
+      )}
+      {!isAuthenticated && (
+        <Tab.Screen
+          name="UserMain"
+          component={UserNavigator}
+          options={{
+            tabBarIcon: ({color}) => <TabIcon name="user" color={color} />,
+          }}
+        />
+      )}
 
 
     </Tab.Navigator>

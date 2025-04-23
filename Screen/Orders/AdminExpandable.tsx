@@ -1,14 +1,13 @@
 /* eslint-disable no-sequences */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState, useCallback} from 'react';
-import {useFocusEffect} from '@react-navigation/native';
-import {View, TouchableOpacity, Text, StyleSheet, ScrollView, Alert} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 
 import isEmpty from '../../utils/isEmpty';
-import {dateToKoreaDate, dateToKoreaTime} from '../../utils/time/dateToKoreaTime';
-import {DataList, DataListItem} from './makeExpandable';
+import { dateToKoreaDate } from '../../utils/time/dateToKoreaTime';
+import { DataList, DataListItem } from './makeExpandable';
 import { RFPercentage } from 'react-native-responsive-fontsize';
-import { Picker } from '@react-native-picker/picker';
 
 interface ExpandableProps {
   navigation: any;
@@ -93,13 +92,10 @@ export const AdminExpandable: React.FC<ExpandableProps> = ({
     );
   };
 
-  
-
-
   return (
     <View>
       <TouchableOpacity activeOpacity={0.8} onPress={onClickFunction}>
-        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.title}>{item.title} {item.isExpanded ? '  🔼' : '  🔽'} {/* 인디케이터 추가 */}</Text>
       </TouchableOpacity>
       <View
         style={{
@@ -165,8 +161,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',  // 중앙 정렬
     // justifyContent: 'space-between',
     marginVertical: 4,
-    borderBottomWidth: 1,
-    borderColor: 'black',
+    // borderBottomWidth: 1,
+    // borderColor: 'black',
     // paddingHorizontal: RFPercentage(2),
   },
   subtitleContainer: {

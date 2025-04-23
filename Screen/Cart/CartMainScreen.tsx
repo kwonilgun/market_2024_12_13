@@ -68,7 +68,7 @@ const CartMainScreen: React.FC<CartMainScreenProps> = props => {
               console.log('CartMainScreen - price discount', price, discount);
 
               sum +=
-                parseInt(price, 10) * (100 - (parseInt(discount, 10) ?? 0)) *
+                parseInt(String(price), 10) * (100 - (parseInt(String(discount), 10) ?? 0)) *
                 0.01 *
                 item.quantity;
             });

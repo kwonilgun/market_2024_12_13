@@ -17,6 +17,7 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import {
+  FlatList,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -40,12 +41,20 @@ import { IProduct } from '../model/interface/IProductInfo';
 import { ICompany } from '../model/interface/ICompany';
 import ProductList from './ProductList';
 import strings from '../../constants/lang';
+import { ISProduct } from '../Admin/AddProductScreen';
+import { alertMsg } from '../../utils/alerts/alertMsg';
+import colors from '../../styles/colors';
+import ProductCard from './ProductCard';
+
+interface IPackagedProducts {
+  [packageName: string]: ISProduct[];
+}
 
 const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
   const {state} = useAuth();
 
-  const [products, setProducts] = useState<IProduct[] | []>([]);
-  const [productsCtg, setProductsCtg] = useState<IProduct[] | []>([]);
+  const [productList, setProductList] = useState<ISProduct[] | []>([]);
+  const [packagedProducts, setPackagedProducts] = useState<IPackagedProducts>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [aiLoading, setAiLoading] = useState<boolean>(false);
   // const [productListLoading, setProductListLoading] = useState<boolean>(false); // ProductList 로딩 상태 추가
@@ -54,29 +63,31 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
   const [productNames, setProductNames] = useState<string[] | null>(null);
 
 
-  const initialState = useRef<IProduct[]>([]);
+  const initialState = useRef<ISProduct[]>([]);
 
   const isAdmin = state.user?.isAdmin;
 
   useFocusEffect(
     useCallback(() => {
       // console.log('1. ProductMainScreen : useFocusEffect... 진입');
-      if (state.isAuthenticated) {
-        fetchProductInformFromServer();
-      } else {
-        // console.log('ProductMainScreen useFocusEffect: 로그 아웃상태');
-        setLoading(false);
-      }
+      // if (state.isAuthenticated) {
+      //   fetchProductInformFromServer();
+      // } else {
+      //   // console.log('ProductMainScreen useFocusEffect: 로그 아웃상태');
+      //   setLoading(false);
+      // }
+      fetchProductList();
 
       return () => {
         // console.log('ProductMainScreen useFocusEffect 나감');
-        setProducts([]);
+        setProductList([]);
         setLoading(true);
       };
-    }, [state.isAuthenticated]),
+    }, []),
   );
 
-  const fetchProductInformFromServer = async () => {
+   // 2025-01-28: 상품정보를 읽어온다.
+   const fetchProductList = async () => {
     try {
       const token = await getToken();
       //헤드 정보를 만든다.
@@ -86,35 +97,37 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
           Authorization: `Bearer ${token}`,
         },
       };
-
-      const productResponse: AxiosResponse = await axios.get(
-        `${baseURL}products/`,
+      const response: AxiosResponse = await axios.get(
+        `${baseURL}products/sql`,
         config,
       );
-      setProducts(productResponse.data);
+      if (response.status === 200) {
+        // console.log('products List  = ', response.data);
+        const productL = response.data as ISProduct[];
+        productL.sort((a,b) => a.name.localeCompare(b.name));
+        setProductList(productL);
+        groupProductsByPackage(productL);
 
-      setProductsCtg(productResponse.data);
-      initialState.current = productResponse.data;
-
-      // product name 만 추출
-      const productNames = productResponse.data.map((product: IProduct) => product.name);
-      console.log('ProductMainScreen Product Names:', productNames);
-      setProductNames(productNames);
-
-      //3. 회사 정보를 가져온다.
-      const companyResponse: AxiosResponse = await axios.get(
-        `${baseURL}terms/${COMPANY_INFO_ID}`,
-      );
-      if (companyResponse.status === 200) {
-        setCompanyInform(companyResponse.data[0]);
-      } else {
-        setCompanyInform(null);
       }
     } catch (error) {
-      console.log('fetProductInformFromServer 에러..', error);
+      alertMsg(strings.ERROR, '상품 리스 다운로드 실패');
     } finally {
       setLoading(false);
     }
+  };
+
+  const groupProductsByPackage = (products: ISProduct[]) => {
+    const grouped: IPackagedProducts = {};
+    products.forEach(product => {
+      if (product.package) {
+        if (!grouped[product.package]) {
+          grouped[product.package] = [];
+        }
+        grouped[product.package].push(product);
+      }
+    });
+    // console.log('grouped package = ', grouped);
+    setPackagedProducts(grouped);
   };
 
 
@@ -135,23 +148,102 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
           width: RFPercentage(4),
           height: RFPercentage(4),
           borderRadius: RFPercentage(5) / 2, // 원형
-          backgroundColor: 'blue', // 배경색
+          borderColor: 'black',
+          borderWidth: 2,
+          backgroundColor: 'white', // 배경색
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
-        <Text style={{ fontSize: RFPercentage(2), color: 'white', fontWeight: 'bold' }}>
-          AI
+        <Text style={{ fontSize: RFPercentage(2), color: 'black', fontWeight: 'bold' }}>
+          Q/A
         </Text>
       </View>
     </TouchableOpacity>
     );
   };
+
+
+  const renderProductList =  () => (
+      <View style={styles.productListContainer}>
+          <Text style={styles.title}>상품 리스트</Text>
+          <FlatList
+            data={productList}
+            keyExtractor={item => item.id}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={styles.productItem}
+                onPress={() => {
+
+                  console.log('list item click....');
+
+                  props.navigation.navigate('ProductDetailScreen', {
+                    item: item,
+                    companyInform: companyInform,
+                  });
+                }}
+                // Navigate to chat when a user is selected
+              >
+                <Text style={styles.productName}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+            // ListHeaderComponent={renderAddProduct} // 리스트 상단에 추가 버튼 배치
+            ListEmptyComponent={
+              <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+            }
+          />
+      </View>
+
+  );
+
+  const renderPackagedProductList = (packageName: string, products: ISProduct[]) => (
+    <View style={styles.packageContainer} key={packageName}>
+      <Text style={styles.packageTitle}>{packageName}-패키지</Text>
+      {products.map(item => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.packagedProductItem}
+          onPress={() => {
+            console.log('packaged item click....');
+            props.navigation.navigate('ProductDetailScreen', {
+              item: item,
+              companyInform: companyInform,
+            });
+          }}
+        >
+          <View style={{flex:1, flexDirection:'row', alignItems:'center'}}>
+              <Text style={[styles.headerText, {width:RFPercentage(20),  marginLeft: RFPercentage(2)}]}>{item.name}</Text>
+              <Text style={[styles.headerText, {width:RFPercentage(10)  }]}>{item.unitDesc}</Text>
+              <Text style={[styles.headerText, {width:RFPercentage(10) }]}>{item.price.toString().split('.')[0]}원</Text>
+          </View>
+          
+          
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+
+  const renderLists = () => (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              {/* {renderProductList()} */}
+              {Object.keys(packagedProducts).map(packageName => (
+                renderPackagedProductList(packageName, packagedProducts[packageName])
+              ))}
+            </>
+          }
+          data={[]} // 빈 데이터 배열
+          renderItem={() => null} // 빈 렌더링 함수
+        />
+  );
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={strings.HOME}
+        centerText={ state.user?.isAdmin ? '홈(관리자)' :  strings.HOME}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={false}
         isRightView={isAdmin ? false : true}
@@ -161,58 +253,27 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={GlobalStyles.containerKey}>
+        style={{flex:1, marginTop: RFPercentage(2)}}>
         {loading  ? (
           <>
             <LoadingWheel />
           </>
         ) : (
           <>
-          <ScrollView
-            showsHorizontalScrollIndicator={false}
-            style={styles.background}>
 
-              <View>
-                {loading && <LoadingWheel/>}
+          {loading ? (
+              <LoadingWheel />
+              ) : (
+              renderLists()
+          )}
 
-                {productsCtg.length > 0 ? (
-                  <View style={styles.productsContainer}>
-                    {productsCtg.map(item => (
-                      <ProductList
-                        navigation={props.navigation}
-                        key={item.name}
-                        item={item}
-                        companyInform={companyInform!}
-                        onLoadingChange={handleProductListLoadingChange} // 콜백 함수 전달
-
-                      />
-                    ))}
-                  </View>
-                ) : (
-                  <View style={styles.noProductsContainer}>
-                    <Text style={styles.noProductsText}>해당 제품이 없음</Text>
-                  </View>
-                )}
-
-                <View style={styles.divider} />
-
-                {/* <TermsMain
-                  companyInform={companyInform}
-                  navigation={props.navigation}
-                /> */}
-              </View>
-
-          </ScrollView>
-       
           {/* 최상위 Layer에서 LoadingWheel 표시 */}
           {aiLoading && (
             <View style={styles.loadingOverlay}>
               <LoadingWheel />
             </View>
           )}
-          
           </>
-          
        )}
       </KeyboardAvoidingView>
     </WrapperContainer>
@@ -220,74 +281,71 @@ const ProductMainScreen: React.FC<ProductMainScreenProps> = props => {
 };
 
 const styles = StyleSheet.create({
-  background: {
-    backgroundColor: '#f2f2f2',
-    height: height,
+
+  headerText: {
+    // flex: 1, // 동일한 비율 유지
+    fontSize: RFPercentage(2),
+    color: 'black',
+    // fontWeight: 'bold',
+    textAlign: 'center',
   },
-  centeredView: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  marginText: {
-    margin: 10,
-  },
-  phoneNumberText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  searchContainer: {
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  searchResultContainer: {
-    margin: 10,
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#87ceeb',
-  },
-  productsContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  noProductsContainer: {
-    height: height * 0.2,
-    backgroundColor: '#dcdcdc',
-    marginTop: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noProductsText: {
-    fontSize: 20,
-  },
-  divider: {
-    marginTop: 20,
-    height: 1,
-    backgroundColor: '#e0e0e0',
-  },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#87ceeb',
-    borderRadius: 10,
-    // width: SEARCH_BOX_WIDTH,
-  },
-  textInput: {
-    flex: 1,
-    padding: 10,
-    fontSize: 16,
-  },
-  backButton: {
-    padding: 10,
-    backgroundColor: '#00bfff',
-    borderRadius: 10,
-  },
-  backButtonText: {
-    color: '#fff',
-    fontSize: 14,
-  },
+
+  productListContainer: {
+      padding: 10,
+    },
+    productItem: {
+      padding: RFPercentage(1),
+      marginHorizontal: RFPercentage(3),
+      marginBottom: 5,
+      backgroundColor: colors.grey,
+      borderRadius: 5,
+    },
+    productName: {
+      fontSize: 16,
+      color: colors.black,
+    },
+    title: {
+      fontWeight: 'bold',
+      fontSize: 18,
+      marginBottom: 10,
+      color: 'black',
+    },
+    itemContainer: {
+      marginBottom: 10,
+    },
+    emptyMessage: {
+      fontSize: 16,
+      color: '#888',
+      textAlign: 'center',
+      marginTop: 20,
+    },
+
+    packageContainer: {
+      padding: 10,
+      marginBottom: 20,
+      borderBottomWidth: 1,
+      borderBottomColor: 'gray',
+    },
+    packageTitle: {
+      fontWeight: 'bold',
+      fontSize: 18,
+      marginBottom: 10,
+      color: 'black',
+    },
+    packagedProductItem: {
+      // padding: RFPercentage(1),
+      // marginHorizontal: RFPercentage(3),
+      marginBottom: 5,
+      backgroundColor: colors.grey,
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: colors.grey,
+    },
+    packagedProductName: {
+      fontSize: 16,
+      color: colors.black,
+    },
+  
   loadingOverlay: {
     position: 'absolute',
     top: 0,

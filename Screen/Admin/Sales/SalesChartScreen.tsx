@@ -3,7 +3,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useCallback, useState } from 'react';
 import {
-  Dimensions, FlatList, StyleSheet, Text, TouchableOpacity,
+  Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity,
   View
 } from 'react-native';
 import WrapperContainer from '../../../utils/basicForm/WrapperContainer';
@@ -110,15 +110,7 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
   };
 
 
-  function formatDateToKorean(dateString: string): string {
-    const date = new Date(dateString); // 이미 한국 시간 기준
-
-    const month = date.getMonth() + 1; // getMonth()는 0부터 시작하므로 1을 더함
-    const day = date.getDate();
-
-    console.log('SalesChartScreen - label = ', `${month}월 ${day}일`);
-    return `${month}월 ${day}일`;
-  }
+  
 
   const chartData: lineDataItem[] = salesData
   .map(item => ({
@@ -152,49 +144,56 @@ const SalesChartScreen: React.FC<SalesChartScreenProps> = props => {
           <LoadingWheel />
         </>
       ) : (
-        <View style={{marginTop:RFPercentage(5), marginHorizontal:RFPercentage(1), alignSelf:'center'}} >
-          {/* react-native-svg-charts의 LineChart 컴포넌트를 사용하여 차트를 렌더링합니다. */}
-          <LineChart
-            data={chartData}
-            width={Dimensions.get('window').width - RFPercentage(15)} // Adjust width as needed
-            height={300} // Adjust height as needed
-            maxValue={10000}
-                      // hideYAxisText={true}
+         <ScrollView >
+            <View style={{marginTop:RFPercentage(5), marginHorizontal:RFPercentage(0.5), alignSelf:'center'}} >
+                      {/* react-native-svg-charts의 LineChart 컴포넌트를 사용하여 차트를 렌더링합니다. */}
+                      <LineChart
+                        data={chartData}
+                        width={Dimensions.get('window').width - RFPercentage(10)} // Adjust width as needed
+                        height={300} // Adjust height as needed
+                        maxValue={10000}
+                                  // hideYAxisText={true}
 
-            formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
+                        formatYLabel = {(label:string)=> Math.round(parseFloat(label) / 1000.0).toString()}
 
-            yAxisLabelWidth={30}
-            yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
-            xAxisLabelTextStyle={{
-              rotation: 90, // Rotate x-axis labels by 90 degrees
-              fontSize: 12, // Adjust font size if needed
-              color: 'blue', // Adjust color if needed
-            }}
-            dataPointsColor={'red'} // 데이터 포인트의 색상
-            // showDataPointLabelOnFocus={true}
-            showYAxisIndices={true}
-            showXAxisIndices={true}
-            // showValuesAsDataPointsText={true}
-        />
-        <View style={styles.subtitleHeader}>
-                    <Text style={styles.titleDate}>날짜</Text>
-                    <Text style={styles.titleRevenue}>매출</Text>
-        </View>
-        <FlatList
-                data={salesData}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.date!}
-                contentContainerStyle={styles.listContainer}
-                ListEmptyComponent={
-                              <Text style={styles.emptyMessage}> 리스트 없음.</Text>
-                            }
-          />
+                        yAxisLabelWidth={30}
+                        yAxisLabelSuffix="k" // Add prefix to y-axis labels if needed
+                        xAxisLabelTextStyle={{
+                          rotation: 90, // Rotate x-axis labels by 90 degrees
+                          fontSize: 12, // Adjust font size if needed
+                          color: 'blue', // Adjust color if needed
+                        }}
+                        dataPointsColor={'red'} // 데이터 포인트의 색상
+                        // showDataPointLabelOnFocus={true}
+                        showYAxisIndices={true}
+                        showXAxisIndices={true}
+                        // showValuesAsDataPointsText={true}
+                    />
+                    <View style={styles.subtitleHeader}>
+                                <Text style={styles.titleDate}>날짜</Text>
+                                <Text style={styles.titleRevenue}>매출</Text>
+                    </View>
+                    <FlatList
+                            data={salesData}
+                            renderItem={renderItem}
+                            keyExtractor={(item) => item.date!}
+                            contentContainerStyle={styles.listContainer}
+                            ListEmptyComponent={
+                                          <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                                        }
+                      />
 
-        </View>
+            </View>
+
+         </ScrollView>
+       
       )}
     </WrapperContainer>
   );
 };
+
+
+
 
 const localStyles = StyleSheet.create({
   subtitleHeader: {

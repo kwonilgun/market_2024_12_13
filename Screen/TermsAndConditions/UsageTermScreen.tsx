@@ -15,11 +15,24 @@ import {
   width,
 } from '../../assets/common/BaseValue';
 import {errorAlert} from '../../utils/alerts/errorAlert';
-import RenderHtml from 'react-native-render-html';
+import RenderHTML  from 'react-native-render-html';
 import LoadingWheel from '../../utils/loading/LoadingWheel';
 import {useLanguage} from '../../context/store/LanguageContext';
 import colors from '../../styles/colors';
 import {RFPercentage} from 'react-native-responsive-fontsize';
+
+
+const renderersProps = {
+  a: {
+    onPress: (event: any, href: any) => {
+      console.log('링크 클릭됨:', href);
+    },
+  },
+};
+
+const tagsStyles = {
+  body: { color: colors.black, fontSize: RFPercentage(2) },
+};
 
 const UsageTermScreen: React.FC<UsageTermScreenProps> = props => {
   const [contents, setContents] = useState<string | undefined>(undefined);
@@ -41,7 +54,7 @@ const UsageTermScreen: React.FC<UsageTermScreenProps> = props => {
         setContents(undefined);
         setReady(false);
       };
-    }, []),
+    }, [language]),
   );
   const onPressLeft = () => {
     console.log('UsageTermScreen.tsx: onPressLeft');
@@ -60,6 +73,10 @@ const UsageTermScreen: React.FC<UsageTermScreenProps> = props => {
       </TouchableOpacity>
     );
   };
+
+  
+
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
@@ -76,7 +93,12 @@ const UsageTermScreen: React.FC<UsageTermScreenProps> = props => {
           <ScrollView
             style={styles.scrollView}
             contentContainerStyle={{flexGrow: 1}}>
-            <RenderHtml contentWidth={width} source={{html: contents ?? ''}} />
+            <RenderHTML
+              contentWidth={width}
+              source={{ html: contents || '' }}
+              renderersProps={renderersProps}
+              tagsStyles={tagsStyles}
+            />
           </ScrollView>
         </View>
       ) : (

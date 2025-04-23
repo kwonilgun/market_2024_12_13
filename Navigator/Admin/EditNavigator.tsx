@@ -5,6 +5,8 @@ import {EditStackParamList} from '../../Screen/model/types/TEditNavigator';
 import EditMainScreen from '../../Screen/Admin/EditMainScreen';
 import EditProductScreen from '../../Screen/Admin/EditProductScreen';
 import AddProductScreen from '../../Screen/Admin/AddProductScreen';
+import EditProducerScreen from '../../Screen/Admin/EditProducerScreen';
+import AddProducerScreen from '../../Screen/Admin/AddProducerScreen';
 
 // 2024-02-14 : 버그 Fix, RootStackParamList 를 추가함. 타입을 지정
 const Stack = createStackNavigator<EditStackParamList>();
@@ -48,8 +50,29 @@ function MyStack() {
           />
 
           <Stack.Screen
+            name="EditProducerScreen"
+            component={EditProducerScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '상품편집',
+            })}
+          />
+
+
+          <Stack.Screen
             name="AddProductScreen"
             component={AddProductScreen}
+            options={({navigation, route}) => ({
+              headerShown: false,
+              headerLeft: () => null,
+              title: '상품추가',
+            })}
+          />
+
+          <Stack.Screen
+            name="AddProducerScreen"
+            component={AddProducerScreen}
             options={({navigation, route}) => ({
               headerShown: false,
               headerLeft: () => null,

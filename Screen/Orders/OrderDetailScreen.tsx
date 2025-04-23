@@ -72,21 +72,6 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
   // const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
 
-
-  // const {
-  //     control,
-  //     setValue,
-  //     getValues,
-  //     handleSubmit,
-  //     formState: {errors},
-  //     reset,
-  //   } = useForm<IOrderStatus>({
-  //     defaultValues: {
-  //      status: Number(props.route.params?.item.status),
-  //      deliveryDate: props.route.params?.item.deliveryDate,
-  //     },
-  //   });
-
   useEffect(() => {
     if (!isEmpty(props.route.params.item)) {
       console.log('');
@@ -111,10 +96,11 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
     try {
       const response: AxiosResponse = await axios.get(
-        `${baseURL}orders/orderItems/${orderItemNumber}`,
+        `${baseURL}orderSql/orderItems/${orderItemNumber}`,
         config,
       );
       if (response.status === 200) {
+        console.log('orderItem = ', response.data);
         setOrderItem(response.data);
 
         //   setBrand(res.data.product.brand);
@@ -171,64 +157,6 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
     confirmAlert(param);
   };
 
-  // const confirmUpload: SubmitHandler<IOrderStatus> = async data => {
-  //   console.log('업로드 order status = ', data);
-
-  //   const param: ConfirmAlertParams = {
-  //     title: strings.CONFIRMATION,
-  //     message: '주문상태 변경',
-  //     func: async (in_data: IOrderStatus) => {
-  //       console.log('주문상태 업로드 data = ', in_data);
-  //       const status: IOrderStatus = in_data;
-
-  //       const token = await getToken();
-  //       const config = {
-  //         headers: {
-  //           'Content-Type': 'application/json; charset=utf-8',
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       };
-  //       try {
-  //         const response: AxiosResponse = await axios.put(
-  //           `${baseURL}orders/status/${item.id}`,
-  //           JSON.stringify(status),
-  //           config,
-  //         );
-  //         if (response.status === 200 || response.status === 201) {
-  //           alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
-  //         } else if (response.status === 202) {
-  //           alertMsg('에러', '주문상태 202');
-  //         } else if (response.status === 203) {
-  //           alertMsg('에러', '주문 ');
-  //         }
-  //       } catch (error) {
-  //         console.log('confirmUpload error, error = ', error);
-  //         alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-  //       }
-  //     },
-  //     params: [data],
-  //   };
-
-  //   confirmAlert(param);
-  // };
-
-  // const showDatePicker = () => {
-  //   setDatePickerVisibility(true);
-  // };
-
-  // const hideDatePicker = () => {
-  //   setDatePickerVisibility(false);
-  // };
-
-  // const handleConfirm = (date: Date) => {
-  //   setValue('deliveryDate', date);
-  //   console.log('OrderDetailScreen deliveryDate =', dateToKoreaDate(date) );
-  //   hideDatePicker();
-  // };
-
-  // const checkChangedValues  = () => {
-  //   return Number(props.route.params?.item.status) !== getValues('status') || props.route.params?.item.deliveryDate !== getValues('deliveryDate');
-  // }
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
@@ -263,7 +191,7 @@ const OrderDetailScreen: React.FC<OrderDetailScreenProps> = props => {
 
                   <View style={styles.row}>
                     <Text style={styles.label}>상품 브랜드:</Text>
-                    <Text style={styles.value}>{orderItem?.product.brand}</Text>
+                    <Text style={styles.value}>{orderItem?.product.name}</Text>
                   </View>
 
                   <View style={styles.row}>

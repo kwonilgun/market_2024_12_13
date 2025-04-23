@@ -33,8 +33,8 @@ const GlobalStyles = StyleSheet.create({
   HStack_LOGIN: {
     flex: 1,
     marginTop: RFPercentage(1),
-    marginRight: 10,
-    padding: 2,
+    // marginRight: 10,
+    // padding: 2,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -72,8 +72,8 @@ const GlobalStyles = StyleSheet.create({
     margin: RFPercentage(1),
   },
   inputTitle: {
-    fontWeight: 'bold',
-    fontSize: RFPercentage(2.2),
+    // fontWeight: 'bold',
+    fontSize: RFPercentage(1),
     color: 'black',
     marginTop: RFPercentage(1),
   },
@@ -98,15 +98,15 @@ const GlobalStyles = StyleSheet.create({
   errorMessage: {
     color: 'red',
     height: height * 0.04,
-    margin: RFPercentage(1),
-    fontSize: RFPercentage(2.6),
-    fontWeight: 'bold',
+    marginLeft: RFPercentage(1),
+    fontSize: RFPercentage(1),
+    // fontWeight: 'bold',
   },
 
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: RFPercentage(10),
   },
   checkboxLabel: {
     marginLeft: 10,
@@ -126,11 +126,11 @@ const GlobalStyles = StyleSheet.create({
     margin: RFPercentage(1),
   },
   textInputField: {
-    height: Platform.OS === 'android' ? 'auto' : height * 0.05,
-    width: width * 0.75,
+    height: Platform.OS === 'android' ? 'auto' : 'auto' ,
+    width: width * 0.8,
     margin: RFPercentage(1),
     borderWidth: 1,
-    paddingHorizontal: 10,
+    padding: RFPercentage(1),
     borderColor: 'black',
     borderRadius: 5,
     fontSize: RFPercentage(1.8),

@@ -4,8 +4,8 @@ import axios, {AxiosResponse} from 'axios';
 import {baseURL} from '../../assets/common/BaseUrl';
 import strings from '../../constants/lang';
 
-const deleteOrder = async (id: string, props: any) => {
-  console.log('deleteOrder - deleteOrder');
+const adminDeleteOrder = async (id: string, props: any) => {
+  console.log(' deleteOrder');
   //   const orderList = props.route.params.orders;
 
   // token을 가져온다.
@@ -34,11 +34,11 @@ const deleteOrder = async (id: string, props: any) => {
       //  props.navigation.goBack();
       //  props.navigation.replace('UserMain', {screen: 'ProfileScreen'});
       //  2024-12-27 : Maximum call stack size exceeded 에러 fix
-      props.navigation.replace('ProfileScreen');
+      props.navigation.replace('AdminOrderMainScreen');
     }
   } catch (error) {
-    alertMsg(strings.ERROR, '소비자 주문 삭제 실패함');
+    alertMsg(strings.ERROR, '관리자 주문 삭제 실패함');
   }
 };
 
-export default deleteOrder;
+export default adminDeleteOrder;

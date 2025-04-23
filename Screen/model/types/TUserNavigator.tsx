@@ -17,6 +17,7 @@ import {CartItem} from '../../../Redux/Cart/Reducers/cartItems';
 import {DataList} from '../../Orders/makeExpandable';
 import {IOrderInfo} from '../interface/IOrderInfo';
 import {SocketItem} from '../../../Redux/Cart/Reducers/socketItems';
+import { ISProduct } from '../../Admin/AddProductScreen';
 
 export type RootStackParamList = {
   /* 💇‍♀️2024-12-21 :
@@ -34,6 +35,7 @@ export type RootStackParamList = {
   EditUsageTermScreen: undefined;
   EditPrivatePolicyScreen: undefined;
   LoginScreen: undefined;
+  EmailLoginScreen: undefined;
   PasswordResetScreen: undefined;
   ChangePasswordScreen: undefined;
   ProfileScreen: {userInfo: UserFormInput};
@@ -89,6 +91,10 @@ export type EditPrivatePolicyScreenProps = {
 
 export type LoginScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'LoginScreen'>;
+};
+
+export type EmailLoginScreenProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'EmailLoginScreen'>;
 };
 
 export type ChangePasswordScreenProps = {
@@ -177,11 +183,18 @@ export type HomeAiScreenProps = {
   };
 };
 
+export type ProductCardProps = {
+  items: ISProduct;
+  onLoadingChange : (isLoading: boolean) => void;
+  navigation: StackNavigationProp<any, any>; // Update types based on your navigation stack
+  addItemToCart: (cart: CartItem) => void;
+};
+
 export type ProductDetailScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'ProductDetailScreen'>;
   route: {
     params: {
-      item: IProduct;
+      item: ISProduct;
       companyInform: ICompany;
     };
   };

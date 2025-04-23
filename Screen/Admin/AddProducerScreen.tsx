@@ -3,13 +3,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useCallback, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import WrapperContainer from '../../utils/basicForm/WrapperContainer';
 import HeaderComponent from '../../utils/basicForm/HeaderComponents';
@@ -18,7 +18,6 @@ import { RFPercentage } from 'react-native-responsive-fontsize';
 import strings from '../../constants/lang';
 import { useAuth } from '../../context/store/Context.Manager';
 import { useFocusEffect } from '@react-navigation/native';
-import { IUserAtDB } from '../model/interface/IAuthInfo';
 import { getToken } from '../../utils/getSaveToken';
 import axios, { AxiosResponse } from 'axios';
 import { baseURL } from '../../assets/common/BaseUrl';
@@ -28,25 +27,23 @@ import GlobalStyles from '../../styles/GlobalStyles';
 import { width } from '../../assets/common/BaseValue';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import InputField from '../../utils/InputField';
-import isEmpty from '../../utils/isEmpty';
 import { errorAlert } from '../../utils/alerts/errorAlert';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { ChatRegisterScreenProps } from '../model/types/TUserNavigator';
 import {
-  confirmAlert,
-  ConfirmAlertParams,
+    confirmAlert,
+    ConfirmAlertParams,
 } from '../../utils/alerts/confirmAlert';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { IProduct } from '../model/interface/IProductInfo';
+import { AddProductScreenProps } from '../model/types/TEditNavigator';
+import FastImage from 'react-native-fast-image';
+import { launchImageLibrary } from 'react-native-image-picker'; // 추가
+import mime from 'mime';
+import { IProducerInfo } from '../model/interface/IAuthInfo';
 
 
 
-const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
-  const {state, dispatch} = useAuth();
-  const [isLogin, setIsLogin] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [chatUser, setChatUser] = useState<IChatUserInfo | null>(null);
-  const [userProfile, setUserProfile] = useState<IUserAtDB | null>(null);
-
+const AddProducerScreen: React.FC<AddProductScreenProps> = props => {
+  const {state} = useAuth();
 
 
   const {
@@ -56,103 +53,89 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
     handleSubmit,
     formState: {errors},
     reset,
-  } = useForm<IChatUserInfo>({
+  } = useForm<IProducerInfo>({
     defaultValues: {
-      userId: '',
-      phone: '',
+      id: '',
+      name: '',
       nickName: '',
-      email: '',
-      groupName: '', //APT 이름
-      isManager: false,
-      fcmToken: '',
+      phoneNumber: '',
+      bankName: '',
+      bankNumber:'',
+      isProducerNumber: 0,
     },
   });
 
   useFocusEffect(
     useCallback(() => {
       console.log(
-        'ChatRegisterScreen: useFocusEffect : isAuthenticated = ',
-        state.isAuthenticated,
+        'AddProducerScreen useFocusEffect'
       );
 
-      setIsLogin(true);
-      existChatUserInfo();
-      //  makeChatUserInfo();
+      // setProduct(props.route.params.item);
 
       return () => {
-        //    reset();
-        setUserProfile(null);
+        // setLoading(true);
       };
     }, []),
   );
 
-  const existChatUserInfo = async () => {
-    const token = await getToken();
-    //헤드 정보를 만든다.
-    const config = {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        Authorization: `Bearer ${token}`,
-      },
-      params: {email: state.user?.nickName},
-    };
-    try {
-      const response: AxiosResponse = await axios.get(
-        `${baseURL}messages/user`,
-        config,
-      );
-      if (response.status === 200) {
-        reset(response.data);
-        setChatUser(response.data);
-      } else {
-        alertMsg(strings.ERROR, '사용자 정보 없음');
-      }
-    } catch (error) {
-      console.log('ProfileScreen get user error = ', error);
-      alertMsg(strings.ERROR, '사용자 정보 가져오지 못함...');
-    }
-  };
 
-
-  const isVacancy = () => {
+  const isChanged = () => {
     const currentValues = getValues();
-    // 여기에서 변경 여부를 확인하고 필요한 로직을 수행
-    console.log('currentValues = ', currentValues);
 
-    const isVacant: boolean = isEmpty(currentValues.groupName);
+    // defaultValues의 타입 정의
+    const defaultValues: IProducerInfo = {
+      id: '',
+      name: '',
+      nickName: '',
+      phoneNumber: '',
+      bankName: '',
+      bankNumber:'',
+      isProducerNumber: 0,
+    };
 
-    console.log('isVacant = ', isVacant);
-    return isVacant;
+    // 기본값과 현재 값 비교
+    const hasChanged = (Object.keys(defaultValues) as (keyof typeof currentValues)[]).some(
+      key => defaultValues[key] !== currentValues[key]
+    );
+
+    console.log('isChanged: ', hasChanged);
+    return hasChanged;
   };
 
-  const confirmUpload: SubmitHandler<IChatUserInfo> = async data => {
+
+  const confirmUpload: SubmitHandler<IProducerInfo> = async data => {
     const param: ConfirmAlertParams = {
       title: strings.CONFIRMATION,
-      message: '채팅 등록',
-      func: async (in_data: IChatUserInfo) => {
-        console.log('업로드 사용자 주소 data = ', in_data);
+      message: '생산자 추가',
+      func: async (in_data: IProducerInfo) => {
+        console.log('업로드 상품 추가 data = ', in_data);
         const token = await getToken();
 
-        //헤드 정보를 만든다.
         const config = {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             Authorization: `Bearer ${token}`,
           },
         };
-        //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
-        try {
-          const response: AxiosResponse = await axios.post(
-            `${baseURL}messages/register`,
-            JSON.stringify(data),
-            config,
-          );
-          if (response.status === 200 || response.status === 201) {
-            alertMsg(strings.SUCCESS, strings.UPLOAD_SUCCESS);
-          }
-        } catch (error) {
-          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-        }
+
+
+        console.log('EditProducerScreen data', data);
+
+        axios
+          .post(`${baseURL}producers`, JSON.stringify(data), config)
+          .then(res => {
+            if (res.status === 200 || res.status === 201) {
+             alertMsg('success', '상품 성공적으로 추가됨');
+            }
+          })
+          .catch(error => {
+            console.error(error);
+            // alert("1. 상품 업데이트 실패" + error)
+            // setShowModal(false);
+            errorAlert('1. 상품업로드 에러', ' ' + error);
+          });
+
       },
       params: [data],
     };
@@ -160,59 +143,18 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
     confirmAlert(param);
   };
 
-  const uploadChatUserInfo = () => {
-    console.log('채팅 사용자 정보 업로드');
-    if (!isVacancy()) {
+  const uploadProducerInfo = () => {
+    console.log('AddProducerScreen : 생산자 정보 업로드');
+    if (isChanged()) {
       console.log('데이타가 변경되었습니다. ');
-      //  const currentValues = getValues();
-      //  if (!areJsonEqual(currentValues, userOriginalInfo.current!)) {
       handleSubmit(confirmUpload)();
-      //  } else {
-      //    errorAlert(strings.ERROR, strings.NO_CHANGE_DATA);
-      //  }
     } else {
-      errorAlert(strings.ERROR, strings.VACANT_DATA);
+      errorAlert(strings.ERROR, '데이터 변경이 없음');
     }
   };
 
-  const deleteChatUserInfo = async () => {
-    console.log('deleteChatUserInfo');
-    const param: ConfirmAlertParams = {
-      title: strings.DELETE,
-      message: '채팅 사용자 삭제',
-      func: async () => {
-        const token = await getToken();
-
-        //헤드 정보를 만든다.
-        const config = {
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            Authorization: `Bearer ${token}`,
-          },
-          params: {email: state.user?.nickName},
-        };
-        //2023-02-16 : await 로 변경함. 그리고 에러 발생 처리
-        try {
-          const response: AxiosResponse = await axios.delete(
-            `${baseURL}messages`,
-            config,
-          );
-          if (response.status === 200 || response.status === 201) {
-            alertMsg(strings.DELETE, strings.SUCCESS);
-            setChatUser(null);
-          }
-        } catch (error) {
-          alertMsg(strings.ERROR, strings.UPLOAD_FAIL);
-        }
-      },
-      params: [],
-    };
-
-    confirmAlert(param);
-  };
-
   const onPressLeft = () => {
-    props.navigation.navigate('UserMain', {screen: 'ProfileScreen'});
+    props.navigation.navigate('EditManager', {screen: 'EditMainScreen'});
   };
 
   const LeftCustomComponent = () => {
@@ -220,13 +162,10 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
       <TouchableOpacity onPress={onPressLeft}>
         <FontAwesome
           style={{
-            // height: RFPercentage(8),
-            // width: RFPercentage(10),
             marginHorizontal: RFPercentage(1),
             color: colors.black,
             fontSize: RFPercentage(5),
             fontWeight: 'bold',
-            // transform: [{scaleX: 1.5}], // 폭을 1.5배 넓힘
           }}
           name="arrow-left"
         />
@@ -234,50 +173,18 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
     );
   };
 
+
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText={'채팅 등록'}
+        centerText={'생산자 추가'}
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
         isRight={false}
       />
-
-      {loading ? (
         <>
-          <LoadingWheel />
-        </>
-      ) : (
-        <>
-          {isEmpty(chatUser) ? (
-            <View style={{alignItems: 'center', marginTop: 10}}>
-              <View style={{margin: RFPercentage(2), alignItems: 'flex-end'}}>
-                <TouchableOpacity
-                  onPress={async () => {
-                    console.log('ChatRegister: 등록필요. ');
-                    const fcmToken = await AsyncStorage.getItem('fcmToken');
-                    const info: IChatUserInfo = {
-                      userId: state.user?.userId!,
-                      phone: state.user?.phoneNumber!,
-                      nickName: state.user?.nickName!,
-                      email: state.user?.nickName!,
-                      isManager: false,
-                      groupName: '',
-                      fcmToken: fcmToken!,
-                    };
-
-                    setChatUser(info);
-                    reset(info);
-                  }}>
-                  <View style={GlobalStyles.buttonSmall}>
-                    <Text style={{fontSize: RFPercentage(3)}}> + </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : (
             <KeyboardAvoidingView
               behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
               style={GlobalStyles.containerKey}>
@@ -290,23 +197,19 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
 
                     <TouchableOpacity
                       onPress={() => {
-                        uploadChatUserInfo();
+                        uploadProducerInfo();
                       }}
                       style={styles.saveButton}>
                       <Text style={styles.buttonText}>{strings.REGISTER}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                      onPress={() => {
-                        deleteChatUserInfo();
-                      }}
-                      style={styles.saveButton}>
-                      <Text style={styles.buttonText}>{strings.DELETE}</Text>
-                    </TouchableOpacity>
                   </View>
+
                   <View style={styles.UserInfoBorderBox}>
+
+                    {/* 이름 */}
                     <Text style={[GlobalStyles.inputTitle]}>
-                      {strings.EMAIL}
+                      {strings.NAME}
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
@@ -315,18 +218,21 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
                           required: true,
                           minLength: 2,
                         }}
-                        name="email"
+                        name="name"
                         placeholder={strings.PLEASE_ENTER_NAME}
                         keyboard="name-phone-pad" // 숫자 판으로 변경
-                        isEditable={false}
+                        isEditable={true}
                       />
-                      {errors.email && (
+                      {errors.name && (
                         <Text style={GlobalStyles.errorMessage}>
-                          {strings.EMAIL} {strings.ERROR}
+                          {strings.NAME} {strings.ERROR}
                         </Text>
                       )}
                     </View>
-                    <Text style={GlobalStyles.inputTitle}>{strings.PHONE}</Text>
+                    {/* 전화번호 */}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      전화 번호
+                    </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
@@ -336,19 +242,21 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
                           maxLength: 11,
                           pattern: /^01(?:0)\d{4}\d{4}$/,
                         }}
-                        name="phone"
-                        placeholder={strings.PLEASE_ENTER_TEL}
+                        name="phoneNumber"
+                        placeholder="전화번호 입력하세요"
                         keyboard="phone-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.phone && (
+                      {errors.phoneNumber && (
                         <Text style={GlobalStyles.errorMessage}>
                           전화번호 에러.
                         </Text>
                       )}
                     </View>
-                    <Text style={GlobalStyles.inputTitle}>
-                      {strings.NICKNAME}
+
+                    {/* 은행 이름 */}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      은행 이름
                     </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
@@ -356,52 +264,98 @@ const ChatRegisterScreen: React.FC<ChatRegisterScreenProps> = props => {
                         rules={{
                           required: true,
                           minLength: 2,
-                          // maxLength: 2,
                         }}
-                        name="nickName"
-                        placeholder={strings.PLEASE_ENTER_TEL}
+                        name="bankName"
+                        placeholder= "은행이름 입력하세요"
                         keyboard="name-phone-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.nickName && (
+                      {errors.bankName && (
                         <Text style={GlobalStyles.errorMessage}>
-                          {strings.NICKNAME} {strings.ERROR}
+                          은행이름 {strings.ERROR}
                         </Text>
                       )}
                     </View>
-                    <Text style={GlobalStyles.inputTitle}>아파트 이름</Text>
+
+                      {/* 계좌 번호 */}
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      계좌 번호
+                    </Text>
                     <View style={GlobalStyles.HStack}>
                       <InputField
                         control={control}
                         rules={{
                           required: true,
-                          minLength: 2,
-                          // maxLength: 2,
+                          minLength: 5,
                         }}
-                        name="groupName"
-                        placeholder={'아파트 이름'}
-                        keyboard="name-phone-pad" // 숫자 판으로 변경
+                        name="bankNumber"
+                        placeholder="계좌번호 입력하세요"
+                        keyboard="number-pad" // 숫자 판으로 변경
                         isEditable={true}
                       />
-                      {errors.nickName && (
+                      {errors.name && (
                         <Text style={GlobalStyles.errorMessage}>
-                          {/* {strings.NICKNAME} {strings.ERROR} */}
-                          아파트 이름 에러
+                          계좌번호{strings.ERROR}
                         </Text>
                       )}
                     </View>
+
+                    <Text style={[GlobalStyles.inputTitle]}>
+                      생산자 번호
+                    </Text>
+                    <View style={GlobalStyles.HStack}>
+                      <InputField
+                        control={control}
+                        rules={{
+                          required: true,
+                        }}
+                        name="isProducerNumber"
+                        placeholder="생산자 입력하세요"
+                        keyboard="number-pad" // 숫자 판으로 변경
+                        isEditable={true}
+                      />
+                      {errors.isProducerNumber && (
+                        <Text style={GlobalStyles.errorMessage}>
+                          생산자 번호 {strings.ERROR}
+                        </Text>
+                      )}
+                    </View>
+
                   </View>
                 </View>
               </ScrollView>
             </KeyboardAvoidingView>
-          )}
         </>
-      )}
+      {/* )} */}
     </WrapperContainer>
   );
 };
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    alignItems: 'center', // 수평 가운데 정렬
+    justifyContent: 'center', // 수직 가운데 정렬 (필요 시 추가)
+    marginVertical: RFPercentage(2), // 상하 여백
+  },
+  image: {
+    width: RFPercentage(30),
+    height: RFPercentage(20),
+    borderRadius: 10,
+  },
+
+  cameraContainer:{
+    flexDirection:'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  camera: {
+    marginHorizontal: RFPercentage(1),
+    color: colors.black,
+    fontSize: RFPercentage(5),
+    fontWeight: 'bold',
+  },
+
   HStackTitle: {
     flexDirection: 'row',
     marginTop: RFPercentage(1),
@@ -476,4 +430,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatRegisterScreen;
+export default AddProducerScreen;

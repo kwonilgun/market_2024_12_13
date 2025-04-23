@@ -105,9 +105,6 @@ const App: React.FC = () => {
 
       console.log('IOS Authorization enabled: ', enabled);
     if (enabled) {
-
-      
-
       getFcmToken();
     }
     } catch (error) {
@@ -167,7 +164,7 @@ const App: React.FC = () => {
       <LanguageProvider>
         <Provider store={store}>
           <NavigationContainer linking={linking}>
-            <StartNotify /> 
+            <StartNotify />
             <MainTab initialUrl={initialUrl} />
           </NavigationContainer>
         </Provider>

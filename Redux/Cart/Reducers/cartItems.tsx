@@ -6,12 +6,13 @@
  * Copyright : 루트원 AI
  */
 
+import { ISProduct } from '../../../Screen/Admin/AddProductScreen';
 import {IProduct} from '../../../Screen/model/interface/IProductInfo';
 import isEmpty from '../../../utils/isEmpty';
 
 export interface CartItem {
   quantity: number;
-  product: IProduct;
+  product: ISProduct;
   // Add other properties of the CartItem interface as needed
 }
 

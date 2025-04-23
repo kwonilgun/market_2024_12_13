@@ -43,14 +43,15 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
 
-  console.log('product names = ', props.route.params.productNames);
+  // console.log('product names = ', props.route.params.productNames);
 
 
   useFocusEffect(
     useCallback(() => {
       console.log('OrderAIScreen : useFocusEffect');
 
-      setLoading(false);
+      fetchOrderList();
+
 
       return () => {
         setLoading(true);
@@ -97,8 +98,6 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
 
   const fetchOrderList = async (): Promise<void> => {
 
-    setLoading(true);
-
     const token = await getToken();
     const decoded: UserFormInput = jwtDecode(token!);
     const userId = decoded.userId === null || undefined ? '' : decoded.userId;
@@ -114,7 +113,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
 
     try {
       const response: AxiosResponse =  await axios.get(
-        `${baseURL}orders/${userId}`,
+        `${baseURL}orderSql/${userId}`,
         config,
       );
 
@@ -123,9 +122,9 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
             const orders = response.data as IOrderInfo[];
             // console.log('HomeAiScreen orders = ', orders);
           // 날짜 정렬을 먼저 수행한 후 변환
-            const list: IAiOrderList[] = orders
+            const list = orders
             .sort((a, b) => new Date(b.dateOrdered).getTime() - new Date(a.dateOrdered).getTime()) // 먼저 날짜 정렬
-            .map((order: IOrderInfo) => ({
+            .map((order: IAiOrderList) => ({
               orderNumber: order.orderNumber,
               dateOrdered: new Date(order.dateOrdered).toLocaleDateString('ko-KR', {
                 year: 'numeric',
@@ -135,7 +134,7 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
             }));
 
             setOrderList(list);
-            setModalVisible(true);
+            // setModalVisible(true);
       }
 
     } catch (error) {
@@ -144,33 +143,6 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
         setLoading(false);
     }
   };
-
-
-  const fetchProductDetails = async (productName: string): Promise<void> => {
-    setLoading(true);
-    const token = await getToken();
-    const config = {
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
-    try {
-      const response: AxiosResponse = await axios.get(
-        `${baseURL}gemini/productDetails/${productName}`,
-        config
-      );
-      if (response.status === 200) {
-        setShowDetail(response.data);
-        setModalDetail(true);
-      }
-    } catch (error) {
-      console.error('Error fetching product details:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const onPressLeft = () => {
     props.navigation.goBack();
@@ -194,12 +166,62 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
     );
   };
 
+  const renderOrderList = () => {
+    return ( // return 추가
+      <View style={styles.Container}>
+        <Text style={styles.title}>주문 정보 조회</Text>
+        <View style={styles.headerContainer}>
+          <Text style={[styles.headerText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
+            주문날짜
+          </Text>
+          <Text style={[styles.headerText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
+            주문번호
+          </Text>
+        </View>
+        <FlatList
+          data={orderList}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => 
+
+              fetchOrderDetails(item)
+            }>
+              <View style={styles.subtitleContainer}>
+                <Text style={[styles.itemText, {  width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
+                  {item.dateOrdered}
+                </Text>
+                <Text style={[styles.itemText, { width: RFPercentage(15), borderWidth: 1, borderColor: 'black' }]}>
+                  {item.orderNumber}
+                </Text>
+                <Text>{'  ▶️ ' } {/* 인디케이터 추가 */}</Text>
+
+              </View>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<Text style={styles.emptyMessage}> 리스트 없음.</Text>}
+        />
+      </View>
+    );
+  };
+
+  const renderLists = () => (
+        <FlatList
+          ListHeaderComponent={
+            <>
+              {renderOrderList()}
+            </>
+          }
+          data={[]} // 빈 데이터 배열
+          renderItem={() => null} // 빈 렌더링 함수
+        />
+      );
+
 
   return (
     <WrapperContainer containerStyle={{paddingHorizontal: 0}}>
       <HeaderComponent
         rightPressActive={false}
-        centerText="인공지능"
+        centerText="Q/A"
         containerStyle={{paddingHorizontal: 8}}
         isLeftView={true}
         leftCustomView={LeftCustomComponent}
@@ -211,104 +233,46 @@ const HomeAiScreen: React.FC<HomeAiScreenProps> = props => {
           <LoadingWheel />
         </>
       ) : (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={GlobalStyles.containerKey}>
+        <>
+          {renderLists()}
 
-
-        {/* <Button title="우리동네 날씨" onPress={fetchMyWeather} /> */}
-        <View style = {{flex:1, justifyContent:'center', alignItems:'center'}}>
-
-          <Button title="주문 정보 조회" onPress={fetchOrderList} />
-        </View>
-        
-
-        {/* <Button title="상품 목록 보기" onPress={() => setProductModalVisible(true)} /> */}
-
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-
-                <View style={styles.subtitleContainer}>
-                  <Text style={[styles.headerText, {width:RFPercentage(15), borderWidth:1, borderColor: 'black' }]}>주문날짜</Text>
-                  <Text style={[styles.headerText, {width:RFPercentage(15), borderWidth:1, borderColor: 'black' }]}>주문번호</Text>
+          <Modal
+              animationType="slide"
+              transparent={true}
+              visible={modalDetail}
+              onRequestClose={() => setModalDetail(false)}>
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  {/* <Text style={styles.modalTitle}>주문 정보</Text> */}
+                  <FlatList
+                    data={showDetail}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item }) => (
+                        <Text>{item}</Text>
+                    )}
+                    ListEmptyComponent={
+                      <Text style={styles.emptyMessage}> 리스트 없음.</Text>
+                    }
+                  />
+                  <Button title="닫기" onPress={() => setModalDetail(false)} />
                 </View>
-                <FlatList
-                  data={orderList}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                      <TouchableOpacity
-                        // style={styles.listItem}
-                        onPress={() => {
-                          // setSelectedOrder(item);
-                          setModalVisible(false);
-                          fetchOrderDetails(item);
-                        }}
-                      >
-                        {/* <Text> {item.dateOrdered}  {item.orderNumber}</Text> */}
-                        <View style={styles.subtitleContainer}>
-                          <Text style={[styles.itemText, {width:RFPercentage(15), borderWidth:1, borderColor: 'black' }]}>{item.dateOrdered}</Text>
-                          <Text style={[styles.itemText, {width:RFPercentage(15), borderWidth:1, borderColor: 'black' }]}>{item.orderNumber}</Text>
-                        </View>
-
-                      </TouchableOpacity>
-
-
-                  )}
-                  ListEmptyComponent={
-                    <Text style={styles.emptyMessage}> 리스트 없음.</Text>
-                  }
-                />
-                <Button title="닫기" onPress={() => setModalVisible(false)} />
               </View>
-            </View>
-        </Modal>
+          </Modal>
 
+        </>
 
-
-        <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalDetail}
-            onRequestClose={() => setModalDetail(false)}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                {/* <Text style={styles.modalTitle}>주문 정보</Text> */}
-                <FlatList
-                  data={showDetail}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item }) => (
-                      <Text>{item}</Text>
-                  )}
-                  ListEmptyComponent={
-                    <Text style={styles.emptyMessage}> 리스트 없음.</Text>
-                  }
-                />
-                <Button title="닫기" onPress={() => setModalDetail(false)} />
-              </View>
-            </View>
-        </Modal>
-
-
-        </KeyboardAvoidingView>
       )}
     </WrapperContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  iconStyle: {
-    height: RFPercentage(8),
-    width: RFPercentage(10),
-    marginTop: RFPercentage(2),
-    color: colors.black,
-    fontSize: RFPercentage(5),
-    fontWeight: 'bold',
+  Container: {
+    padding: RFPercentage(2),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
+
   modalContainer: {
     flex: 1,
     flexDirection: 'column',
@@ -327,17 +291,46 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
+  iconStyle: {
+    height: RFPercentage(8),
+    width: RFPercentage(10),
+    marginTop: RFPercentage(2),
+    color: colors.black,
+    fontSize: RFPercentage(5),
+    fontWeight: 'bold',
+  },
+  
+  title: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 10,
+    color: 'black',
+  },
   subtitleContainer: {
 
     flexDirection: 'row',
     alignItems: 'center', // 중앙 정렬
     // justifyContent: 'space-between',
-    marginBottom: RFPercentage(1),
-    paddingHorizontal: RFPercentage(2),
+    marginBottom: RFPercentage(0.5),
+    // marginLeft: RFPercentage(1),
+    // paddingHorizontal: RFPercentage(2),
+    // borderWidth: 1,
+    // borderColor: 'red',
+  },
+  headerContainer: {
+
+    flexDirection: 'row',
+    alignItems: 'center', // 중앙 정렬
+    // justifyContent: 'space-between',
+    marginBottom: RFPercentage(0.5),
+    marginLeft: RFPercentage(-4),
+    // paddingHorizontal: RFPercentage(2),
+    borderWidth: 1,
+    borderColor: 'red',
   },
   headerText: {
     // flex: 1, // 동일한 비율 유지
-    fontSize: RFPercentage(2),
+    fontSize: RFPercentage(1.5),
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',

@@ -58,14 +58,12 @@ const StartNotify: React.FC = () => {
 
     // 2025-03-10  ios에서 앱에 알림 뱃지가 있는 경우 앱을 click 한 경우 처리
     const fetchNotifeeOnAppOpen = async ()=>{
-     
         // 표시된 알림 가져오기, ios 앱을 click 한 경우 
         const notifications = await notifee.getDisplayedNotifications();
         console.log('StartNotify - getDisplayedNotification:', notifications);
         if(notifications.length > 0){
           badgeCountDispatch({ type: 'increment' });
         }
-      
     };
 
     useEffect(() => {
