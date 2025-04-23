@@ -1,7 +1,14 @@
 1. 2024-12-18 : 
+<<<<<<< HEAD
      npx react-native start --reset-cache
 
 2.2025-04-22 09:05:11
      cd android
      ./gradlew clean
      ./gradlew installRelease
+=======
+     npx react-native start --experimental-debugger
+
+2.2025-04-23 13:34:05
+     npx react-native start --reset-cache
+>>>>>>> 9ea8e4b (main 업데이트)
